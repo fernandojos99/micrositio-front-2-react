@@ -22,12 +22,15 @@ export interface RegisterData {
  * Interfaz para el usuario del backend
  */
 export interface BackendUser {
-  id_usuario: string;
+  id_usuario?: string; // Cuando viene del objeto usuario directo
+  user_id?: string;    // Cuando viene del JWT decodificado
   alias: string;
   tipo: 'EDITOR' | 'VISITANTE';
   id_empleado: number | null;
-  activo: boolean;
+  activo?: boolean;
   proyectos?: number[] | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
 /**

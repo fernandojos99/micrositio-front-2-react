@@ -27,7 +27,8 @@ export interface ActualizarUsuarioData {
 }
 
 export interface CambiarPasswordData {
-  password: string; // Nueva contraseña sin hash
+  password_actual: string; // Contraseña actual
+  password_nueva: string; // Nueva contraseña
 }
 
 /**

@@ -382,7 +382,7 @@ const Perfil: React.FC = () => {
   const savePasswordChanges = async () => {
     // @validation: Validar que todos los campos estén llenos
     if (!currentPassword || !newPassword || !confirmPassword) {
-      setPasswordError('Todos los campos son obligatorios');
+      setPasswordError('Todos los campos son obligatorios: contraseña actual, nueva y confirmación');
       return;
     }
 
@@ -392,9 +392,21 @@ const Perfil: React.FC = () => {
       return;
     }
 
-    // @validation: Validar longitud mínima
+    // @validation: Validar longitud mínima de contraseña actual
+    if (currentPassword.length < 1) {
+      setPasswordError('Debes ingresar tu contraseña actual');
+      return;
+    }
+
+    // @validation: Validar longitud mínima de nueva contraseña
     if (newPassword.length < 6) {
       setPasswordError('La nueva contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+
+    // @validation: Validar que la nueva contraseña sea diferente a la actual
+    if (currentPassword === newPassword) {
+      setPasswordError('La nueva contraseña debe ser diferente a la actual');
       return;
     }
 
@@ -408,7 +420,10 @@ const Perfil: React.FC = () => {
 
     try {
       // @api: Cambiar contraseña del usuario
-      await cambiarPasswordUsuario(user.id, { password: newPassword });
+      await cambiarPasswordUsuario(user.id, { 
+        password_actual: currentPassword,
+        password_nueva: newPassword 
+      });
       
       // @cleanup: Salir del modo edición y limpiar campos
       setIsEditingPassword(false);
@@ -439,7 +454,16 @@ const Perfil: React.FC = () => {
         }
       } else if (error.response?.data?.message) {
         // Error con mensaje específico del backend
-        setPasswordError(error.response.data.message);
+        const message = error.response.data.message;
+        
+        // Personalizar mensajes de error comunes
+        if (message.includes('contraseña actual') || message.includes('password_actual')) {
+          setPasswordError('La contraseña actual es incorrecta');
+        } else if (message.includes('contraseña nueva') || message.includes('password_nueva')) {
+          setPasswordError('La nueva contraseña no cumple con los requisitos');
+        } else {
+          setPasswordError(message);
+        }
       } else if (error.message) {
         // Error genérico con mensaje
         setPasswordError(`Error al actualizar la contraseña: ${error.message}`);

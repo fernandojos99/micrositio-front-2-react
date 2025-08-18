@@ -42,7 +42,14 @@ import styles from './Perfil.module.css';
  */
 const Perfil: React.FC = () => {
   // @context: Contexto de autenticación
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
+  
+  // @debug: Log del usuario al cargar el componente
+  useEffect(() => {
+    console.log('🔍 Perfil - Usuario cargado:', user);
+    console.log('🔍 Perfil - user.id:', user?.id);
+    console.log('🔍 Perfil - user.alias:', user?.alias);
+  }, [user]);
   
   // @state: Datos del empleado
   const [empleado, setEmpleado] = useState<Empleado | null>(null);
@@ -274,7 +281,21 @@ const Perfil: React.FC = () => {
       return;
     }
 
+    // @validation: Validar formato del alias (solo letras, números, guiones y guiones bajos)
+    const aliasRegex = /^[a-zA-Z0-9_-]+$/;
+    if (!aliasRegex.test(aliasValue.trim())) {
+      setAliasError('El alias solo puede contener letras, números, guiones (-) y guiones bajos (_)');
+      return;
+    }
+
+    // @debug: Información de depuración del usuario
+    console.log('🔍 Debug - Objeto user completo:', user);
+    console.log('🔍 Debug - user.id:', user?.id);
+    console.log('🔍 Debug - Tipo de user.id:', typeof user?.id);
+    console.log('🔍 Debug - user existe:', !!user);
+
     if (!user?.id) {
+      console.error('❌ Error - No se pudo identificar el usuario. user?.id:', user?.id);
       setAliasError('No se pudo identificar el usuario');
       return;
     }
@@ -286,6 +307,12 @@ const Perfil: React.FC = () => {
       // @api: Actualizar alias del usuario
       await actualizarUsuario(user.id, { alias: aliasValue.trim() });
       
+      // @update: Actualizar el contexto de usuario para que se refleje en el header
+      updateUser({ 
+        alias: aliasValue.trim(),
+        name: aliasValue.trim() // También actualizar name para consistencia
+      });
+      
       // @cleanup: Salir del modo edición
       setIsEditingAlias(false);
       setAliasError('');
@@ -296,13 +323,28 @@ const Perfil: React.FC = () => {
       // @cleanup: Limpiar mensaje de éxito después de 3 segundos
       setTimeout(() => setAliasSuccessMessage(''), 3000);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error actualizando alias:', error);
       
-      // @error: Manejar diferentes tipos de errores
-      if (error instanceof Error) {
+      // @error: Manejar errores de validación de Zod del backend
+      if (error.response?.data?.errors) {
+        // Error de validación de Zod
+        const validationErrors = error.response.data.errors;
+        const aliasError = validationErrors.find((err: any) => err.path?.includes('alias'));
+        
+        if (aliasError) {
+          setAliasError(aliasError.message);
+        } else {
+          setAliasError('Error de validación en los datos enviados');
+        }
+      } else if (error.response?.data?.message) {
+        // Error con mensaje específico del backend
+        setAliasError(error.response.data.message);
+      } else if (error.message) {
+        // Error genérico con mensaje
         setAliasError(`Error al actualizar el alias: ${error.message}`);
       } else {
+        // Error sin mensaje específico
         setAliasError('Error al actualizar el alias. Intenta nuevamente.');
       }
       
@@ -381,13 +423,28 @@ const Perfil: React.FC = () => {
       // @cleanup: Limpiar mensaje de éxito después de 3 segundos
       setTimeout(() => setPasswordSuccessMessage(''), 3000);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error actualizando contraseña:', error);
       
-      // @error: Manejar diferentes tipos de errores
-      if (error instanceof Error) {
+      // @error: Manejar errores de validación de Zod del backend
+      if (error.response?.data?.errors) {
+        // Error de validación de Zod
+        const validationErrors = error.response.data.errors;
+        const passwordError = validationErrors.find((err: any) => err.path?.includes('password'));
+        
+        if (passwordError) {
+          setPasswordError(passwordError.message);
+        } else {
+          setPasswordError('Error de validación en los datos enviados');
+        }
+      } else if (error.response?.data?.message) {
+        // Error con mensaje específico del backend
+        setPasswordError(error.response.data.message);
+      } else if (error.message) {
+        // Error genérico con mensaje
         setPasswordError(`Error al actualizar la contraseña: ${error.message}`);
       } else {
+        // Error sin mensaje específico
         setPasswordError('Error al actualizar la contraseña. Intenta nuevamente.');
       }
       
@@ -652,7 +709,7 @@ const Perfil: React.FC = () => {
                       }}
                     />
                     {aliasError && (
-                      <div className={styles['field-error']}>
+                      <div className={styles['field-error']} style={{ color: '#ef4444', fontSize: '0.875rem', fontWeight: '500', marginTop: '0.25rem' }}>
                         {aliasError}
                       </div>
                     )}
@@ -745,7 +802,7 @@ const Perfil: React.FC = () => {
                       />
                     </div>
                     {passwordError && (
-                      <div className={styles['field-error']}>
+                      <div className={styles['field-error']} style={{ color: '#ef4444', fontSize: '0.875rem', fontWeight: '500', marginTop: '0.25rem' }}>
                         {passwordError}
                       </div>
                     )}

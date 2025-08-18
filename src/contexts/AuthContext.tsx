@@ -41,20 +41,38 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
  * Convierte usuario del backend al formato del frontend
  */
 const transformBackendUser = (backendUser: BackendUser): User => {
-  return {
-    id: backendUser.id_usuario,
+  console.log('🔍 AuthContext - Datos del backend completos:', backendUser);
+  
+  // Manejar tanto user_id (del JWT) como id_usuario (del objeto directo)
+  const userId = backendUser.id_usuario || backendUser.user_id;
+  console.log('🔍 AuthContext - ID extraído:', userId);
+  console.log('🔍 AuthContext - backendUser.id_usuario:', backendUser.id_usuario);
+  console.log('🔍 AuthContext - backendUser.user_id:', backendUser.user_id);
+  console.log('🔍 AuthContext - Claves del objeto backend:', Object.keys(backendUser));
+  
+  if (!userId) {
+    throw new Error('No se pudo obtener el ID del usuario del backend');
+  }
+  
+  const transformedUser = {
+    id: userId, // ✅ Ahora garantizado que no es undefined
     name: backendUser.alias, // Usar alias como nombre por ahora
     email: `${backendUser.alias}@sistema.com`, // Email temporal
     alias: backendUser.alias,
     tipo: backendUser.tipo,
     id_empleado: backendUser.id_empleado,
-    activo: backendUser.activo,
+    activo: backendUser.activo || true, // Valor por defecto si no viene
     proyectosIds: backendUser.proyectos || [],
     projects: [], // Se puede poblar después con nombres de proyectos
     joinDate: new Date().toISOString().split('T')[0], // Fecha temporal
     role: backendUser.tipo,
     avatar: undefined // Sin foto de avatar
   };
+  
+  console.log('🔍 AuthContext - Usuario transformado:', transformedUser);
+  console.log('🔍 AuthContext - transformedUser.id:', transformedUser.id);
+  
+  return transformedUser;
 };
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
@@ -68,15 +86,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const initAuth = async () => {
       try {
         // Verificar si hay token y si es válido
+        console.log('🔍 AuthContext - Verificando token...');
         const response = await verifyToken();
+        console.log('🔍 AuthContext - Respuesta verifyToken:', response);
         
         if (response.success) {
+          console.log('🔍 AuthContext - Datos usuario de verifyToken:', response.data.usuario);
           const transformedUser = transformBackendUser(response.data.usuario);
           setUser(transformedUser);
           localStorage.setItem('auth_user', JSON.stringify(transformedUser));
+        } else {
+          console.log('❌ AuthContext - verifyToken falló:', response.message);
         }
       } catch (error) {
-        console.error('Error verificando token:', error);
+        console.error('❌ AuthContext - Error verificando token:', error);
         // Limpiar datos inválidos
         removeToken();
         localStorage.removeItem('auth_user');

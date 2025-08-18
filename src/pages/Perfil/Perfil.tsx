@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { obtenerEmpleadoPorId, actualizarEmpleado, Empleado } from '../../services/empleadosService';
+import { actualizarUsuario, cambiarPasswordUsuario } from '../../services/usuarioService';
 import apiClient from '../../apiClient';
 import { 
   User, 
@@ -9,7 +10,9 @@ import {
   Phone,
   Edit3,
   Save,
-  X
+  X,
+  Key,
+  Shield
 } from 'lucide-react';
 import styles from './Perfil.module.css';
 
@@ -39,7 +42,14 @@ import styles from './Perfil.module.css';
  */
 const Perfil: React.FC = () => {
   // @context: Contexto de autenticación
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
+  
+  // @debug: Log del usuario al cargar el componente
+  useEffect(() => {
+    console.log('🔍 Perfil - Usuario cargado:', user);
+    console.log('🔍 Perfil - user.id:', user?.id);
+    console.log('🔍 Perfil - user.alias:', user?.alias);
+  }, [user]);
   
   // @state: Datos del empleado
   const [empleado, setEmpleado] = useState<Empleado | null>(null);
@@ -51,6 +61,21 @@ const Perfil: React.FC = () => {
   const [emailError, setEmailError] = useState('');
   const [isSavingEmail, setIsSavingEmail] = useState(false);
   const [emailSuccessMessage, setEmailSuccessMessage] = useState('');
+
+  // @state: Estados de edición de usuario (alias y contraseña)
+  const [isEditingAlias, setIsEditingAlias] = useState(false);
+  const [aliasValue, setAliasValue] = useState('');
+  const [aliasError, setAliasError] = useState('');
+  const [isSavingAlias, setIsSavingAlias] = useState(false);
+  const [aliasSuccessMessage, setAliasSuccessMessage] = useState('');
+  
+  const [isEditingPassword, setIsEditingPassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [isSavingPassword, setIsSavingPassword] = useState(false);
+  const [passwordSuccessMessage, setPasswordSuccessMessage] = useState('');
 
   /**
    * Cargar datos del empleado cuando el usuario esté disponible
@@ -218,6 +243,237 @@ const Perfil: React.FC = () => {
       
     } finally {
       setIsSavingEmail(false);
+    }
+  };
+
+  /**
+   * Inicia la edición del alias de usuario
+   */
+  const startAliasEdit = () => {
+    setAliasValue(user?.alias || '');
+    setIsEditingAlias(true);
+    setAliasError('');
+    setAliasSuccessMessage('');
+  };
+
+  /**
+   * Cancela la edición del alias
+   */
+  const cancelAliasEdit = () => {
+    setIsEditingAlias(false);
+    setAliasValue('');
+    setAliasError('');
+  };
+
+  /**
+   * Valida y guarda los cambios del alias
+   */
+  const saveAliasChanges = async () => {
+    // @validation: Validar que el alias no esté vacío
+    if (!aliasValue.trim()) {
+      setAliasError('El alias no puede estar vacío');
+      return;
+    }
+
+    // @validation: Validar longitud mínima
+    if (aliasValue.trim().length < 3) {
+      setAliasError('El alias debe tener al menos 3 caracteres');
+      return;
+    }
+
+    // @validation: Validar formato del alias (solo letras, números, guiones y guiones bajos)
+    const aliasRegex = /^[a-zA-Z0-9_-]+$/;
+    if (!aliasRegex.test(aliasValue.trim())) {
+      setAliasError('El alias solo puede contener letras, números, guiones (-) y guiones bajos (_)');
+      return;
+    }
+
+    // @debug: Información de depuración del usuario
+    console.log('🔍 Debug - Objeto user completo:', user);
+    console.log('🔍 Debug - user.id:', user?.id);
+    console.log('🔍 Debug - Tipo de user.id:', typeof user?.id);
+    console.log('🔍 Debug - user existe:', !!user);
+
+    if (!user?.id) {
+      console.error('❌ Error - No se pudo identificar el usuario. user?.id:', user?.id);
+      setAliasError('No se pudo identificar el usuario');
+      return;
+    }
+
+    setIsSavingAlias(true);
+    setAliasError('');
+
+    try {
+      // @api: Actualizar alias del usuario
+      await actualizarUsuario(user.id, { alias: aliasValue.trim() });
+      
+      // @update: Actualizar el contexto de usuario para que se refleje en el header
+      updateUser({ 
+        alias: aliasValue.trim(),
+        name: aliasValue.trim() // También actualizar name para consistencia
+      });
+      
+      // @cleanup: Salir del modo edición
+      setIsEditingAlias(false);
+      setAliasError('');
+      
+      // @success: Mostrar mensaje de éxito
+      setAliasSuccessMessage('Alias actualizado exitosamente');
+      
+      // @cleanup: Limpiar mensaje de éxito después de 3 segundos
+      setTimeout(() => setAliasSuccessMessage(''), 3000);
+      
+    } catch (error: any) {
+      console.error('Error actualizando alias:', error);
+      
+      // @error: Manejar errores de validación de Zod del backend
+      if (error.response?.data?.errors) {
+        // Error de validación de Zod
+        const validationErrors = error.response.data.errors;
+        const aliasError = validationErrors.find((err: any) => err.path?.includes('alias'));
+        
+        if (aliasError) {
+          setAliasError(aliasError.message);
+        } else {
+          setAliasError('Error de validación en los datos enviados');
+        }
+      } else if (error.response?.data?.message) {
+        // Error con mensaje específico del backend
+        setAliasError(error.response.data.message);
+      } else if (error.message) {
+        // Error genérico con mensaje
+        setAliasError(`Error al actualizar el alias: ${error.message}`);
+      } else {
+        // Error sin mensaje específico
+        setAliasError('Error al actualizar el alias. Intenta nuevamente.');
+      }
+      
+    } finally {
+      setIsSavingAlias(false);
+    }
+  };
+
+  /**
+   * Inicia la edición de la contraseña
+   */
+  const startPasswordEdit = () => {
+    setIsEditingPassword(true);
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setPasswordError('');
+    setPasswordSuccessMessage('');
+  };
+
+  /**
+   * Cancela la edición de la contraseña
+   */
+  const cancelPasswordEdit = () => {
+    setIsEditingPassword(false);
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setPasswordError('');
+  };
+
+  /**
+   * Valida y guarda los cambios de contraseña
+   */
+  const savePasswordChanges = async () => {
+    // @validation: Validar que todos los campos estén llenos
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordError('Todos los campos son obligatorios: contraseña actual, nueva y confirmación');
+      return;
+    }
+
+    // @validation: Validar que las contraseñas coincidan
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Las contraseñas nuevas no coinciden');
+      return;
+    }
+
+    // @validation: Validar longitud mínima de contraseña actual
+    if (currentPassword.length < 1) {
+      setPasswordError('Debes ingresar tu contraseña actual');
+      return;
+    }
+
+    // @validation: Validar longitud mínima de nueva contraseña
+    if (newPassword.length < 6) {
+      setPasswordError('La nueva contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+
+    // @validation: Validar que la nueva contraseña sea diferente a la actual
+    if (currentPassword === newPassword) {
+      setPasswordError('La nueva contraseña debe ser diferente a la actual');
+      return;
+    }
+
+    if (!user?.id) {
+      setPasswordError('No se pudo identificar el usuario');
+      return;
+    }
+
+    setIsSavingPassword(true);
+    setPasswordError('');
+
+    try {
+      // @api: Cambiar contraseña del usuario
+      await cambiarPasswordUsuario(user.id, { 
+        password_actual: currentPassword,
+        password_nueva: newPassword 
+      });
+      
+      // @cleanup: Salir del modo edición y limpiar campos
+      setIsEditingPassword(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setPasswordError('');
+      
+      // @success: Mostrar mensaje de éxito
+      setPasswordSuccessMessage('Contraseña actualizada exitosamente');
+      
+      // @cleanup: Limpiar mensaje de éxito después de 3 segundos
+      setTimeout(() => setPasswordSuccessMessage(''), 3000);
+      
+    } catch (error: any) {
+      console.error('Error actualizando contraseña:', error);
+      
+      // @error: Manejar errores de validación de Zod del backend
+      if (error.response?.data?.errors) {
+        // Error de validación de Zod
+        const validationErrors = error.response.data.errors;
+        const passwordError = validationErrors.find((err: any) => err.path?.includes('password'));
+        
+        if (passwordError) {
+          setPasswordError(passwordError.message);
+        } else {
+          setPasswordError('Error de validación en los datos enviados');
+        }
+      } else if (error.response?.data?.message) {
+        // Error con mensaje específico del backend
+        const message = error.response.data.message;
+        
+        // Personalizar mensajes de error comunes
+        if (message.includes('contraseña actual') || message.includes('password_actual')) {
+          setPasswordError('La contraseña actual es incorrecta');
+        } else if (message.includes('contraseña nueva') || message.includes('password_nueva')) {
+          setPasswordError('La nueva contraseña no cumple con los requisitos');
+        } else {
+          setPasswordError(message);
+        }
+      } else if (error.message) {
+        // Error genérico con mensaje
+        setPasswordError(`Error al actualizar la contraseña: ${error.message}`);
+      } else {
+        // Error sin mensaje específico
+        setPasswordError('Error al actualizar la contraseña. Intenta nuevamente.');
+      }
+      
+    } finally {
+      setIsSavingPassword(false);
     }
   };
 
@@ -435,6 +691,188 @@ const Perfil: React.FC = () => {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+
+        {/* @section: Configuración de Usuario */}
+        <div className={styles['perfil-info-section']}>
+          <div className={styles['section-header']}>
+            <h2 className={styles['section-title']}>
+              <Shield size={20} />
+              Configuración de Usuario
+            </h2>
+            <p className={styles['section-description']}>
+              Gestiona tu alias y contraseña de acceso al sistema
+            </p>
+          </div>
+
+          <div className={styles['info-grid']}>
+            {/* @section: Alias de usuario */}
+            <div className={styles['info-row']}>
+              <div className={styles['info-field']}>
+                <div className={styles['field-label']}>
+                  <User size={16} />
+                  Alias de Usuario
+                </div>
+                {isEditingAlias ? (
+                  <div className={styles['field-edit-container']}>
+                    <input
+                      type="text"
+                      value={aliasValue}
+                      onChange={(e) => setAliasValue(e.target.value)}
+                      className={styles['field-edit-input']}
+                      placeholder="Ingresa tu nuevo alias"
+                      disabled={isSavingAlias}
+                      maxLength={50}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          saveAliasChanges();
+                        } else if (e.key === 'Escape') {
+                          cancelAliasEdit();
+                        }
+                      }}
+                    />
+                    {aliasError && (
+                      <div className={styles['field-error']} style={{ color: '#ef4444', fontSize: '0.875rem', fontWeight: '500', marginTop: '0.25rem' }}>
+                        {aliasError}
+                      </div>
+                    )}
+                    {aliasSuccessMessage && (
+                      <div className={styles['field-success']}>
+                        {aliasSuccessMessage}
+                      </div>
+                    )}
+                    <div className={styles['field-edit-actions']}>
+                      <button
+                        onClick={saveAliasChanges}
+                        disabled={isSavingAlias}
+                        className={styles['field-save-btn']}
+                        title="Guardar cambios"
+                      >
+                        <Save size={14} />
+                        {isSavingAlias ? 'Guardando...' : 'Guardar'}
+                      </button>
+                      <button
+                        onClick={cancelAliasEdit}
+                        disabled={isSavingAlias}
+                        className={styles['field-cancel-btn']}
+                        title="Cancelar"
+                      >
+                        <X size={14} />
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className={styles['field-value-container']}>
+                    <div className={styles['field-value']}>
+                      {user?.alias || 'No disponible'}
+                    </div>
+                    <button
+                      onClick={startAliasEdit}
+                      className={styles['field-edit-btn']}
+                      title="Editar alias de usuario"
+                    >
+                      <Edit3 size={14} />
+                      Editar
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* @section: Contraseña */}
+            <div className={styles['info-row']}>
+              <div className={styles['info-field']}>
+                <div className={styles['field-label']}>
+                  <Key size={16} />
+                  Contraseña
+                </div>
+                {isEditingPassword ? (
+                  <div className={styles['field-edit-container']}>
+                    <div className={styles['password-fields']}>
+                      <input
+                        type="password"
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        className={styles['field-edit-input']}
+                        placeholder="Contraseña actual"
+                        disabled={isSavingPassword}
+                      />
+                      <input
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className={styles['field-edit-input']}
+                        placeholder="Nueva contraseña"
+                        disabled={isSavingPassword}
+                        minLength={6}
+                      />
+                      <input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className={styles['field-edit-input']}
+                        placeholder="Confirmar nueva contraseña"
+                        disabled={isSavingPassword}
+                        minLength={6}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            savePasswordChanges();
+                          } else if (e.key === 'Escape') {
+                            cancelPasswordEdit();
+                          }
+                        }}
+                      />
+                    </div>
+                    {passwordError && (
+                      <div className={styles['field-error']} style={{ color: '#ef4444', fontSize: '0.875rem', fontWeight: '500', marginTop: '0.25rem' }}>
+                        {passwordError}
+                      </div>
+                    )}
+                    {passwordSuccessMessage && (
+                      <div className={styles['field-success']}>
+                        {passwordSuccessMessage}
+                      </div>
+                    )}
+                    <div className={styles['field-edit-actions']}>
+                      <button
+                        onClick={savePasswordChanges}
+                        disabled={isSavingPassword}
+                        className={styles['field-save-btn']}
+                        title="Guardar nueva contraseña"
+                      >
+                        <Save size={14} />
+                        {isSavingPassword ? 'Guardando...' : 'Guardar'}
+                      </button>
+                      <button
+                        onClick={cancelPasswordEdit}
+                        disabled={isSavingPassword}
+                        className={styles['field-cancel-btn']}
+                        title="Cancelar"
+                      >
+                        <X size={14} />
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className={styles['field-value-container']}>
+                    <div className={styles['field-value']}>
+                      ••••••••••
+                    </div>
+                    <button
+                      onClick={startPasswordEdit}
+                      className={styles['field-edit-btn']}
+                      title="Cambiar contraseña"
+                    >
+                      <Edit3 size={14} />
+                      Cambiar
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -4,7 +4,7 @@ export interface Secuencia {
   descripcion: string;
   proyectoId: string;
   fechaCreacion: string;
-  estado: 'EN PLANEACION'| 'EN VALIDACION'| 'EN ANALISIS' |'CANCELADO' | 'TERMINADO',
+  estado: 'EN PLANEACION'| 'EN VALIDACION'| 'EN ANALISIS' |'CANCELADO' | 'TERMINADO' | 'EN PROCESO',
   dia_inicio?: string;
   dia_fin?: string;
   testing_cards_count?: number;
@@ -16,5 +16,5 @@ export interface CreateSecuenciaData {
   id_proyecto: number;
   dia_inicio?: string;
   dia_fin?: string;
-  estado?: 'EN PLANEACION'| 'EN VALIDACION'| 'EN ANALISIS' |'CANCELADO' | 'TERMINADO';
+  estado?: 'EN PLANEACION'| 'EN VALIDACION'| 'EN ANALISIS' |'CANCELADO' | 'TERMINADO' | 'EN PROCESO';
 }

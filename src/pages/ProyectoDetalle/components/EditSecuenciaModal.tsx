@@ -207,12 +207,13 @@ const EditSecuenciaModal: React.FC<EditSecuenciaModalProps> = ({
                 value={formData.estado || ''}
                 onChange={(e) => setFormData(prev => ({ 
                   ...prev, 
-                  estado: e.target.value as 'EN PLANEACION'| 'EN VALIDACION'| 'EN ANALISIS' |'CANCELADO' | 'TERMINADO'
+                  estado: e.target.value as 'EN PLANEACION'| 'EN VALIDACION'| 'EN ANALISIS' |'CANCELADO' | 'TERMINADO' | 'EN PROCESO'
                 }))}
                 className={`${styles['form-input']} ${errors.estado ? styles['form-input-error'] : ''}`}
                 disabled={isSubmitting}
               >
                 <option value="EN PLANEACION">En Planeación</option>
+                <option value="EN PROCESO">En Proceso</option>
                 <option value="EN VALIDACION">En Validación</option>
                 <option value="EN ANALISIS">En Análisis</option>
                 <option value="CANCELADO">Cancelado</option>

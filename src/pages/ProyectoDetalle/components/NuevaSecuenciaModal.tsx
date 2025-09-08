@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, Plus, AlertCircle, FileText, Calendar } from 'lucide-react';
+import { X, Save, Plus, AlertCircle, FileText, Calendar, Settings } from 'lucide-react';
 import { CreateSecuenciaData } from '../../../types/secuencia';
 import styles from './NuevaSecuenciaModal.module.css';
 
@@ -47,7 +47,8 @@ const NuevaSecuenciaModal: React.FC<NuevaSecuenciaModalProps> = ({
     descripcion: '',
     id_proyecto: Number(proyectoId),
     dia_inicio: '',
-    dia_fin: ''
+    dia_fin: '',
+    estado: 'EN PLANEACION'
   });
 
   // Estado para manejar errores de validación
@@ -120,6 +121,11 @@ const NuevaSecuenciaModal: React.FC<NuevaSecuenciaModalProps> = ({
       }
     }
 
+    // Validación de estado
+    if (!formData.estado) {
+      newErrors.estado = 'Debe seleccionar un estado para la secuencia';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -141,7 +147,8 @@ const NuevaSecuenciaModal: React.FC<NuevaSecuenciaModalProps> = ({
         descripcion: formData.descripcion.trim(),
         id_proyecto: Number(proyectoId),
         dia_inicio: formData.dia_inicio || undefined,
-        dia_fin: formData.dia_fin || undefined
+        dia_fin: formData.dia_fin || undefined,
+        estado: formData.estado
       };
       // Esperar a que el callback termine (debe refrescar la lista y cerrar el modal)
       await onSecuenciaCreada(nuevaSecuencia);
@@ -164,7 +171,8 @@ const NuevaSecuenciaModal: React.FC<NuevaSecuenciaModalProps> = ({
       descripcion: '',
       id_proyecto: Number(proyectoId),
       dia_inicio: '',
-      dia_fin: ''
+      dia_fin: '',
+      estado: 'EN PLANEACION'
     });
     setErrors({});
     setIsSubmitting(false);
@@ -284,6 +292,40 @@ const NuevaSecuenciaModal: React.FC<NuevaSecuenciaModalProps> = ({
               <p className={styles['form-help']}>
                 Proporciona una descripción clara que ayude a otros colaboradores a entender
                 el propósito de esta secuencia.
+              </p>
+            </div>
+
+            {/* Campo de estado */}
+            <div className={styles['form-group']}>
+              <label htmlFor="estado" className={styles['form-label']}>
+                <Settings size={16} className={styles['form-label-icon']} />
+                Estado de la Secuencia
+              </label>
+              <select
+                id="estado"
+                value={formData.estado || ''}
+                onChange={(e) => setFormData(prev => ({ 
+                  ...prev, 
+                  estado: e.target.value as 'EN PLANEACION'| 'EN VALIDACION'| 'EN ANALISIS' |'CANCELADO' | 'TERMINADO' | 'EN PROCESO'
+                }))}
+                className={`${styles['form-input']} ${errors.estado ? styles['form-input-error'] : ''}`}
+                disabled={isSubmitting}
+              >
+                <option value="EN PLANEACION">En Planeación</option>
+                <option value="EN PROCESO">En Proceso</option>
+                <option value="EN VALIDACION">En Validación</option>
+                <option value="EN ANALISIS">En Análisis</option>
+                <option value="CANCELADO">Cancelado</option>
+                <option value="TERMINADO">Terminado</option>
+              </select>
+              {errors.estado && (
+                <span className={styles['form-error']}>
+                  <AlertCircle size={14} className={styles['form-error-icon']} />
+                  {errors.estado}
+                </span>
+              )}
+              <p className={styles['form-help']}>
+                Define el estado inicial en el que se creará esta secuencia.
               </p>
             </div>
 

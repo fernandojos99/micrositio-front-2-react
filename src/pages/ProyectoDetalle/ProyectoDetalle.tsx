@@ -201,7 +201,9 @@ const ProyectoDetalle: React.FC = () => {
         nombre: nuevaSecuenciaData.nombre,
         descripcion: nuevaSecuenciaData.descripcion,
         id_proyecto: nuevaSecuenciaData.id_proyecto,
-        // Puedes agregar más campos si tu backend los requiere
+        estado: nuevaSecuenciaData.estado,
+        dia_inicio: nuevaSecuenciaData.dia_inicio,
+        dia_fin: nuevaSecuenciaData.dia_fin
       });
 
       // Refrescar la lista de secuencias desde el backend

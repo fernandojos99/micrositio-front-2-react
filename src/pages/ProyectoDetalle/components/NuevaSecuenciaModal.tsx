@@ -46,8 +46,8 @@ const NuevaSecuenciaModal: React.FC<NuevaSecuenciaModalProps> = ({
     nombre: '',
     descripcion: '',
     id_proyecto: Number(proyectoId),
-    dia_inicio: '',
-    dia_fin: '',
+    dia_inicio: undefined,
+    dia_fin: undefined,
     estado: 'EN PLANEACION'
   });
 
@@ -170,8 +170,8 @@ const NuevaSecuenciaModal: React.FC<NuevaSecuenciaModalProps> = ({
       nombre: '',
       descripcion: '',
       id_proyecto: Number(proyectoId),
-      dia_inicio: '',
-      dia_fin: '',
+      dia_inicio: undefined,
+      dia_fin: undefined,
       estado: 'EN PLANEACION'
     });
     setErrors({});
@@ -339,7 +339,10 @@ const NuevaSecuenciaModal: React.FC<NuevaSecuenciaModalProps> = ({
                 type="date"
                 id="dia_inicio"
                 value={formData.dia_inicio || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, dia_inicio: e.target.value }))}
+                onChange={(e) => setFormData(prev => ({ 
+                  ...prev, 
+                  dia_inicio: e.target.value || undefined 
+                }))}
                 className={`${styles['form-input']} ${errors.dia_inicio ? styles['form-input-error'] : ''}`}
                 disabled={isSubmitting}
               />
@@ -364,7 +367,10 @@ const NuevaSecuenciaModal: React.FC<NuevaSecuenciaModalProps> = ({
                 type="date"
                 id="dia_fin"
                 value={formData.dia_fin || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, dia_fin: e.target.value }))}
+                onChange={(e) => setFormData(prev => ({ 
+                  ...prev, 
+                  dia_fin: e.target.value || undefined 
+                }))}
                 className={`${styles['form-input']} ${errors.dia_fin ? styles['form-input-error'] : ''}`}
                 disabled={isSubmitting}
               />

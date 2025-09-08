@@ -179,12 +179,13 @@ const NuevaSecuenciaModal: React.FC<NuevaSecuenciaModalProps> = ({
   };
 
   /**
-   * Maneja el clic en el backdrop del modal para cerrarlo
+   * Maneja el clic en el backdrop del modal - deshabilitado para evitar cierre accidental
    */
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
+  const handleBackdropClick = () => {
+    // Comentado para evitar que el modal se cierre al hacer clic afuera
+    // if (e.target === e.currentTarget) {
+    //   onClose();
+    // }
   };
 
   /**

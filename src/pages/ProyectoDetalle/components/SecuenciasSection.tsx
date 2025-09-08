@@ -92,7 +92,7 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
    * @returns {string} Fecha formateada en español
    */
   const formatearDia = (dia: string) => {
-    if (!dia || dia === '') {
+    if (!dia || dia === '' || dia === '1970-01-01') {
       return 'Fecha no disponible';
     }
     try {
@@ -103,6 +103,12 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
         const year = parseInt(fechaParts[0]);
         const month = parseInt(fechaParts[1]) - 1; // Los meses en JS son 0-indexed
         const day = parseInt(fechaParts[2]);
+        
+        // Validar que la fecha no sea 1970
+        if (year === 1970) {
+          return '';
+        }
+        
         const fecha = new Date(year, month, day);
         
         return fecha.toLocaleDateString('es-ES', {
@@ -112,7 +118,14 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
         });
       } else {
         // Fallback para otros formatos
-        return new Date(dia).toLocaleDateString('es-ES', {
+        const fecha = new Date(dia);
+        
+        // Validar que la fecha no sea inválida o de 1970
+        if (isNaN(fecha.getTime()) || fecha.getFullYear() === 1970) {
+          return '';
+        }
+        
+        return fecha.toLocaleDateString('es-ES', {
           year: 'numeric',
           month: 'short',
           day: 'numeric'
@@ -289,21 +302,25 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
 
                   {/* @section: Información de fechas */}
                   <div className={styles['secuencia-fechas']}>
-                    {/* Día de inicio - mostrar siempre, pero indicar si no hay fecha */}
-                    <div className={styles['secuencia-fecha-item']}>
-                      <span className={styles['secuencia-fecha-label']}>Inicio:</span>
-                      <span className={styles['secuencia-fecha-valor']}>
-                        {secuencia.dia_inicio ? formatearDia(secuencia.dia_inicio) : 'No definido'}
-                      </span>
-                    </div>
+                    {/* Día de inicio - solo mostrar si tiene fecha */}
+                    {secuencia.dia_inicio && (
+                      <div className={styles['secuencia-fecha-item']}>
+                        <span className={styles['secuencia-fecha-label']}>Inicio:</span>
+                        <span className={styles['secuencia-fecha-valor']}>
+                          {formatearDia(secuencia.dia_inicio)}
+                        </span>
+                      </div>
+                    )}
 
-                    {/* Día de fin - mostrar siempre, pero indicar si no hay fecha */}
-                    <div className={styles['secuencia-fecha-item']}>
-                      <span className={styles['secuencia-fecha-label']}>Fin:</span>
-                      <span className={styles['secuencia-fecha-valor']}>
-                        {secuencia.dia_fin ? formatearDia(secuencia.dia_fin) : 'No definido'}
-                      </span>
-                    </div>
+                    {/* Día de fin - solo mostrar si tiene fecha */}
+                    {secuencia.dia_fin && (
+                      <div className={styles['secuencia-fecha-item']}>
+                        <span className={styles['secuencia-fecha-label']}>Fin:</span>
+                        <span className={styles['secuencia-fecha-valor']}>
+                          {formatearDia(secuencia.dia_fin)}
+                        </span>
+                      </div>
+                    )}
 
                     {/* @section: Contador de testing cards */}
                     <div className={styles['secuencia-testing-counter']}>

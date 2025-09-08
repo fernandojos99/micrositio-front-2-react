@@ -182,24 +182,29 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
             onAddTesting: () => handleAddTestingChild(card.id_testing_card.toString()),
             onAddLearning: () => handleAddLearningChild(card.id_testing_card.toString()),
             onEdit: () => {
-              // Log para ver el id cuando se edita
-              // console.log('[FlowEditor] Editar Testing Card id_testing_card:', card.id_testing_card);
-              setEditingNode({
-                id: `testing-${card.id_testing_card}`,
-                type: 'testing',
-                position: { x: 250, y: 100 + nodesAccum.length * 100 },
-                data: {
-                  ...card,
-                  onAddTesting: () => handleAddTestingChild(card.id_testing_card.toString()),
-                  onAddLearning: () => handleAddLearningChild(card.id_testing_card.toString()),
-                  onEdit: () => {},
-                  onDelete: () => {
-                    // console.log('[FlowEditor] onDelete llamado con id_testing_card:', card.id_testing_card);
-                    handleDeleteTestingCard(card.id_testing_card.toString());
-                  },
-                  onStatusChange: () => handleStatusChange(card.id_testing_card.toString()),
-                }
-              });
+              // Buscar el nodo actualizado en el estado actual
+              const currentNode = nodes.find(n => n.id === `testing-${card.id_testing_card}`);
+              if (currentNode) {
+                // Usar los datos actualizados del nodo en el estado
+                setEditingNode(currentNode);
+              } else {
+                // Fallback: usar los datos originales de la BD
+                setEditingNode({
+                  id: `testing-${card.id_testing_card}`,
+                  type: 'testing',
+                  position: { x: 250, y: 100 + nodesAccum.length * 100 },
+                  data: {
+                    ...card,
+                    onAddTesting: () => handleAddTestingChild(card.id_testing_card.toString()),
+                    onAddLearning: () => handleAddLearningChild(card.id_testing_card.toString()),
+                    onEdit: () => {},
+                    onDelete: () => {
+                      handleDeleteTestingCard(card.id_testing_card.toString());
+                    },
+                    onStatusChange: () => handleStatusChange(card.id_testing_card.toString()),
+                  }
+                });
+              }
               setIsModalOpen(true);
             },
             onDelete: () => {
@@ -248,13 +253,20 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
             data: { 
               ...learningCardData,
               onEdit: () => {
-                // console.log('[FlowEditor] Editar Learning Card id_learning_card:', learningCardData.id_learning_card);
-                setEditingNode({
-                  id: `learning-${learningCardData.id_learning_card}`,
-                  type: 'learning',
-                  position: { x: 450, y: testingNode.position.y + 200 + (learningCards.indexOf(lc) * 150) },
-                  data: { ...learningCardData, onEdit: () => {}, onDelete: () => handleDeleteLearningCard(learningCardData.id_learning_card.toString()) }
-                });
+                // Buscar el nodo actualizado en el estado actual
+                const currentNode = nodes.find(n => n.id === `learning-${learningCardData.id_learning_card}`);
+                if (currentNode) {
+                  // Usar los datos actualizados del nodo en el estado
+                  setEditingNode(currentNode);
+                } else {
+                  // Fallback: usar los datos originales de la BD
+                  setEditingNode({
+                    id: `learning-${learningCardData.id_learning_card}`,
+                    type: 'learning',
+                    position: { x: 450, y: testingNode.position.y + 200 + (learningCards.indexOf(lc) * 150) },
+                    data: { ...learningCardData, onEdit: () => {}, onDelete: () => handleDeleteLearningCard(learningCardData.id_learning_card.toString()) }
+                  });
+                }
                 setIsModalOpen(true);
               },
               onDelete: () => {
@@ -347,8 +359,8 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
         padre_id: parseInt(padreId, 10),
         id_secuencia: Number(idSecuencia), // Mismo id_secuencia que el padre
         titulo: `Nueva Testing Card ${Date.now()}`,
-        hipotesis: 'Hipótesis (creemos que . . .) ',
-        descripcion: 'Descripción (para eso haremos . . .)',
+        //hipotesis: 'Hipótesis (creemos que . . .) ',
+        //descripcion: 'Descripción (para eso haremos . . .)',
         dia_inicio: new Date().toISOString().slice(0, 10),
         dia_fin: new Date().toISOString().slice(0, 10),
         id_responsable: 13, // Valor por defecto
@@ -419,7 +431,7 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
       const testingCardIdNumber = parseInt(testingCardId, 10);
       const nuevaLC = await crearLearningCard({
         id_testing_card: testingCardIdNumber,
-        resultado: 'Nuevo aprendizaje',
+        //resultado: 'Nuevo aprendizaje',
         estado: 'ACEPTADA',
         id_responsable: 13, // Valor por defecto - puedes cambiar esto según tu lógica
       });
@@ -434,13 +446,20 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
         data: { 
           ...learningCardData,
           onEdit: () => {
-            // console.log('[FlowEditor] Editar Learning Card id_learning_card:', learningCardData.id_learning_card);
-            setEditingNode({
-              id: `learning-${learningCardData.id_learning_card}`,
-              type: 'learning',
-              position: { x: 450, y: 300 + nodes.length * 100 },
-              data: { ...learningCardData, onEdit: () => {}, onDelete: () => handleDeleteLearningCard(learningCardData.id_learning_card.toString()) }
-            });
+            // Buscar el nodo actualizado en el estado actual
+            const currentNode = nodes.find(n => n.id === `learning-${learningCardData.id_learning_card}`);
+            if (currentNode) {
+              // Usar los datos actualizados del nodo en el estado
+              setEditingNode(currentNode);
+            } else {
+              // Fallback: usar los datos originales
+              setEditingNode({
+                id: `learning-${learningCardData.id_learning_card}`,
+                type: 'learning',
+                position: { x: 450, y: 300 + nodes.length * 100 },
+                data: { ...learningCardData, onEdit: () => {}, onDelete: () => handleDeleteLearningCard(learningCardData.id_learning_card.toString()) }
+              });
+            }
             setIsModalOpen(true);
           },
           onDelete: () => {
@@ -692,11 +711,26 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
               setNodes((nds) =>
                 nds.map((node) =>
                   node.id === editingNode.id
-                    ? { ...node, data: { ...node.data, ...updatedData } }
+                    ? { 
+                        ...node, 
+                        data: { 
+                          ...node.data, 
+                          ...updatedData,
+                          // Preservar las funciones callback necesarias para Testing Cards
+                          ...(node.type === 'testing' && {
+                            onAddTesting: (node.data as any).onAddTesting,
+                            onAddLearning: (node.data as any).onAddLearning,
+                            onEdit: (node.data as any).onEdit,
+                            onDelete: (node.data as any).onDelete,
+                            onStatusChange: (node.data as any).onStatusChange,
+                          })
+                        } 
+                      }
                     : node
                 )
               );
               setIsModalOpen(false);
+              setEditingNode(null); // Limpiar el editingNode después de guardar
             }}
             onClose={() => setIsModalOpen(false)}
           />
@@ -708,11 +742,23 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
               setNodes((nds) =>
                 nds.map((node) =>
                   node.id === editingNode.id
-                    ? { ...node, data: { ...node.data, ...updatedData } }
+                    ? { 
+                        ...node, 
+                        data: { 
+                          ...node.data, 
+                          ...updatedData,
+                          // Preservar las funciones callback necesarias para Learning Cards
+                          ...(node.type === 'learning' && {
+                            onEdit: (node.data as any).onEdit,
+                            onDelete: (node.data as any).onDelete,
+                          })
+                        } 
+                      }
                     : node
                 )
               );
               setIsModalOpen(false);
+              setEditingNode(null); // Limpiar el editingNode después de guardar
             }}
             onClose={() => setIsModalOpen(false)}
           />

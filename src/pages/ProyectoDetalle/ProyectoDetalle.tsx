@@ -87,8 +87,8 @@ const ProyectoDetalle: React.FC = () => {
           proyectoId: s.id_proyecto?.toString() ?? '',
           fechaCreacion: s.created_at ?? '',
           estado: s.estado || 'EN PLANEACION',
-          dia_inicio: s.dia_inicio,
-          dia_fin: s.dia_fin,
+          dia_inicio: s.dia_inicio && s.dia_inicio !== '1970-01-01' ? s.dia_inicio : undefined,
+          dia_fin: s.dia_fin && s.dia_fin !== '1970-01-01' ? s.dia_fin : undefined,
           testing_cards_count: testingCardsCount,
         };
       })
@@ -197,12 +197,23 @@ const ProyectoDetalle: React.FC = () => {
   const handleSecuenciaCreada = async (nuevaSecuenciaData: CreateSecuenciaData) => {
     try {
       // Llamar al endpoint real para crear la secuencia
-      await crearSecuencia({
+      const secuenciaData: any = {
         nombre: nuevaSecuenciaData.nombre,
         descripcion: nuevaSecuenciaData.descripcion,
         id_proyecto: nuevaSecuenciaData.id_proyecto,
-        // Puedes agregar más campos si tu backend los requiere
-      });
+        estado: nuevaSecuenciaData.estado
+      };
+
+      // Solo agregar fechas si tienen valores válidos (no undefined)
+      if (nuevaSecuenciaData.dia_inicio) {
+        secuenciaData.dia_inicio = nuevaSecuenciaData.dia_inicio;
+      }
+      
+      if (nuevaSecuenciaData.dia_fin) {
+        secuenciaData.dia_fin = nuevaSecuenciaData.dia_fin;
+      }
+
+      await crearSecuencia(secuenciaData);
 
       // Refrescar la lista de secuencias desde el backend
       if (proyectoId) {

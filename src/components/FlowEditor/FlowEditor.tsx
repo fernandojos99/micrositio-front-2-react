@@ -347,8 +347,8 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
         padre_id: parseInt(padreId, 10),
         id_secuencia: Number(idSecuencia), // Mismo id_secuencia que el padre
         titulo: `Nueva Testing Card ${Date.now()}`,
-        hipotesis: 'Hipótesis (creemos que . . .) ',
-        descripcion: 'Descripción (para eso haremos . . .)',
+        //hipotesis: 'Hipótesis (creemos que . . .) ',
+        //descripcion: 'Descripción (para eso haremos . . .)',
         dia_inicio: new Date().toISOString().slice(0, 10),
         dia_fin: new Date().toISOString().slice(0, 10),
         id_responsable: 13, // Valor por defecto
@@ -419,7 +419,7 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
       const testingCardIdNumber = parseInt(testingCardId, 10);
       const nuevaLC = await crearLearningCard({
         id_testing_card: testingCardIdNumber,
-        resultado: 'Nuevo aprendizaje',
+        //resultado: 'Nuevo aprendizaje',
         estado: 'ACEPTADA',
         id_responsable: 13, // Valor por defecto - puedes cambiar esto según tu lógica
       });

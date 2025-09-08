@@ -144,6 +144,11 @@
   color: var(--color-primary-purple);
 }
 
+.estado-EN_PROCESO {
+  background-color: color-mix(in srgb, var(--color-warning) 20%, transparent);
+  color: var(--color-warning);
+}
+
 .estado-CANCELADO {
   background-color: color-mix(in srgb, var(--color-error) 20%, transparent);
   color: var(--color-error);

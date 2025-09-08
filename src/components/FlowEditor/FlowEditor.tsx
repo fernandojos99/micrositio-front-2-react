@@ -99,6 +99,34 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
     return result;
   };
 
+  // Función para manejar la edición de una Testing Card
+  const handleEditTestingCard = useCallback((testingCardId: string) => {
+    // Buscar el nodo actual con los datos más recientes
+    const currentNode = nodes.find(n => n.id === `testing-${testingCardId}`);
+    
+    if (!currentNode) {
+      console.error('[FlowEditor] No se encontró el nodo para editar:', testingCardId);
+      return;
+    }
+    
+    // console.log('[FlowEditor] Editar Testing Card con datos actuales:', currentNode.data);
+    
+    setEditingNode({
+      id: currentNode.id,
+      type: 'testing',
+      position: currentNode.position,
+      data: {
+        ...currentNode.data,
+        onAddTesting: () => handleAddTestingChild(testingCardId),
+        onAddLearning: () => handleAddLearningChild(testingCardId),
+        onEdit: () => {},
+        onDelete: () => handleDeleteTestingCard(testingCardId),
+        onStatusChange: () => handleStatusChange(testingCardId),
+      }
+    });
+    setIsModalOpen(true);
+  }, [nodes]);
+
   const fetchInitialData = async () => {
     if (!idSecuencia) return;
     try {
@@ -181,27 +209,7 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
             ...card,
             onAddTesting: () => handleAddTestingChild(card.id_testing_card.toString()),
             onAddLearning: () => handleAddLearningChild(card.id_testing_card.toString()),
-            onEdit: () => {
-              // Log para ver el id cuando se edita
-              // console.log('[FlowEditor] Editar Testing Card id_testing_card:', card.id_testing_card);
-              setEditingNode({
-                id: `testing-${card.id_testing_card}`,
-                type: 'testing',
-                position: { x: 250, y: 100 + nodesAccum.length * 100 },
-                data: {
-                  ...card,
-                  onAddTesting: () => handleAddTestingChild(card.id_testing_card.toString()),
-                  onAddLearning: () => handleAddLearningChild(card.id_testing_card.toString()),
-                  onEdit: () => {},
-                  onDelete: () => {
-                    // console.log('[FlowEditor] onDelete llamado con id_testing_card:', card.id_testing_card);
-                    handleDeleteTestingCard(card.id_testing_card.toString());
-                  },
-                  onStatusChange: () => handleStatusChange(card.id_testing_card.toString()),
-                }
-              });
-              setIsModalOpen(true);
-            },
+            onEdit: () => handleEditTestingCard(card.id_testing_card.toString()),
             onDelete: () => {
               // console.log('[FlowEditor] onDelete llamado con id_testing_card:', card.id_testing_card);
               handleDeleteTestingCard(card.id_testing_card.toString());
@@ -347,8 +355,8 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
         padre_id: parseInt(padreId, 10),
         id_secuencia: Number(idSecuencia), // Mismo id_secuencia que el padre
         titulo: `Nueva Testing Card ${Date.now()}`,
-        hipotesis: 'Hipótesis (creemos que . . .) ',
-        descripcion: 'Descripción (para eso haremos . . .)',
+        //hipotesis: 'Hipótesis (creemos que . . .) ',
+        //descripcion: 'Descripción (para eso haremos . . .)',
         dia_inicio: new Date().toISOString().slice(0, 10),
         dia_fin: new Date().toISOString().slice(0, 10),
         id_responsable: 13, // Valor por defecto
@@ -419,7 +427,7 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
       const testingCardIdNumber = parseInt(testingCardId, 10);
       const nuevaLC = await crearLearningCard({
         id_testing_card: testingCardIdNumber,
-        resultado: 'Nuevo aprendizaje',
+        //resultado: 'Nuevo aprendizaje',
         estado: 'ACEPTADA',
         id_responsable: 13, // Valor por defecto - puedes cambiar esto según tu lógica
       });

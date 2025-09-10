@@ -22,6 +22,7 @@ import {
   UserCheck,
   Layers
 } from 'lucide-react';
+import styles from './FeatureCard.module.css';
 
 // Mapeo de strings a iconos
 const iconMap: Record<string, LucideIcon> = {
@@ -72,25 +73,37 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
     }
   }
 
+  // Mapear las clases de bgColor de Tailwind a CSS modules
+  const bgClassMap: Record<string, string> = {
+    "bg-gradient-to-br from-teal-50 to-cyan-100": styles.bgTealCyan,
+    "bg-gradient-to-br from-blue-50 to-indigo-100": styles.bgBlueIndigo,
+    "bg-gradient-to-br from-gray-50 to-slate-100": styles.bgGraySlate,
+    "bg-gradient-to-br from-purple-50 to-violet-100": styles.bgPurpleViolet,
+    "bg-gradient-to-br from-yellow-50 to-amber-100": styles.bgYellowAmber,
+    "bg-gradient-to-br from-green-50 to-emerald-100": styles.bgGreenEmerald,
+    "bg-gradient-to-br from-pink-50 to-rose-100": styles.bgPinkRose,
+    "bg-gradient-to-br from-indigo-50 to-blue-100": styles.bgIndigoBlue,
+    "bg-gradient-to-br from-purple-50 to-pink-100": styles.bgPurplePink,
+  };
+
+  const backgroundClass = bgClassMap[bgColor] || styles.bgBlueIndigo;
+
   return (
-    <div className={`h-full min-h-[200px] rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 ${bgColor} border border-gray-100`}>
-      <div className="p-6 flex flex-col h-full">
-        <div className="flex items-start mb-4">
+    <div className={`${styles.card} ${backgroundClass}`}>
+      <div className={styles.cardContent}>
+        <div className={styles.header}>
           {IconComponent && (
-            <div className="flex-shrink-0 mr-3">
-              <IconComponent className="h-8 w-8 text-gray-600" />
+            <div className={styles.iconContainer}>
+              <IconComponent className={styles.icon} />
             </div>
           )}
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2 leading-tight">{nombre}</h3>
-            <p className="text-sm text-gray-600 leading-relaxed flex-grow">{descripcion}</p>
+          <div className={styles.textContainer}>
+            <h3 className={styles.title}>{nombre}</h3>
+            <p className={styles.description}>{descripcion}</p>
           </div>
         </div>
-        <Link 
-          to={link} 
-          className="inline-flex items-center text-indigo-600 font-medium hover:text-indigo-800 mt-auto group text-sm transition-colors"
-        >
-          Explorar <ChevronRight className="ml-1 h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
+        <Link to={link} className={styles.link}>
+          Explorar <ChevronRight className={styles.linkIcon} />
         </Link>
       </div>
     </div>

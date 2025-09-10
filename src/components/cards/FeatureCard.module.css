@@ -1,0 +1,120 @@
+.card {
+  height: 100%;
+  min-height: 200px;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(229, 231, 235, 1);
+}
+
+.card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transform: scale(1.05);
+}
+
+.cardContent {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.iconContainer {
+  flex-shrink: 0;
+  margin-right: 0.75rem;
+}
+
+.icon {
+  height: 2rem;
+  width: 2rem;
+  color: #4b5563;
+}
+
+.textContainer {
+  flex: 1;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+  line-height: 1.25;
+}
+
+.description {
+  font-size: 0.875rem;
+  color: #4b5563;
+  line-height: 1.625;
+  flex-grow: 1;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  color: #4f46e5;
+  font-weight: 500;
+  margin-top: auto;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.link:hover {
+  color: #3730a3;
+}
+
+.linkIcon {
+  margin-left: 0.25rem;
+  height: 1rem;
+  width: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.link:hover .linkIcon {
+  transform: translateX(0.25rem);
+}
+
+/* Clases de colores de fondo */
+.bgTealCyan {
+  background: linear-gradient(to bottom right, #f0fdfa, #cffafe);
+}
+
+.bgBlueIndigo {
+  background: linear-gradient(to bottom right, #eff6ff, #e0e7ff);
+}
+
+.bgGraySlate {
+  background: linear-gradient(to bottom right, #f9fafb, #f1f5f9);
+}
+
+.bgPurpleViolet {
+  background: linear-gradient(to bottom right, #faf5ff, #f3e8ff);
+}
+
+.bgYellowAmber {
+  background: linear-gradient(to bottom right, #fffbeb, #fef3c7);
+}
+
+.bgGreenEmerald {
+  background: linear-gradient(to bottom right, #f0fdf4, #d1fae5);
+}
+
+.bgPinkRose {
+  background: linear-gradient(to bottom right, #fdf2f8, #fce7f3);
+}
+
+.bgIndigoBlue {
+  background: linear-gradient(to bottom right, #eef2ff, #dbeafe);
+}
+
+.bgPurplePink {
+  background: linear-gradient(to bottom right, #faf5ff, #fce7f3);
+}

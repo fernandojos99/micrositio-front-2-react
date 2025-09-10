@@ -94,7 +94,7 @@ const Agentes: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className={styles['agentes-grid']}>
             {agentes.map((agente, index) => {
               const config = agenteConfig[index % agenteConfig.length];
               return (

@@ -60,7 +60,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   }
 
   return (
-    <div className={`h-full rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow bg-gradient-to-br ${colorClass} text-white dark:text-gray-50`}>
+    <div className="h-full min-h-[250px] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow bg-gradient-to-br from-purple-600 to-blue-600 text-white">
       <div className="p-6 flex flex-col h-full">
         <div className="flex items-center mb-3">
           {IconComponent && <IconComponent className="h-8 w-8 mr-3" />}
@@ -69,7 +69,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
         <p className="mb-4 flex-grow">{descripcion}</p>
         <Link 
           to={link} 
-          className="inline-flex items-center text-white dark:text-gray-50 font-medium hover:underline mt-auto group"
+          className="inline-flex items-center text-white font-medium hover:underline mt-auto group"
         >
           Explorar <ChevronRight className="ml-1 h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
         </Link>

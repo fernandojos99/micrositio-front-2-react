@@ -16,9 +16,9 @@ const Agentes: React.FC = () => {
         setError(null);
         const agentesData = await obtenerAgentes();
         setAgentes(agentesData);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error al cargar agentes:', err);
-        setError('Error al cargar los agentes. Por favor, intenta de nuevo.');
+        setError(`Error al cargar los agentes: ${err?.message || 'Error desconocido'}`);
       } finally {
         setLoading(false);
       }
@@ -84,7 +84,7 @@ const Agentes: React.FC = () => {
                 descripcion={agente.descripcion || 'Agente de IA especializado'}
                 link={agente.link || `/agentes/${agente.id_agente}`}
                 icon="bot"
-                colorClass="from-blue-500 to-purple-600"
+                colorClass="from-purple-600 to-blue-600"
               />
             ))}
           </div>

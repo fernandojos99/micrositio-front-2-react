@@ -4,6 +4,19 @@ import FeatureCard from '../../components/cards/FeatureCard';
 import { obtenerAgentes, Agente } from '../../services/agenteService';
 import styles from './Agentes.module.css';
 
+// Configuración de colores y iconos para diferentes tipos de agentes
+const agenteConfig = [
+  { bgColor: "bg-gradient-to-br from-teal-50 to-cyan-100", icon: "trending" },
+  { bgColor: "bg-gradient-to-br from-blue-50 to-indigo-100", icon: "users" },
+  { bgColor: "bg-gradient-to-br from-gray-50 to-slate-100", icon: "target" },
+  { bgColor: "bg-gradient-to-br from-purple-50 to-violet-100", icon: "bot" },
+  { bgColor: "bg-gradient-to-br from-yellow-50 to-amber-100", icon: "lightbulb" },
+  { bgColor: "bg-gradient-to-br from-green-50 to-emerald-100", icon: "layers" },
+  { bgColor: "bg-gradient-to-br from-pink-50 to-rose-100", icon: "test" },
+  { bgColor: "bg-gradient-to-br from-indigo-50 to-blue-100", icon: "test" },
+  { bgColor: "bg-gradient-to-br from-purple-50 to-pink-100", icon: "usercheck" }
+];
+
 const Agentes: React.FC = () => {
   const [agentes, setAgentes] = useState<Agente[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,10 +73,15 @@ const Agentes: React.FC = () => {
   return (
     <div className={styles['agentes-container']}>
       <div className={styles['agentes-content']}>
-        <h1 className={styles['agentes-title']}>Agentes de IA</h1>
-        <p className={styles['agentes-description']}>
-          Explora y gestiona los agentes de inteligencia artificial disponibles en tu sistema.
-        </p>
+        {/* Header centralizado similar a la imagen */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600 mb-4">
+            Integrated Innovation Agents
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            Specialized AI agents to guide you through every aspect of the innovation process
+          </p>
+        </div>
         
         {agentes.length === 0 ? (
           <div className="flex flex-col items-center justify-center mt-12">
@@ -76,17 +94,20 @@ const Agentes: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-            {agentes.map((agente) => (
-              <FeatureCard
-                key={agente.id_agente}
-                nombre={agente.nombre}
-                descripcion={agente.descripcion || 'Agente de IA especializado'}
-                link={agente.link || `/agentes/${agente.id_agente}`}
-                icon="bot"
-                colorClass="from-purple-600 to-blue-600"
-              />
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {agentes.map((agente, index) => {
+              const config = agenteConfig[index % agenteConfig.length];
+              return (
+                <FeatureCard
+                  key={agente.id_agente}
+                  nombre={agente.nombre}
+                  descripcion={agente.descripcion || 'Agente de IA especializado para guiarte en procesos de innovación'}
+                  link={agente.link || `/agentes/${agente.id_agente}`}
+                  icon={config.icon}
+                  bgColor={config.bgColor}
+                />
+              );
+            })}
           </div>
         )}
       </div>

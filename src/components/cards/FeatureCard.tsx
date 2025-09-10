@@ -14,7 +14,13 @@ import {
   Zap,
   Shield,
   Globe,
-  Search
+  Search,
+  TrendingUp,
+  Lightbulb,
+  Target,
+  TestTube,
+  UserCheck,
+  Layers
 } from 'lucide-react';
 
 // Mapeo de strings a iconos
@@ -30,7 +36,13 @@ const iconMap: Record<string, LucideIcon> = {
   zap: Zap,
   shield: Shield,
   globe: Globe,
-  search: Search
+  search: Search,
+  trending: TrendingUp,
+  lightbulb: Lightbulb,
+  target: Target,
+  test: TestTube,
+  usercheck: UserCheck,
+  layers: Layers
 };
 
 interface FeatureCardProps {
@@ -39,6 +51,7 @@ interface FeatureCardProps {
   link: string;
   icon?: LucideIcon | string;
   colorClass?: string;
+  bgColor?: string;
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ 
@@ -46,7 +59,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   descripcion, 
   link,
   icon,
-  colorClass = "from-primary-purple to-secondary-purple"
+  bgColor = "bg-gradient-to-br from-blue-50 to-indigo-100"
 }) => {
   // Determinar qué icono usar
   let IconComponent: LucideIcon | null = null;
@@ -60,16 +73,22 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   }
 
   return (
-    <div className="h-full min-h-[250px] rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow bg-gradient-to-br from-purple-600 to-blue-600 text-white">
+    <div className={`h-full min-h-[200px] rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 ${bgColor} border border-gray-100`}>
       <div className="p-6 flex flex-col h-full">
-        <div className="flex items-center mb-3">
-          {IconComponent && <IconComponent className="h-8 w-8 mr-3" />}
-          <h2 className="text-2xl font-bold">{nombre}</h2>
+        <div className="flex items-start mb-4">
+          {IconComponent && (
+            <div className="flex-shrink-0 mr-3">
+              <IconComponent className="h-8 w-8 text-gray-600" />
+            </div>
+          )}
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-gray-800 mb-2 leading-tight">{nombre}</h3>
+            <p className="text-sm text-gray-600 leading-relaxed flex-grow">{descripcion}</p>
+          </div>
         </div>
-        <p className="mb-4 flex-grow">{descripcion}</p>
         <Link 
           to={link} 
-          className="inline-flex items-center text-white font-medium hover:underline mt-auto group"
+          className="inline-flex items-center text-indigo-600 font-medium hover:text-indigo-800 mt-auto group text-sm transition-colors"
         >
           Explorar <ChevronRight className="ml-1 h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
         </Link>

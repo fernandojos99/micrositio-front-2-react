@@ -76,10 +76,10 @@ const Agentes: React.FC = () => {
         {/* Header centralizado similar a la imagen */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600 mb-4">
-            Integrated Innovation Agents
+             Descubre nuestro agentes para innovación
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Specialized AI agents to guide you through every aspect of the innovation process
+            Agentes de IA especializados que te guiarán en cada aspecto del proceso de innovación.
           </p>
         </div>
         

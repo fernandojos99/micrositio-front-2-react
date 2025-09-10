@@ -1,30 +1,109 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { 
+  ChevronRight, 
+  LucideIcon,
+  Bot,
+  Briefcase,
+  Users,
+  Settings,
+  BookOpen,
+  BarChart,
+  FileText,
+  Database,
+  Zap,
+  Shield,
+  Globe,
+  Search,
+  TrendingUp,
+  Lightbulb,
+  Target,
+  TestTube,
+  UserCheck,
+  Layers
+} from 'lucide-react';
+import styles from './FeatureCard.module.css';
+
+// Mapeo de strings a iconos
+const iconMap: Record<string, LucideIcon> = {
+  bot: Bot,
+  briefcase: Briefcase,
+  users: Users,
+  settings: Settings,
+  book: BookOpen,
+  chart: BarChart,
+  file: FileText,
+  database: Database,
+  zap: Zap,
+  shield: Shield,
+  globe: Globe,
+  search: Search,
+  trending: TrendingUp,
+  lightbulb: Lightbulb,
+  target: Target,
+  test: TestTube,
+  usercheck: UserCheck,
+  layers: Layers
+};
 
 interface FeatureCardProps {
-  title: string;
-  description: string;
-  linkTo: string;
+  nombre: string;
+  descripcion: string;
+  link: string;
+  icon?: LucideIcon | string;
   colorClass?: string;
+  bgColor?: string;
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ 
-  title, 
-  description, 
-  linkTo,
-  colorClass = "from-primary-purple to-secondary-purple"
+  nombre, 
+  descripcion, 
+  link,
+  icon,
+  bgColor = "bg-gradient-to-br from-blue-50 to-indigo-100"
 }) => {
+  // Determinar qué icono usar
+  let IconComponent: LucideIcon | null = null;
+  
+  if (icon) {
+    if (typeof icon === 'string') {
+      IconComponent = iconMap[icon] || null;
+    } else {
+      IconComponent = icon;
+    }
+  }
+
+  // Mapear las clases de bgColor de Tailwind a CSS modules
+  const bgClassMap: Record<string, string> = {
+    "bg-gradient-to-br from-teal-50 to-cyan-100": styles.bgTealCyan,
+    "bg-gradient-to-br from-blue-50 to-indigo-100": styles.bgBlueIndigo,
+    "bg-gradient-to-br from-gray-50 to-slate-100": styles.bgGraySlate,
+    "bg-gradient-to-br from-purple-50 to-violet-100": styles.bgPurpleViolet,
+    "bg-gradient-to-br from-yellow-50 to-amber-100": styles.bgYellowAmber,
+    "bg-gradient-to-br from-green-50 to-emerald-100": styles.bgGreenEmerald,
+    "bg-gradient-to-br from-pink-50 to-rose-100": styles.bgPinkRose,
+    "bg-gradient-to-br from-indigo-50 to-blue-100": styles.bgIndigoBlue,
+    "bg-gradient-to-br from-purple-50 to-pink-100": styles.bgPurplePink,
+  };
+
+  const backgroundClass = bgClassMap[bgColor] || styles.bgBlueIndigo;
+
   return (
-    <div className={`h-full rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow bg-gradient-to-br ${colorClass} text-white dark:text-gray-50`}>
-      <div className="p-6 flex flex-col h-full">
-        <h2 className="text-2xl font-bold mb-3">{title}</h2>
-        <p className="mb-4 flex-grow">{description}</p>
-        <Link 
-          to={linkTo} 
-          className="inline-flex items-center text-white dark:text-gray-50 font-medium hover:underline mt-auto group"
-        >
-          Explorar <ChevronRight className="ml-1 h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
+    <div className={`${styles.card} ${backgroundClass}`}>
+      <div className={styles.cardContent}>
+        <div className={styles.header}>
+          {IconComponent && (
+            <div className={styles.iconContainer}>
+              <IconComponent className={styles.icon} />
+            </div>
+          )}
+          <div className={styles.textContainer}>
+            <h3 className={styles.title}>{nombre}</h3>
+            <p className={styles.description}>{descripcion}</p>
+          </div>
+        </div>
+        <Link to={link} className={styles.link}>
+          Explorar <ChevronRight className={styles.linkIcon} />
         </Link>
       </div>
     </div>

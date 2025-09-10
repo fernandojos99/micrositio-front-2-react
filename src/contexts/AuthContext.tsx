@@ -41,14 +41,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
  * Convierte usuario del backend al formato del frontend
  */
 const transformBackendUser = (backendUser: BackendUser): User => {
-  console.log('🔍 AuthContext - Datos del backend completos:', backendUser);
+  // console.log('🔍 AuthContext - Datos del backend completos:', backendUser);
   
   // Manejar tanto user_id (del JWT) como id_usuario (del objeto directo)
   const userId = backendUser.id_usuario || backendUser.user_id;
-  console.log('🔍 AuthContext - ID extraído:', userId);
-  console.log('🔍 AuthContext - backendUser.id_usuario:', backendUser.id_usuario);
-  console.log('🔍 AuthContext - backendUser.user_id:', backendUser.user_id);
-  console.log('🔍 AuthContext - Claves del objeto backend:', Object.keys(backendUser));
+  // console.log('🔍 AuthContext - ID extraído:', userId);
+  // console.log('🔍 AuthContext - backendUser.id_usuario:', backendUser.id_usuario);
+  // console.log('🔍 AuthContext - backendUser.user_id:', backendUser.user_id);
+  // console.log('🔍 AuthContext - Claves del objeto backend:', Object.keys(backendUser));
   
   if (!userId) {
     throw new Error('No se pudo obtener el ID del usuario del backend');
@@ -69,8 +69,8 @@ const transformBackendUser = (backendUser: BackendUser): User => {
     avatar: undefined // Sin foto de avatar
   };
   
-  console.log('🔍 AuthContext - Usuario transformado:', transformedUser);
-  console.log('🔍 AuthContext - transformedUser.id:', transformedUser.id);
+  // console.log('🔍 AuthContext - Usuario transformado:', transformedUser);
+  // console.log('🔍 AuthContext - transformedUser.id:', transformedUser.id);
   
   return transformedUser;
 };
@@ -86,20 +86,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const initAuth = async () => {
       try {
         // Verificar si hay token y si es válido
-        console.log('🔍 AuthContext - Verificando token...');
+        // console.log('🔍 AuthContext - Verificando token...');
         const response = await verifyToken();
-        console.log('🔍 AuthContext - Respuesta verifyToken:', response);
+        // console.log('🔍 AuthContext - Respuesta verifyToken:', response);
         
         if (response.success) {
-          console.log('🔍 AuthContext - Datos usuario de verifyToken:', response.data.usuario);
+          // console.log('🔍 AuthContext - Datos usuario de verifyToken:', response.data.usuario);
           const transformedUser = transformBackendUser(response.data.usuario);
           setUser(transformedUser);
           localStorage.setItem('auth_user', JSON.stringify(transformedUser));
         } else {
-          console.log('❌ AuthContext - verifyToken falló:', response.message);
+          // console.log('❌ AuthContext - verifyToken falló:', response.message);
         }
       } catch (error) {
-        console.error('❌ AuthContext - Error verificando token:', error);
+        // console.error('❌ AuthContext - Error verificando token:', error);
         // Limpiar datos inválidos
         removeToken();
         localStorage.removeItem('auth_user');
@@ -145,7 +145,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       return false;
     } catch (error) {
-      console.error('Error en login:', error);
+      // console.error('Error en login:', error);
       return false;
     } finally {
       setIsLoading(false);

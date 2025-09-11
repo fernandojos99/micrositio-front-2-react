@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Bot, AlertCircle, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import FeatureCard from '../../components/cards/FeatureCard';
 import { obtenerAgentes, Agente } from '../../services/agenteService';
 import styles from './Agentes.module.css';
@@ -18,9 +19,14 @@ const agenteConfig = [
 ];
 
 const Agentes: React.FC = () => {
+  const navigate = useNavigate();
   const [agentes, setAgentes] = useState<Agente[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const handleAgenteClick = (agenteId: number) => {
+    navigate(`/agentes/${agenteId}`);
+  };
 
   useEffect(() => {
     const cargarAgentes = async () => {
@@ -97,7 +103,13 @@ const Agentes: React.FC = () => {
           <div className={styles['agentes-grid']}>
             {agentes.map((agente, index) => {
               const config = agenteConfig[index % agenteConfig.length];
+              
               return (
+                <div
+                  key={agente.id_agente}
+                  className={styles['agente-card']}
+                  onClick={() => handleAgenteClick(agente.id_agente)}
+                >
                 <FeatureCard
                   key={agente.id_agente}
                   nombre={agente.nombre}
@@ -106,6 +118,7 @@ const Agentes: React.FC = () => {
                   icon={config.icon}
                   bgColor={config.bgColor}
                 />
+                </div>
               );
             })}
           </div>

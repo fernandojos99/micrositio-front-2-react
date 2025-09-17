@@ -28,6 +28,13 @@ const Agentes: React.FC = () => {
     navigate(`/agentes/${agenteId}`);
   };
 
+  const handleExplorarPromptClick = (agenteId: number) => {
+    // Puedes personalizar esta función para ir a una página específica de prompts
+    // Por ejemplo: navigate(`/agentes/${agenteId}/prompts`);
+    // O mostrar un modal, etc.
+    navigate(`/agentes/${agenteId}`);
+  };
+
   useEffect(() => {
     const cargarAgentes = async () => {
       try {
@@ -117,6 +124,7 @@ const Agentes: React.FC = () => {
                   link={agente.link || `/agentes/${agente.id_agente}`}
                   icon={config.icon}
                   bgColor={config.bgColor}
+                  onExplorarClick={() => handleExplorarPromptClick(agente.id_agente)}
                 />
                 </div>
               );

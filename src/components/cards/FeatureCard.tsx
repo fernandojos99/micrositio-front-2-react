@@ -19,8 +19,7 @@ import {
   Target,
   TestTube,
   UserCheck,
-  Layers,
-  MessageCircle
+  Layers
 } from 'lucide-react';
 import styles from './FeatureCard.module.css';
 import chatgptIcon from '../../icons8-chatgpt-50.png';
@@ -55,15 +54,16 @@ interface FeatureCardProps {
   icon?: LucideIcon | string;
   colorClass?: string;
   bgColor?: string;
+  onExplorarClick?: () => void; // Nueva función para manejar clic en "Explorar prompt"
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ 
   nombre, 
   descripcion, 
   link,
-  chatLink,
   icon,
-  bgColor = "bg-gradient-to-br from-blue-50 to-indigo-100"
+  bgColor = "bg-gradient-to-br from-blue-50 to-indigo-100",
+  onExplorarClick
 }) => {
   // Determinar qué icono usar
   let IconComponent: LucideIcon | null = null;
@@ -105,27 +105,26 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
             <p className={styles.description}>{descripcion}</p>
           </div>
         </div>
-        <Link to={link} className={styles.link}>
-          <img src={chatgptIcon} alt="Ver en ChatGPT" className="png" />
-        </Link>
-        {/**
-         * <Link to={link} className={styles.link}>
-          <MessageCircle className={styles.linkIcon} />
-        </Link>
-         */}
-
-        {/* Icono de ChatGPT adicional si hay chatLink */}
-        {chatLink && (
-          <a 
-            href={chatLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.chatgptIcon}
-            title="Abrir en ChatGPT"
-          >
-            <MessageCircle />
-          </a>
-        )}
+        
+        {/* Flex container para los dos enlaces */}
+        <div className="flex justify-between items-end mt-4">
+          <Link to={link} className={styles.link}>
+            <img src={chatgptIcon} alt="Ver en ChatGPT" className="png" />
+          </Link>
+          {onExplorarClick ? (
+            <button 
+              onClick={onExplorarClick}
+              className="flex items-center text-sm text-purple-600 hover:text-purple-800 transition-colors cursor-pointer bg-transparent border-none"
+            >
+              Explorar prompt 
+            </button>
+          ) : (
+            <Link to={link} className="flex items-center text-sm text-purple-600 hover:text-purple-800 transition-colors">
+              Explorar prompt 
+            </Link>
+          )}
+        </div>
+        
       </div>
     </div>
   );

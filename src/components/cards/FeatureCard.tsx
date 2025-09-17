@@ -19,10 +19,10 @@ import {
   Target,
   TestTube,
   UserCheck,
-  Layers,
-  MessageCircle
+  Layers
 } from 'lucide-react';
 import styles from './FeatureCard.module.css';
+import chatgptIcon from '../../icons8-chatgpt-50.png';
 
 // Mapeo de strings a iconos
 const iconMap: Record<string, LucideIcon> = {
@@ -54,15 +54,16 @@ interface FeatureCardProps {
   icon?: LucideIcon | string;
   colorClass?: string;
   bgColor?: string;
+  onExplorarClick?: () => void; // Nueva función para manejar clic en "Explorar prompt"
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ 
   nombre, 
   descripcion, 
   link,
-  chatLink,
   icon,
-  bgColor = "bg-gradient-to-br from-blue-50 to-indigo-100"
+  bgColor = "bg-gradient-to-br from-blue-50 to-indigo-100",
+  onExplorarClick
 }) => {
   // Determinar qué icono usar
   let IconComponent: LucideIcon | null = null;
@@ -104,22 +105,26 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
             <p className={styles.description}>{descripcion}</p>
           </div>
         </div>
-        <Link to={link} className={styles.link}>
-          <MessageCircle className={styles.linkIcon} />
+        
+        {/* Icono de ChatGPT en esquina inferior derecha */}
+        <Link to={link} className="absolute bottom-3 right-3 w-10 h-10 bg-green-600 hover:bg-green-700 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg">
+          <img src={chatgptIcon} alt="Ver en ChatGPT" className="w-6 h-6" />
         </Link>
-
-        {/* Icono de ChatGPT adicional si hay chatLink */}
-        {chatLink && (
-          <a 
-            href={chatLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.chatgptIcon}
-            title="Abrir en ChatGPT"
+        
+        {/* Botón "Explorar prompt" en esquina superior derecha */}
+        {onExplorarClick ? (
+          <button 
+            onClick={onExplorarClick}
+            className="absolute top-3 right-3 px-3 py-1 text-xs text-purple-600 hover:text-purple-800 border border-purple-300 rounded-md hover:bg-purple-50 transition-colors shadow-sm bg-white"
           >
-            <MessageCircle />
-          </a>
+            Explorar prompt 
+          </button>
+        ) : (
+          <Link to={link} className="absolute top-3 right-3 px-3 py-1 text-xs text-purple-600 hover:text-purple-800 border border-purple-300 rounded-md hover:bg-purple-50 transition-colors shadow-sm bg-white flex items-center">
+            Explorar prompt 
+          </Link>
         )}
+        
       </div>
     </div>
   );

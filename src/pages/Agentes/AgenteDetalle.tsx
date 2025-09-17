@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { Agente, obtenerAgentePorId } from '../../services/agenteService';
 import { useState, useEffect } from 'react';
-import { ExternalLink, FileText, MessageSquare } from 'lucide-react';
+import { ExternalLink, FileText, MessageSquare, Copy, Check } from 'lucide-react';
 import styles from './AgenteDetalle.module.css';
 
 const AgenteDetalle: React.FC = () => {
@@ -11,6 +11,7 @@ const AgenteDetalle: React.FC = () => {
     const [agente, setAgente] = useState<Agente | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         const cargarAgente = async () => {
@@ -31,6 +32,16 @@ const AgenteDetalle: React.FC = () => {
 
         cargarAgente();
     }, [agenteId]);
+
+    const copyToClipboard = async (text: string) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+            console.error('Error al copiar al portapapeles:', err);
+        }
+    };
 
 
     // @render: Estado de carga
@@ -114,12 +125,31 @@ const AgenteDetalle: React.FC = () => {
                     {/* Prompt */}
                     {agente.prompt && (
                         <div className={styles['campo-section']}>
-                            <label className={styles['campo-label']}>
-                                <span className={styles['campo-icono']}>
-                                    <MessageSquare size={16} />
-                                    Prompt del Agente
-                                </span>
-                            </label>
+                            <div className={styles['campo-label-with-button']}>
+                                <label className={styles['campo-label']}>
+                                    <span className={styles['campo-icono']}>
+                                        <MessageSquare size={16} />
+                                        Prompt del Agente
+                                    </span>
+                                </label>
+                                <button
+                                    className={`${styles['copy-button']} ${copied ? styles['copied'] : ''}`}
+                                    onClick={() => agente.prompt && copyToClipboard(agente.prompt)}
+                                    title={copied ? 'Copiado!' : 'Copiar prompt'}
+                                >
+                                    {copied ? (
+                                        <>
+                                            <Check className={styles['copy-button-icon']} />
+                                            Copiado
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Copy className={styles['copy-button-icon']} />
+                                            Copiar
+                                        </>
+                                    )}
+                                </button>
+                            </div>
                             <div className={`${styles['campo-valor']} ${styles['prompt-valor']}`}>
                                 {agente.prompt}
                             </div>

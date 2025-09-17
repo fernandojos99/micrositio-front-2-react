@@ -23,6 +23,7 @@ import {
   MessageCircle
 } from 'lucide-react';
 import styles from './FeatureCard.module.css';
+import chatgptIcon from '../../icons8-chatgpt-50.png';
 
 // Mapeo de strings a iconos
 const iconMap: Record<string, LucideIcon> = {
@@ -105,8 +106,13 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
           </div>
         </div>
         <Link to={link} className={styles.link}>
+          <img src={chatgptIcon} alt="Ver en ChatGPT" className="png" />
+        </Link>
+        {/**
+         * <Link to={link} className={styles.link}>
           <MessageCircle className={styles.linkIcon} />
         </Link>
+         */}
 
         {/* Icono de ChatGPT adicional si hay chatLink */}
         {chatLink && (

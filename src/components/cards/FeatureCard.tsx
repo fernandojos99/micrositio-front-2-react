@@ -107,19 +107,19 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
         </div>
         
         {/* Flex container para los dos enlaces */}
-        <div className="flex justify-between items-end mt-4">
+        <div className="flex justify-between items-center gap-4 mt-4">
           <Link to={link} className={styles.link}>
             <img src={chatgptIcon} alt="Ver en ChatGPT" className="png" />
           </Link>
           {onExplorarClick ? (
             <button 
               onClick={onExplorarClick}
-              className="flex items-center text-sm text-purple-600 hover:text-purple-800 transition-colors cursor-pointer bg-transparent border-none"
+              className="px-4 py-2 text-sm text-purple-600 hover:text-purple-800 border border-purple-300 rounded-md hover:bg-purple-50 transition-colors"
             >
               Explorar prompt 
             </button>
           ) : (
-            <Link to={link} className="flex items-center text-sm text-purple-600 hover:text-purple-800 transition-colors">
+            <Link to={link} className="flex items-center px-4 py-2 text-sm text-purple-600 hover:text-purple-800 border border-purple-300 rounded-md hover:bg-purple-50 transition-colors">
               Explorar prompt 
             </Link>
           )}

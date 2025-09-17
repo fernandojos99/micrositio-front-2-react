@@ -106,24 +106,24 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
           </div>
         </div>
         
-        {/* Flex container para los dos enlaces */}
-        <div className="flex justify-between items-center gap-4 mt-4">
-          <Link to={link} className={styles.link}>
-            <img src={chatgptIcon} alt="Ver en ChatGPT" className="png" />
+        {/* Icono de ChatGPT en esquina inferior derecha */}
+        <Link to={link} className="absolute bottom-3 right-3 w-10 h-10 bg-green-600 hover:bg-green-700 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg">
+          <img src={chatgptIcon} alt="Ver en ChatGPT" className="w-6 h-6" />
+        </Link>
+        
+        {/* Botón "Explorar prompt" en esquina superior derecha */}
+        {onExplorarClick ? (
+          <button 
+            onClick={onExplorarClick}
+            className="absolute top-3 right-3 px-3 py-1 text-xs text-purple-600 hover:text-purple-800 border border-purple-300 rounded-md hover:bg-purple-50 transition-colors shadow-sm bg-white"
+          >
+            Explorar prompt 
+          </button>
+        ) : (
+          <Link to={link} className="absolute top-3 right-3 px-3 py-1 text-xs text-purple-600 hover:text-purple-800 border border-purple-300 rounded-md hover:bg-purple-50 transition-colors shadow-sm bg-white flex items-center">
+            Explorar prompt 
           </Link>
-          {onExplorarClick ? (
-            <button 
-              onClick={onExplorarClick}
-              className="px-4 py-2 text-sm text-purple-600 hover:text-purple-800 border border-purple-300 rounded-md hover:bg-purple-50 transition-colors"
-            >
-              Explorar prompt 
-            </button>
-          ) : (
-            <Link to={link} className="flex items-center px-4 py-2 text-sm text-purple-600 hover:text-purple-800 border border-purple-300 rounded-md hover:bg-purple-50 transition-colors">
-              Explorar prompt 
-            </Link>
-          )}
-        </div>
+        )}
         
       </div>
     </div>

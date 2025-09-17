@@ -18,6 +18,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  position: relative;
 }
 
 .header {
@@ -59,27 +60,33 @@
 .link {
   display: inline-flex;
   align-items: center;
-  color: #4f46e5;
+  justify-content: center;
+  color: #10a37f;
   font-weight: 500;
   margin-top: auto;
   font-size: 0.875rem;
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: rgba(16, 163, 127, 0.1);
+  border-radius: 0.5rem;
 }
 
 .link:hover {
-  color: #3730a3;
+  color: #0d8968;
+  background: rgba(16, 163, 127, 0.2);
+  transform: scale(1.1);
 }
 
 .linkIcon {
-  margin-left: 0.25rem;
-  height: 1rem;
-  width: 1rem;
+  height: 1.25rem;
+  width: 1.25rem;
   transition: transform 0.3s ease;
 }
 
 .link:hover .linkIcon {
-  transform: translateX(0.25rem);
+  transform: scale(1.1);
 }
 
 /* Clases de colores de fondo */
@@ -117,4 +124,33 @@
 
 .bgPurplePink {
   background: linear-gradient(to bottom right, #faf5ff, #fce7f3);
+}
+
+/* Icono de ChatGPT */
+.chatgptIcon {
+  position: absolute;
+  bottom: 0.75rem;
+  right: 0.75rem;
+  width: 2rem;
+  height: 2rem;
+  background: #10a37f;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(16, 163, 127, 0.2);
+}
+
+.chatgptIcon:hover {
+  background: #0d8968;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(16, 163, 127, 0.3);
+}
+
+.chatgptIcon svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  color: white;
 }

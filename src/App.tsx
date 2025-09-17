@@ -10,6 +10,7 @@ import HomePage from './pages/HomePage';
 import Proyectos from './pages/Proyectos/Proyectos';
 import ProyectoDetalle from './pages/ProyectoDetalle/ProyectoDetalle';
 import Agentes from './pages/Agentes/Agentes';
+import AgenteDetalle from './pages/Agentes/AgenteDetalle';
 import Licencias from './pages/Licencias/Licencias';
 import Equipo from './pages/Equipo/Equipo';
 import Perfil from './pages/Perfil/Perfil';
@@ -58,6 +59,7 @@ function App() {
                 <Route path="perfil" element={<Perfil />} />
                 <Route path="equipo" element={<Equipo />} />
                 <Route path="agentes" element={<Agentes />} />
+                <Route path="agentes/:agenteId" element={<AgenteDetalle />} />
                 <Route path="licencias" element={<Licencias />} />
                 <Route path="assistant" element={<Assistant />} />
                 <Route path="libro-digital" element={<LibroDigital />} />

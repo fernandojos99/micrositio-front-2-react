@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  ChevronRight, 
   LucideIcon,
   Bot,
   Briefcase,
@@ -20,7 +19,8 @@ import {
   Target,
   TestTube,
   UserCheck,
-  Layers
+  Layers,
+  MessageCircle
 } from 'lucide-react';
 import styles from './FeatureCard.module.css';
 
@@ -50,6 +50,7 @@ interface FeatureCardProps {
   nombre: string;
   descripcion: string;
   link: string;
+  chatLink?: string; // Link para ChatGPT
   icon?: LucideIcon | string;
   colorClass?: string;
   bgColor?: string;
@@ -59,6 +60,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   nombre, 
   descripcion, 
   link,
+  chatLink,
   icon,
   bgColor = "bg-gradient-to-br from-blue-50 to-indigo-100"
 }) => {
@@ -103,8 +105,21 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
           </div>
         </div>
         <Link to={link} className={styles.link}>
-          Explorar <ChevronRight className={styles.linkIcon} />
+          <MessageCircle className={styles.linkIcon} />
         </Link>
+
+        {/* Icono de ChatGPT adicional si hay chatLink */}
+        {chatLink && (
+          <a 
+            href={chatLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.chatgptIcon}
+            title="Abrir en ChatGPT"
+          >
+            <MessageCircle />
+          </a>
+        )}
       </div>
     </div>
   );

@@ -106,24 +106,47 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
           </div>
         </div>
         
-        {/* Icono de ChatGPT en esquina inferior derecha */}
-        <Link to={link} className="absolute bottom-3 right-3 w-10 h-10 bg-green-600 hover:bg-green-700 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg">
-          <img src={chatgptIcon} alt="Ver en ChatGPT" className="w-6 h-6" />
-        </Link>
-        
-        {/* Botón "Explorar prompt" en esquina superior derecha */}
-        {onExplorarClick ? (
-          <button 
-            onClick={onExplorarClick}
-            className="absolute top-3 right-3 px-3 py-1 text-xs text-purple-600 hover:text-purple-800 border border-purple-300 rounded-md hover:bg-purple-50 transition-colors shadow-sm bg-white"
+        {/* Contenedor flex para los botones - Layout horizontal actualizado */}
+        <div 
+          className="absolute bottom-3 left-3 right-3 flex justify-between items-end z-10"
+          style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'flex-end',
+            position: 'absolute',
+            bottom: '12px',
+            left: '12px',
+            right: '12px',
+            zIndex: 10
+          }}
+        >
+          {/* Botón "Explorar prompt" - lado izquierdo */}
+          {onExplorarClick ? (
+            <button 
+              onClick={onExplorarClick}
+              className={styles.explorarPromptButton}
+            >
+               Explorar prompt 
+            </button>
+          ) : (
+            <Link 
+              to={link} 
+              className={styles.explorarPromptButton}
+            >
+               Explorar prompt 
+            </Link>
+          )}
+
+          {/* Icono de ChatGPT - lado derecho */}
+          <Link 
+            to={link} 
+            className={styles.chatgptButton}
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            Explorar prompt 
-          </button>
-        ) : (
-          <Link to={link} className="absolute top-3 right-3 px-3 py-1 text-xs text-purple-600 hover:text-purple-800 border border-purple-300 rounded-md hover:bg-purple-50 transition-colors shadow-sm bg-white flex items-center">
-            Explorar prompt 
+            <img src={chatgptIcon} alt="Ver en ChatGPT" />
           </Link>
-        )}
+        </div>
         
       </div>
     </div>

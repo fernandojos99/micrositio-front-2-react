@@ -35,6 +35,14 @@ export const obtenerAgentes = async (): Promise<Agente[]> => {
 };
 
 /**
+ * Obtiene los agente de una categoria dada
+ */
+export const listarPorCategoria = async (idCategoria: number): Promise<Agente[]> => {
+  const response = await apiClient.get(`/agentes/categoria/${idCategoria}`);
+  return response.data;
+};
+
+/**
  * Obtiene un agente específico por su ID
  * @param {number} id - ID del agente a buscar
  * @returns {Promise<Agente>} Los datos del agente

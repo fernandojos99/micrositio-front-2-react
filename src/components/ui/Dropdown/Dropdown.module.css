@@ -1,0 +1,306 @@
+/* =================================================================
+   DROPDOWN COMPONENT STYLES
+   ================================================================= */
+
+/* @section: Contenedor principal */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-auto {
+  width: auto;
+}
+
+.dropdown-full {
+  width: 100%;
+}
+
+/* =================================================================
+   TRIGGER BUTTON - BOTÓN ACTIVADOR
+   ================================================================= */
+
+/* @section: Botón principal */
+.dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 2.5rem;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--theme-bg-primary);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--border-radius-lg);
+  color: var(--theme-text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  gap: var(--spacing-sm);
+}
+
+.dropdown-trigger:hover:not(:disabled) {
+  background-color: var(--theme-bg-secondary);
+  border-color: var(--color-primary-purple);
+}
+
+.dropdown-trigger:focus {
+  outline: none;
+  border-color: var(--color-primary-purple);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary-purple) 15%, transparent);
+}
+
+.trigger-open {
+  background-color: var(--theme-bg-secondary);
+  border-color: var(--color-primary-purple);
+}
+
+.trigger-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: var(--theme-bg-tertiary);
+}
+
+/* @section: Contenido del trigger */
+.trigger-text {
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trigger-icon {
+  flex-shrink: 0;
+  transition: transform var(--transition-fast);
+  color: var(--theme-text-secondary);
+}
+
+.icon-rotated {
+  transform: rotate(180deg);
+}
+
+/* =================================================================
+   DROPDOWN MENU - MENÚ DESPLEGABLE
+   ================================================================= */
+
+/* @section: Contenedor del menú */
+.dropdown-menu {
+  position: absolute;
+  z-index: var(--z-dropdown);
+  left: 0;
+  right: 0;
+  background-color: var(--theme-bg-primary);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: dropdownSlideIn 0.15s ease-out;
+}
+
+.dropdown-bottom {
+  top: 100%;
+  margin-top: var(--spacing-xs);
+}
+
+.dropdown-top {
+  bottom: 100%;
+  margin-bottom: var(--spacing-xs);
+}
+
+/* @animation: Entrada del dropdown */
+@keyframes dropdownSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =================================================================
+   SEARCH INPUT - CAMPO DE BÚSQUEDA
+   ================================================================= */
+
+/* @section: Contenedor de búsqueda */
+.search-container {
+  padding: var(--spacing-sm);
+  border-bottom: 1px solid var(--theme-border);
+}
+
+.search-input {
+  width: 100%;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--border-radius-md);
+  background-color: var(--theme-bg-secondary);
+  color: var(--theme-text-primary);
+  font-size: var(--font-size-sm);
+  transition: all var(--transition-fast);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--color-primary-purple);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary-purple) 15%, transparent);
+}
+
+.search-input::placeholder {
+  color: var(--theme-text-tertiary);
+}
+
+/* =================================================================
+   OPTIONS LIST - LISTA DE OPCIONES
+   ================================================================= */
+
+/* @section: Contenedor de opciones */
+.options-container {
+  max-height: 12rem;
+  overflow-y: auto;
+  padding: var(--spacing-xs);
+}
+
+/* Scrollbar personalizado */
+.options-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.options-container::-webkit-scrollbar-track {
+  background: var(--theme-bg-secondary);
+}
+
+.options-container::-webkit-scrollbar-thumb {
+  background: var(--theme-text-tertiary);
+  border-radius: 2px;
+}
+
+.options-container::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-text-secondary);
+}
+
+/* @section: Opciones individuales */
+.dropdown-option {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  background: transparent;
+  color: var(--theme-text-primary);
+  font-size: var(--font-size-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border-radius: var(--border-radius-md);
+}
+
+.dropdown-option:hover:not(:disabled) {
+  background-color: var(--theme-bg-secondary);
+}
+
+.dropdown-option:focus {
+  outline: none;
+  background-color: var(--theme-bg-secondary);
+  box-shadow: inset 0 0 0 1px var(--color-primary-purple);
+}
+
+.option-selected {
+  background-color: color-mix(in srgb, var(--color-primary-purple) 10%, transparent);
+  color: var(--color-primary-purple);
+  font-weight: var(--font-weight-semibold);
+}
+
+.option-selected:hover {
+  background-color: color-mix(in srgb, var(--color-primary-purple) 15%, transparent);
+}
+
+.option-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.option-focused {
+  background-color: var(--theme-bg-secondary);
+  box-shadow: inset 0 0 0 1px var(--color-primary-purple);
+}
+
+/* @section: Estado sin opciones */
+.no-options {
+  padding: var(--spacing-md);
+  text-align: center;
+  color: var(--theme-text-tertiary);
+  font-size: var(--font-size-sm);
+  font-style: italic;
+}
+
+/* =================================================================
+   RESPONSIVE DESIGN
+   ================================================================= */
+
+@media (max-width: 640px) {
+  .dropdown-menu {
+    left: -1rem;
+    right: -1rem;
+  }
+  
+  .dropdown-trigger {
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+  
+  .dropdown-option {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+  }
+}
+
+/* =================================================================
+   MEJORAS DE ACCESIBILIDAD
+   ================================================================= */
+
+/* @accessibility: Mejoras para navegación por teclado */
+.dropdown-option:focus-visible {
+  outline: 2px solid var(--color-primary-purple);
+  outline-offset: -2px;
+}
+
+/* @accessibility: Mejoras de contraste para modo oscuro */
+.dark .dropdown-trigger:focus {
+  border-color: var(--color-primary-yellow);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary-yellow) 15%, transparent);
+}
+
+.dark .dropdown-option:focus {
+  box-shadow: inset 0 0 0 1px var(--color-primary-yellow);
+}
+
+.dark .option-focused {
+  box-shadow: inset 0 0 0 1px var(--color-primary-yellow);
+}
+
+/* @accessibility: Reducir animaciones para usuarios que prefieren menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+  .dropdown-menu {
+    animation: none;
+  }
+  
+  .trigger-icon {
+    transition: none;
+  }
+  
+  .dropdown-trigger,
+  .dropdown-option,
+  .search-input {
+    transition: none;
+  }
+}
+
+/* @accessibility: Indicador visual para elementos enfocados */
+@media (prefers-reduced-motion: no-preference) {
+  .dropdown-option:focus {
+    transform: translateX(2px);
+  }
+}

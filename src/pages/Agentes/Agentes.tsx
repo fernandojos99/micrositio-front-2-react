@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Bot, AlertCircle, Loader2 } from 'lucide-react';
+import { Bot, AlertCircle, Loader2, Filter, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import FeatureCard from '../../components/cards/FeatureCard';
-import { obtenerAgentes, Agente } from '../../services/agenteService';
+import { obtenerAgentes, listarPorCategoria, Agente } from '../../services/agenteService';
+import { obtenerCategoriasAgentes, CategoriaAgente } from '../../services/agenteCategoriaService';
 import styles from './Agentes.module.css';
 
 // Configuración de colores y iconos para diferentes tipos de agentes
@@ -23,6 +24,9 @@ const Agentes: React.FC = () => {
   const [agentes, setAgentes] = useState<Agente[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<number | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [categorias, setCategorias] = useState<CategoriaAgente[]>([]);
 
   const handleAgenteClick = (agenteId: number) => {
     navigate(`/agentes/${agenteId}`);
@@ -36,22 +40,50 @@ const Agentes: React.FC = () => {
   };
 
   useEffect(() => {
-    const cargarAgentes = async () => {
+    const cargarDatos = async () => {
       try {
         setLoading(true);
         setError(null);
-        const agentesData = await obtenerAgentes();
-        setAgentes(agentesData);
+        
+        // Primero cargar las categorías
+        const categoriasData = await obtenerCategoriasAgentes();
+        setCategorias(categoriasData);
+        
+        // Si no hay categoría seleccionada, cargar todos los agentes
+        if (categoriaSeleccionada === null) {
+          const agentesData = await obtenerAgentes();
+          setAgentes(agentesData);
+        } else {
+          // Si hay categoría seleccionada, cargar agentes de esa categoría
+          const agentesData = await listarPorCategoria(categoriaSeleccionada);
+          setAgentes(agentesData);
+        }
       } catch (err: any) {
-        console.error('Error al cargar agentes:', err);
-        setError(`Error al cargar los agentes: ${err?.message || 'Error desconocido'}`);
+        console.error('Error al cargar datos:', err);
+        setError(`Error al cargar los datos: ${err?.message || 'Error desconocido'}`);
       } finally {
         setLoading(false);
       }
     };
 
-    cargarAgentes();
-  }, []);
+    cargarDatos();
+  }, [categoriaSeleccionada]); // Dependencia cambiada para recargar cuando cambie la categoría
+
+  // Ya no necesitamos filtrar en el frontend, el backend ya nos devuelve los agentes filtrados
+  const agentesFiltrados = agentes;
+
+  // Cerrar dropdown al hacer click fuera
+  useEffect(() => {
+    if (!dropdownOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.dropdown-container')) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [dropdownOpen]);
 
   if (loading) {
     return (
@@ -95,20 +127,69 @@ const Agentes: React.FC = () => {
             Agentes de IA especializados que te guiarán en cada aspecto del proceso de innovación.
           </p>
         </div>
+
+        {/* Filtros y controles */}
+        <div className="flex justify-center mb-8">
+          <div className="dropdown-container relative">
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              <Filter size={16} />
+              <span>
+                {categoriaSeleccionada 
+                  ? `Categoría: ${categorias.find(c => c.id_categoria === categoriaSeleccionada)?.nombre_categoria}` 
+                  : 'Filtrar por categoría'}
+              </span>
+              <ChevronDown 
+                size={16} 
+                className={`transform transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}
+              />
+            </button>
+            
+            {dropdownOpen && (
+              <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-10">
+                <div className="py-1">
+                  <button
+                    onClick={() => {
+                      setCategoriaSeleccionada(null);
+                      setDropdownOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Todas las categorías
+                  </button>
+                  {categorias.map((categoria) => (
+                    <button
+                      key={categoria.id_categoria}
+                      onClick={() => {
+                        setCategoriaSeleccionada(categoria.id_categoria);
+                        setDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      {categoria.nombre_categoria}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
         
-        {agentes.length === 0 ? (
+        {agentesFiltrados.length === 0 ? (
           <div className="flex flex-col items-center justify-center mt-12">
             <Bot className="h-16 w-16 text-gray-400 mb-4" />
             <p className="text-lg text-gray-600 dark:text-gray-400 text-center">
-              No hay agentes disponibles en este momento.
+              {agentes.length === 0 ? 'No hay agentes disponibles en este momento.' : 'No se encontraron agentes con el filtro seleccionado.'}
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-500 text-center mt-2">
-              Los agentes aparecerán aquí una vez que sean creados.
+              {agentes.length === 0 ? 'Los agentes aparecerán aquí una vez que sean creados.' : 'Intenta con otro filtro o elimina los filtros actuales.'}
             </p>
           </div>
         ) : (
           <div className={styles['agentes-grid']}>
-            {agentes.map((agente, index) => {
+            {agentesFiltrados.map((agente, index) => {
               const config = agenteConfig[index % agenteConfig.length];
               
               return (

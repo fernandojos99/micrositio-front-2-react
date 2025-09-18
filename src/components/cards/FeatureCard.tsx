@@ -138,7 +138,12 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
           )}
 
           {/* Icono de ChatGPT - lado derecho */}
-          <Link to={link} className={styles.chatgptButton}>
+          <Link 
+            to={link} 
+            className={styles.chatgptButton}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <img src={chatgptIcon} alt="Ver en ChatGPT" />
           </Link>
         </div>

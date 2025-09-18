@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Bot, AlertCircle, Loader2, Filter, ChevronDown } from 'lucide-react';
+import { Bot, AlertCircle, Loader2, Filter, ChevronDown, Layers, Target, Users, Lightbulb, TrendingUp, TestTube, UserCheck, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import FeatureCard from '../../components/cards/FeatureCard';
 import { obtenerAgentes, listarPorCategoria, Agente } from '../../services/agenteService';
 import { obtenerCategoriasAgentes, CategoriaAgente } from '../../services/agenteCategoriaService';
+import { useTheme } from '../../hooks/useTheme';
 import styles from './Agentes.module.css';
 
 // Configuración de colores y iconos para diferentes tipos de agentes
@@ -21,12 +22,29 @@ const agenteConfig = [
 
 const Agentes: React.FC = () => {
   const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
   const [agentes, setAgentes] = useState<Agente[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<number | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [categorias, setCategorias] = useState<CategoriaAgente[]>([]);
+
+  // Función para obtener el icono de una categoría
+  const getCategoriaIcon = (nombreCategoria: string) => {
+    const iconMap: { [key: string]: React.ReactNode } = {
+      'Análisis': <TrendingUp size={16} />,
+      'Diseño': <Target size={16} />,
+      'Experimentación': <TestTube size={16} />,
+      'Ideación': <Lightbulb size={16} />,
+      'Investigación': <Users size={16} />,
+      'Planeación': <Layers size={16} />,
+      'Prototipado': <Zap size={16} />,
+      'Revisión': <UserCheck size={16} />,
+    };
+    
+    return iconMap[nombreCategoria] || <Bot size={16} />;
+  };
 
   const handleAgenteClick = (agenteId: number) => {
     navigate(`/agentes/${agenteId}`);
@@ -129,35 +147,52 @@ const Agentes: React.FC = () => {
         </div>
 
         {/* Filtros y controles */}
-        <div className="flex justify-center mb-8">
-          <div className="dropdown-container relative">
+        <div className={styles['filter-section']}>
+          <div className={`${styles['dropdown-container']} ${isDarkMode ? 'dark' : ''} dropdown-container`}>
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className={styles['dropdown-trigger']}
             >
-              <Filter size={16} />
-              <span>
+              <Filter size={16} className={styles['dropdown-trigger-icon']} />
+              <span className={styles['dropdown-trigger-text']}>
                 {categoriaSeleccionada 
                   ? `Categoría: ${categorias.find(c => c.id_categoria === categoriaSeleccionada)?.nombre_categoria}` 
                   : 'Filtrar por categoría'}
               </span>
               <ChevronDown 
                 size={16} 
-                className={`transform transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}
+                className={`${styles['dropdown-trigger-arrow']} ${dropdownOpen ? styles['rotated'] : ''}`}
               />
             </button>
             
             {dropdownOpen && (
-              <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-10">
-                <div className="py-1">
+              <div 
+                className={styles['dropdown-menu']}
+                style={{
+                  background: isDarkMode ? 'rgba(17, 24, 39, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                  borderColor: isDarkMode ? 'rgba(147, 51, 234, 0.4)' : 'rgba(147, 51, 234, 0.2)',
+                }}
+              >
+                <div className={styles['dropdown-menu-content']}>
                   <button
                     onClick={() => {
                       setCategoriaSeleccionada(null);
                       setDropdownOpen(false);
                     }}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className={`${styles['dropdown-option']} ${categoriaSeleccionada === null ? styles['active'] : ''}`}
+                    style={{
+                      color: isDarkMode ? '#f8fafc' : 'var(--theme-text-primary)',
+                    }}
                   >
-                    Todas las categorías
+                    <span 
+                      className={styles['dropdown-option-icon']}
+                      style={{ color: isDarkMode ? 'rgb(196, 181, 253)' : 'rgb(147, 51, 234)' }}
+                    >
+                      <Layers size={16} />
+                    </span>
+                    <span className={styles['dropdown-option-text']}>
+                      Todas las categorías
+                    </span>
                   </button>
                   {categorias.map((categoria) => (
                     <button
@@ -166,9 +201,20 @@ const Agentes: React.FC = () => {
                         setCategoriaSeleccionada(categoria.id_categoria);
                         setDropdownOpen(false);
                       }}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      className={`${styles['dropdown-option']} ${categoriaSeleccionada === categoria.id_categoria ? styles['active'] : ''}`}
+                      style={{
+                        color: isDarkMode ? '#f8fafc' : 'var(--theme-text-primary)',
+                      }}
                     >
-                      {categoria.nombre_categoria}
+                      <span 
+                        className={styles['dropdown-option-icon']}
+                        style={{ color: isDarkMode ? 'rgb(196, 181, 253)' : 'rgb(147, 51, 234)' }}
+                      >
+                        {getCategoriaIcon(categoria.nombre_categoria)}
+                      </span>
+                      <span className={styles['dropdown-option-text']}>
+                        {categoria.nombre_categoria}
+                      </span>
                     </button>
                   ))}
                 </div>

@@ -1,29 +1,17 @@
 import apiClient  from "../apiClient";
-export interface AgenteCategoria {
+export interface CategoriaAgente {
   id_categoria: number;
-  nombre: string;
-}
-
-export interface ActualizarAgenteCategoriaData {
-  idAgente: number;
-  idACategoria : string;
+  nombre_categoria: string;
 }
 
 /**
- * Obtiene todas las categorías que tiene los agentes
- * @returns {Promise<AgenteCategoria[]>} Lista de todas las categorías de agentes 
+ * Obtiene todas las categorías de agentes
+ * @returns {Promise<CategoriaAgente[]>} Lista de todas las categorías
  */
-export const obtenerAgenteCategorias = async (): Promise<AgenteCategoria[]> => {
-    const response = await apiClient.get('/agentes_categoria/');
-    return response.data;
-};
+export const obtenerCategoriasAgentes = async (): Promise<CategoriaAgente[]> => {
+  const response = await apiClient.get('/agente_categoria/categorias');
+  return response.data;
+}
 
-/**
- * 
- * @param id_categoria 
- * @returns 
- */
-export const obtenerAgenteCategoriaPorId = async (id_categoria: number): Promise<AgenteCategoria> => {
-    const response = await apiClient.get(`/agentes_categoria/${id_categoria}`);
-    return response.data;
-};
+
+

@@ -145,34 +145,31 @@ const Agentes: React.FC = () => {
           <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600 mb-4">
              Descubre nuestro agentes para innovación
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          {/*<p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Agentes de IA especializados que te guiarán en cada aspecto del proceso de innovación.
-          </p>
+          </p>*/}
         </div>
 
-        {/* Barra de búsqueda */}
-        <div className="mb-8 max-w-md mx-auto">
-          <div className="relative">
-            <Search 
-              size={20} 
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            />
-            <input
-              type="text"
-              placeholder="Buscar agentes por nombre o descripción..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={`w-full pl-10 pr-4 py-3 rounded-lg border transition-all duration-200 ${
-                isDarkMode 
-                  ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20' 
-                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20'
-              } focus:outline-none`}
-            />
-          </div>
-        </div>
-
-        {/* Filtros y controles */}
+        {/* Barra de búsqueda y filtros */}
         <div className={styles['filter-section']}>
+          {/* Barra de búsqueda */}
+          <div className={`${styles['dropdown-container']} ${isDarkMode ? 'dark' : ''}`}>
+            <div className={styles['dropdown-trigger']}>
+              <Search 
+                size={16} 
+                className={styles['dropdown-trigger-icon']}
+              />
+              <input
+                type="text"
+                placeholder="Buscar agentes . . ."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={styles['search-input']}
+              />
+            </div>
+          </div>
+
+          {/* Dropdown de categorías */}
           <div className={`${styles['dropdown-container']} ${isDarkMode ? 'dark' : ''} dropdown-container`}>
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  ChevronRight, 
   LucideIcon,
   Bot,
   Briefcase,
@@ -23,6 +22,7 @@ import {
   Layers
 } from 'lucide-react';
 import styles from './FeatureCard.module.css';
+import chatgptIcon from '../../icons8-chatgpt-50.png';
 
 // Mapeo de strings a iconos
 const iconMap: Record<string, LucideIcon> = {
@@ -50,9 +50,11 @@ interface FeatureCardProps {
   nombre: string;
   descripcion: string;
   link: string;
+  chatLink?: string; // Link para ChatGPT
   icon?: LucideIcon | string;
   colorClass?: string;
   bgColor?: string;
+  onExplorarClick?: () => void; // Nueva función para manejar clic en "Explorar prompt"
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ 
@@ -60,7 +62,8 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   descripcion, 
   link,
   icon,
-  bgColor = "bg-gradient-to-br from-blue-50 to-indigo-100"
+  bgColor = "bg-gradient-to-br from-blue-50 to-indigo-100",
+  onExplorarClick
 }) => {
   // Determinar qué icono usar
   let IconComponent: LucideIcon | null = null;
@@ -102,9 +105,49 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
             <p className={styles.description}>{descripcion}</p>
           </div>
         </div>
-        <Link to={link} className={styles.link}>
-          Explorar <ChevronRight className={styles.linkIcon} />
-        </Link>
+        
+        {/* Contenedor flex para los botones - Layout horizontal actualizado */}
+        <div 
+          className="absolute bottom-3 left-3 right-3 flex justify-between items-end z-10"
+          style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'flex-end',
+            position: 'absolute',
+            bottom: '12px',
+            left: '12px',
+            right: '12px',
+            zIndex: 10
+          }}
+        >
+          {/* Botón "Explorar prompt" - lado izquierdo */}
+          {onExplorarClick ? (
+            <button 
+              onClick={onExplorarClick}
+              className={styles.explorarPromptButton}
+            >
+               Explorar prompt 
+            </button>
+          ) : (
+            <Link 
+              to={link} 
+              className={styles.explorarPromptButton}
+            >
+               Explorar prompt 
+            </Link>
+          )}
+
+          {/* Icono de ChatGPT - lado derecho */}
+          <Link 
+            to={link} 
+            className={styles.chatgptButton}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img src={chatgptIcon} alt="Ver en ChatGPT" />
+          </Link>
+        </div>
+        
       </div>
     </div>
   );

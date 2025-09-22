@@ -35,19 +35,26 @@ export const obtenerAgentes = async (): Promise<Agente[]> => {
 };
 
 /**
+ * Obtiene los agente de una categoria dada
+ */
+export const listarPorCategoria = async (idCategoria: number): Promise<Agente[]> => {
+  const response = await apiClient.get(`/agentes/categoria/${idCategoria}`);
+  return response.data;
+};
+
+/**
  * Obtiene un agente específico por su ID
  * @param {number} id - ID del agente a buscar
  * @returns {Promise<Agente>} Los datos del agente
  */
-export const obtenerAgentePorId = async (id: number): Promise<Agente> => {
+export const obtenerAgentePorId = async (idAgente: number): Promise<Agente> => {
   // console.log('Obteniendo agente por ID:', id);
   // console.log('Tipo de ID:', typeof id);
   
   // Para GET con body en axios, usar request con configuración específica
   const response = await apiClient.request({
-    method: 'POST',
-    url: '/agentes/a',
-    data: { id },
+    method: 'GET',
+    url: `/agentes/${idAgente}`,
     headers: {
       'Content-Type': 'application/json'
     }

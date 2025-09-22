@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bot, AlertCircle, Loader2, Filter, ChevronDown, Layers, Target, Users, Lightbulb, TrendingUp, TestTube, UserCheck, Zap } from 'lucide-react';
+import { Bot, AlertCircle, Loader2, Filter, ChevronDown, Layers, Target, Users, Lightbulb, TrendingUp, TestTube, UserCheck, Zap, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import FeatureCard from '../../components/cards/FeatureCard';
 import { obtenerAgentes, listarPorCategoria, Agente } from '../../services/agenteService';
@@ -29,6 +29,7 @@ const Agentes: React.FC = () => {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<number | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [categorias, setCategorias] = useState<CategoriaAgente[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   // Función para obtener el icono de una categoría
   const getCategoriaIcon = (nombreCategoria: string) => {
@@ -87,8 +88,11 @@ const Agentes: React.FC = () => {
     cargarDatos();
   }, [categoriaSeleccionada]); // Dependencia cambiada para recargar cuando cambie la categoría
 
-  // Ya no necesitamos filtrar en el frontend, el backend ya nos devuelve los agentes filtrados
-  const agentesFiltrados = agentes;
+  // Filtrar agentes por término de búsqueda (nombre y descripción)
+  const agentesFiltrados = agentes.filter(agente =>
+    agente.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (agente.descripcion && agente.descripcion.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   // Cerrar dropdown al hacer click fuera
   useEffect(() => {
@@ -144,6 +148,27 @@ const Agentes: React.FC = () => {
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Agentes de IA especializados que te guiarán en cada aspecto del proceso de innovación.
           </p>
+        </div>
+
+        {/* Barra de búsqueda */}
+        <div className="mb-8 max-w-md mx-auto">
+          <div className="relative">
+            <Search 
+              size={20} 
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            />
+            <input
+              type="text"
+              placeholder="Buscar agentes por nombre o descripción..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={`w-full pl-10 pr-4 py-3 rounded-lg border transition-all duration-200 ${
+                isDarkMode 
+                  ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20' 
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20'
+              } focus:outline-none`}
+            />
+          </div>
         </div>
 
         {/* Filtros y controles */}
@@ -227,10 +252,20 @@ const Agentes: React.FC = () => {
           <div className="flex flex-col items-center justify-center mt-12">
             <Bot className="h-16 w-16 text-gray-400 mb-4" />
             <p className="text-lg text-gray-600 dark:text-gray-400 text-center">
-              {agentes.length === 0 ? 'No hay agentes disponibles en este momento.' : 'No se encontraron agentes con el filtro seleccionado.'}
+              {agentes.length === 0 
+                ? 'No hay agentes disponibles en este momento.' 
+                : searchTerm 
+                  ? `No se encontraron agentes que coincidan con "${searchTerm}".`
+                  : 'No se encontraron agentes con el filtro seleccionado.'
+              }
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-500 text-center mt-2">
-              {agentes.length === 0 ? 'Los agentes aparecerán aquí una vez que sean creados.' : 'Intenta con otro filtro o elimina los filtros actuales.'}
+              {agentes.length === 0 
+                ? 'Los agentes aparecerán aquí una vez que sean creados.' 
+                : searchTerm
+                  ? 'Intenta con otro término de búsqueda o elimina la búsqueda actual.'
+                  : 'Intenta con otro filtro o elimina los filtros actuales.'
+              }
             </p>
           </div>
         ) : (

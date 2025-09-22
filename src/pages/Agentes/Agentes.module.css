@@ -60,8 +60,11 @@
 .filter-section {
   display: flex;
   justify-content: flex-start;
+  align-items: flex-start;
+  gap: 1rem;
   margin-bottom: 2rem;
   padding-left: 1rem;
+  flex-wrap: wrap;
 }
 
 .dropdown-container {
@@ -361,4 +364,29 @@
     padding: 0.625rem 0.875rem;
     font-size: 0.8125rem;
   }
+}
+
+/* =================================================================
+   SEARCH INPUT STYLES - ESTILOS DEL INPUT DE BÚSQUEDA
+   ================================================================= */
+
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--theme-text-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0;
+  margin: 0;
+}
+
+.search-input::placeholder {
+  color: var(--theme-text-secondary);
+  opacity: 0.7;
+}
+
+.search-input:focus::placeholder {
+  opacity: 0.5;
 }

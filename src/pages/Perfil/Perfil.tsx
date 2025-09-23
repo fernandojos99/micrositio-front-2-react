@@ -46,9 +46,9 @@ const Perfil: React.FC = () => {
   
   // @debug: Log del usuario al cargar el componente
   useEffect(() => {
-    console.log('🔍 Perfil - Usuario cargado:', user);
-    console.log('🔍 Perfil - user.id:', user?.id);
-    console.log('🔍 Perfil - user.alias:', user?.alias);
+    //console.log('🔍 Perfil - Usuario cargado:', user);
+    //console.log('🔍 Perfil - user.id:', user?.id);
+    //console.log('🔍 Perfil - user.alias:', user?.alias);
   }, [user]);
   
   // @state: Datos del empleado
@@ -289,10 +289,10 @@ const Perfil: React.FC = () => {
     }
 
     // @debug: Información de depuración del usuario
-    console.log('🔍 Debug - Objeto user completo:', user);
-    console.log('🔍 Debug - user.id:', user?.id);
-    console.log('🔍 Debug - Tipo de user.id:', typeof user?.id);
-    console.log('🔍 Debug - user existe:', !!user);
+    //console.log('🔍 Debug - Objeto user completo:', user);
+    //console.log('🔍 Debug - user.id:', user?.id);
+    //console.log('🔍 Debug - Tipo de user.id:', typeof user?.id);
+    //console.log('🔍 Debug - user existe:', !!user);
 
     if (!user?.id) {
       console.error('❌ Error - No se pudo identificar el usuario. user?.id:', user?.id);

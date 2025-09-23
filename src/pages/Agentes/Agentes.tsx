@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bot, AlertCircle, Loader2, Filter, ChevronDown, Layers, Target, Users, Lightbulb, TrendingUp, TestTube, UserCheck, Zap } from 'lucide-react';
+import { Bot, AlertCircle, Loader2, Filter, ChevronDown, Layers, Target, Users, Lightbulb, TrendingUp, TestTube, UserCheck, Zap, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import FeatureCard from '../../components/cards/FeatureCard';
 import { obtenerAgentes, listarPorCategoria, Agente } from '../../services/agenteService';
@@ -29,6 +29,7 @@ const Agentes: React.FC = () => {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<number | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [categorias, setCategorias] = useState<CategoriaAgente[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   // Función para obtener el icono de una categoría
   const getCategoriaIcon = (nombreCategoria: string) => {
@@ -87,8 +88,11 @@ const Agentes: React.FC = () => {
     cargarDatos();
   }, [categoriaSeleccionada]); // Dependencia cambiada para recargar cuando cambie la categoría
 
-  // Ya no necesitamos filtrar en el frontend, el backend ya nos devuelve los agentes filtrados
-  const agentesFiltrados = agentes;
+  // Filtrar agentes por término de búsqueda (nombre y descripción)
+  const agentesFiltrados = agentes.filter(agente =>
+    agente.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (agente.descripcion && agente.descripcion.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   // Cerrar dropdown al hacer click fuera
   useEffect(() => {
@@ -141,13 +145,31 @@ const Agentes: React.FC = () => {
           <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600 mb-4">
              Descubre nuestro agentes para innovación
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          {/*<p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Agentes de IA especializados que te guiarán en cada aspecto del proceso de innovación.
-          </p>
+          </p>*/}
         </div>
 
-        {/* Filtros y controles */}
+        {/* Barra de búsqueda y filtros */}
         <div className={styles['filter-section']}>
+          {/* Barra de búsqueda */}
+          <div className={`${styles['dropdown-container']} ${isDarkMode ? 'dark' : ''}`}>
+            <div className={styles['dropdown-trigger']}>
+              <Search 
+                size={16} 
+                className={styles['dropdown-trigger-icon']}
+              />
+              <input
+                type="text"
+                placeholder="Buscar agentes . . ."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={styles['search-input']}
+              />
+            </div>
+          </div>
+
+          {/* Dropdown de categorías */}
           <div className={`${styles['dropdown-container']} ${isDarkMode ? 'dark' : ''} dropdown-container`}>
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -227,10 +249,20 @@ const Agentes: React.FC = () => {
           <div className="flex flex-col items-center justify-center mt-12">
             <Bot className="h-16 w-16 text-gray-400 mb-4" />
             <p className="text-lg text-gray-600 dark:text-gray-400 text-center">
-              {agentes.length === 0 ? 'No hay agentes disponibles en este momento.' : 'No se encontraron agentes con el filtro seleccionado.'}
+              {agentes.length === 0 
+                ? 'No hay agentes disponibles en este momento.' 
+                : searchTerm 
+                  ? `No se encontraron agentes que coincidan con "${searchTerm}".`
+                  : 'No se encontraron agentes con el filtro seleccionado.'
+              }
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-500 text-center mt-2">
-              {agentes.length === 0 ? 'Los agentes aparecerán aquí una vez que sean creados.' : 'Intenta con otro filtro o elimina los filtros actuales.'}
+              {agentes.length === 0 
+                ? 'Los agentes aparecerán aquí una vez que sean creados.' 
+                : searchTerm
+                  ? 'Intenta con otro término de búsqueda o elimina la búsqueda actual.'
+                  : 'Intenta con otro filtro o elimina los filtros actuales.'
+              }
             </p>
           </div>
         ) : (

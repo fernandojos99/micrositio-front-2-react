@@ -138,7 +138,7 @@ const EditarProyectoModal: React.FC<EditarProyectoModalProps> = ({
       }));
 
       setCategorias(categoriasMapeadas);
-      console.log('📂 Categorías cargadas:', categoriasMapeadas);
+      //console.log('📂 Categorías cargadas:', categoriasMapeadas);
     } catch (error) {
       console.error('Error al cargar categorías:', error);
       setErrors(prev => ({ ...prev, categorias: 'Error al cargar categorías' }));
@@ -159,9 +159,9 @@ const EditarProyectoModal: React.FC<EditarProyectoModalProps> = ({
       
       setEquipoIds(equipoActivo);
       setEquipoIdsOriginales([...equipoActivo]); // Hacer una copia para evitar problemas de referencia
-      
-      console.log('📋 Equipo actual cargado:', equipoActivo);
-      console.log('📋 Equipo IDs originales:', equipoActivo);
+
+      //console.log('📋 Equipo actual cargado:', equipoActivo);
+      //console.log('📋 Equipo IDs originales:', equipoActivo);
     } catch (error) {
       console.error('Error al cargar equipo actual:', error);
       setErrors(prev => ({ ...prev, equipo: 'Error al cargar el equipo actual' }));
@@ -202,9 +202,9 @@ const EditarProyectoModal: React.FC<EditarProyectoModalProps> = ({
       // Empleados que se quitaron (están en equipoIdsOriginales pero no en equipoIdsActuales)
       const empleadosQuitar = equipoIdsOriginales.filter(id => !equipoIdsActuales.includes(id));
 
-      console.log('👥 Actualizando equipo:');
-      console.log('  ➕ Agregar:', empleadosAgregar);
-      console.log('  ➖ Quitar:', empleadosQuitar);
+      //console.log('👥 Actualizando equipo:');
+      //console.log('  ➕ Agregar:', empleadosAgregar);
+      //console.log('  ➖ Quitar:', empleadosQuitar);
 
       // Crear relaciones para nuevos empleados
       if (empleadosAgregar.length > 0) {
@@ -226,9 +226,9 @@ const EditarProyectoModal: React.FC<EditarProyectoModalProps> = ({
             if (relacion) {
               // Usar eliminar en lugar de actualizarActivo
               await eliminar(relacion.id);
-              console.log(`✅ Empleado ${empleadoId} eliminado exitosamente (ID relación: ${relacion.id})`);
+              //console.log(`✅ Empleado ${empleadoId} eliminado exitosamente (ID relación: ${relacion.id})`);
             } else {
-              console.warn(`⚠️ No se encontró relación activa para empleado ${empleadoId}`);
+              //console.warn(`⚠️ No se encontró relación activa para empleado ${empleadoId}`);
             }
           }
         } catch (eliminarError) {
@@ -269,7 +269,7 @@ const EditarProyectoModal: React.FC<EditarProyectoModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log('📤 Datos a enviar:', formData);
+    //console.log('📤 Datos a enviar:', formData);
 
     if (!validateForm()) return;
 
@@ -287,11 +287,12 @@ const EditarProyectoModal: React.FC<EditarProyectoModalProps> = ({
         estado: formData.estado.toUpperCase()
       };
 
-      console.log('🚀 Enviando al backend:', data);
+      //console.log('🚀 Enviando al backend:', data);
 
       const proyectoActualizado = await actualizarProyecto(Number(proyecto.id), data);
-      
-      console.log('✅ Proyecto actualizado:', proyectoActualizado);
+
+      console.log('✅ Proyecto actualizado correctamente');
+      //console.log('✅ Proyecto actualizado:', proyectoActualizado);
 
       // 2. Actualizar equipo del proyecto
       await actualizarEquipoProyecto();
@@ -308,7 +309,7 @@ const EditarProyectoModal: React.FC<EditarProyectoModalProps> = ({
         fecha_fin_estimada: proyectoActualizado.fecha_fin_estimada
       };
 
-      console.log('📦 Proyecto mapeado para el frontend:', proyectoMapeado);
+      //console.log('📦 Proyecto mapeado para el frontend:', proyectoMapeado);
 
       onProyectoActualizado(proyectoMapeado);
       console.log('🎉 Proyecto y equipo actualizados exitosamente!');

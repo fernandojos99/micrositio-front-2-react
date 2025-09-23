@@ -5,6 +5,9 @@ const apiClient = axios.create({
 
   headers: {
     'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
   },
 });
 
@@ -34,6 +37,13 @@ apiClient.interceptors.response.use(
       // Opcional: redirigir al login o emitir evento
       window.dispatchEvent(new CustomEvent('auth:logout'));
     }
+    
+    // Manejar errores CORS específicamente
+    if (error.message?.includes('CORS') || error.code === 'ERR_NETWORK') {
+      console.warn('🚨 Error CORS detectado:', error.message);
+      // Puedes agregar lógica adicional aquí, como mostrar un toast o retry con diferente método
+    }
+    
     return Promise.reject(error);
   }
 );

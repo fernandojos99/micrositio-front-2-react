@@ -1,13 +1,9 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL:  'https://micrositio-iris-backend.onrender.com', //  'http://localhost:3000',//
-
+  baseURL: 'https://micrositio-iris-backend.onrender.com',
   headers: {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
   },
 });
 

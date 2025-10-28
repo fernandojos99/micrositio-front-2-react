@@ -19,7 +19,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, Copy, Eye, FileText, Calendar, User, Hash, Heart } from 'lucide-react';
-import TemplateFlowViewer from './TemplateFlowViewer';
+import TemplateTestingCardList from './TemplateTestingCardList';
 import { 
   TemplateViewerModalProps, 
   TemplateServiceResponse, 
@@ -315,7 +315,7 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
             </div>
           )}
 
-          {/* Área principal - Vista previa del flow */}
+          {/* Área principal - Lista de Testing Cards */}
           <div className={`template-flow-container ${showDetails ? 'with-sidebar' : 'full-width'}`}>
             {loadingState === TEMPLATE_CONSTANTS.LOADING_STATES.LOADING && (
               <div className="template-loading-state">
@@ -339,14 +339,10 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
             )}
 
             {loadingState === TEMPLATE_CONSTANTS.LOADING_STATES.SUCCESS && (
-              <TemplateFlowViewer
+              <TemplateTestingCardList
                 plantillaId={plantillaId}
-                height="100%"
-                width="100%"
-                showControls={true}
-                onError={(err) => setError(err.message)}
                 onApplyTestingCard={handleApplyTestingCard}
-                showApplyButtons={true}
+                className="template-testing-card-list"
               />
             )}
           </div>

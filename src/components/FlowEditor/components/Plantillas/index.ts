@@ -54,6 +54,9 @@ export type {
 // Constantes
 export { TEMPLATE_CONSTANTS } from './types';
 
+// Importar TEMPLATE_CONSTANTS para re-exportar constantes individuales
+import { TEMPLATE_CONSTANTS } from './types';
+
 // Re-exportar constantes más usadas para facilidad de uso
 export const {
   CATEGORIES,

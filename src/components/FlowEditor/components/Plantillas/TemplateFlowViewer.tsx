@@ -76,7 +76,9 @@ const TemplateFlowViewer: React.FC<TemplateFlowViewerProps> = ({
   width = '100%',
   showControls = true,
   onDataLoaded,
-  onError
+  onError,
+  onApplyTestingCard,
+  showApplyButtons = true
 }) => {
   // Estados para manejar los nodos y edges de ReactFlow
   const [nodes, setNodes, onNodesChange] = useNodesState<TemplateTestingCardData>([]);
@@ -90,6 +92,7 @@ const TemplateFlowViewer: React.FC<TemplateFlowViewerProps> = ({
    * Effect principal que se ejecuta cuando cambia el ID de la plantilla
    */
   useEffect(() => {
+    console.log('TemplateFlowViewer useEffect:', { plantillaId });
     if (plantillaId) {
       loadTemplateTestingCards();
     }
@@ -99,6 +102,7 @@ const TemplateFlowViewer: React.FC<TemplateFlowViewerProps> = ({
    * Carga las Testing Cards asociadas a la plantilla desde el servicio
    */
   const loadTemplateTestingCards = async () => {
+    console.log('loadTemplateTestingCards iniciando para plantilla:', plantillaId);
     try {
       setLoadingState(TEMPLATE_CONSTANTS.LOADING_STATES.LOADING);
       
@@ -214,6 +218,9 @@ const TemplateFlowViewer: React.FC<TemplateFlowViewerProps> = ({
           onAddTesting: undefined,
           onAddLearning: undefined,
           onStatusChange: undefined,
+          // Agregar callback para aplicar plantilla y configuración de botón
+          onApplyTemplate: onApplyTestingCard,
+          showApplyButton: showApplyButtons,
         },
         // Configuración específica para modo plantilla
         draggable: false,        // No permite arrastrar

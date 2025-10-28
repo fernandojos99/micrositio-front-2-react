@@ -28,7 +28,8 @@ import {
   User, 
   Tag,
   Clock,
-  CheckCircle2
+  CheckCircle2,
+  Download
 } from 'lucide-react';
 import { TemplateTestingCardNodeProps, TEMPLATE_CONSTANTS } from './types';
 
@@ -53,7 +54,9 @@ const TemplateTestingCardNode: React.FC<TemplateTestingCardNodeProps> = ({
   data, 
   selected = false,
   viewMode = TEMPLATE_CONSTANTS.VIEW_MODES.PREVIEW,
-  onClick 
+  onClick,
+  onApplyTemplate,
+  showApplyButton = true
 }) => {
 
   /**
@@ -109,6 +112,18 @@ const TemplateTestingCardNode: React.FC<TemplateTestingCardNodeProps> = ({
   const handleNodeClick = () => {
     if (onClick) {
       onClick(`template-testing-${data.id_testing_card}`);
+    }
+  };
+
+  /**
+   * Maneja el clic en el botón "Aplicar"
+   */
+  const handleApplyClick = (e: React.MouseEvent) => {
+    // Prevenir que el evento se propague al nodo padre
+    e.stopPropagation();
+    
+    if (onApplyTemplate) {
+      onApplyTemplate(data);
     }
   };
 
@@ -217,23 +232,39 @@ const TemplateTestingCardNode: React.FC<TemplateTestingCardNodeProps> = ({
 
       {/* Footer de la plantilla */}
       <div className="template-card-footer">
-        {/* Badge de estado */}
-        <div 
-          className="template-card-status"
-          style={{
-            backgroundColor: getStatusColor(data.status),
-            color: '#fff'
-          }}
-        >
-          {getStatusIcon(data.status)}
-          <span>{data.status}</span>
+        <div className="template-card-footer-left">
+          {/* Badge de estado */}
+          <div 
+            className="template-card-status"
+            style={{
+              backgroundColor: getStatusColor(data.status),
+              color: '#fff'
+            }}
+          >
+            {getStatusIcon(data.status)}
+            <span>{data.status}</span>
+          </div>
+
+          {/* Badge de vista previa */}
+          <div className="template-card-preview-badge">
+            <Eye size={10} />
+            <span>Vista previa</span>
+          </div>
         </div>
 
-        {/* Badge de vista previa */}
-        <div className="template-card-preview-badge">
-          <Eye size={10} />
-          <span>Vista previa</span>
-        </div>
+        {/* Botón Aplicar (si está habilitado) */}
+        {showApplyButton && onApplyTemplate && (
+          <div className="template-card-footer-right">
+            <button
+              onClick={handleApplyClick}
+              className="template-apply-btn"
+              title="Aplicar esta Testing Card"
+            >
+              <Download size={12} />
+              <span>Aplicar</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Indicador de plantilla pública/privada */}

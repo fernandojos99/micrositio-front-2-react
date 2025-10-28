@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Handle, Position } from 'reactflow';
 import {
   Edit3,
@@ -19,6 +20,7 @@ import TestingCardPlaybookService from '../../services/TestingCardPlaybookServic
 import { TestingCardPlaybook } from '../../types/testingCardPlaybook';
 import { Empleado, obtenerEmpleados } from '../../services/empleadosService';
 import TemplateDropdown from './components/Plantillas/TemplateDropdown';
+import { TemplateViewerModal } from './components/Plantillas';
 import './styles/TestingCardNode.css';
 
 interface TestingCardNodeProps {
@@ -49,18 +51,46 @@ const TestingCardNode: React.FC<TestingCardNodeProps> = ({ data, selected }) => 
   const [responsable, setResponsable] = useState<Empleado | null>(null);
   const [loadingResponsable, setLoadingResponsable] = useState(false);
 
+  // Estados para el modal de plantillas
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
+
   const toggleExpanded = () => setIsExpanded(prev => !prev);
 
   // Handlers para las acciones de plantillas
   const handleApplyTemplate = () => {
     console.log('Aplicar plantilla para Testing Card:', data.id_testing_card);
-    // TODO: Implementar lógica para aplicar plantilla
+    console.log('Estados antes del cambio:', { showTemplateModal, selectedTemplateId });
+    // Por ahora, abrir modal con una plantilla de ejemplo
+    setSelectedTemplateId(1); // ID de plantilla de ejemplo
+    setShowTemplateModal(true);
+    console.log('Estados después del cambio - showTemplateModal debería ser true');
   };
 
   const handleSaveTemplate = () => {
     console.log('Guardar como plantilla para Testing Card:', data.id_testing_card);
     // TODO: Implementar lógica para guardar como plantilla
+    alert(`Guardar Testing Card ${data.titulo} como plantilla (pendiente de implementar)`);
   };
+
+  // Handler para usar una plantilla seleccionada
+  const handleUseTemplate = (templateId: number) => {
+    console.log('Usar plantilla:', templateId, 'en Testing Card:', data.id_testing_card);
+    // TODO: Implementar lógica para aplicar la plantilla seleccionada
+    alert(`Aplicar plantilla ${templateId} (pendiente de implementar)`);
+  };
+
+  // Handler para cerrar el modal de plantillas
+  const handleCloseTemplateModal = () => {
+    console.log('Cerrando modal de plantillas');
+    setShowTemplateModal(false);
+    setSelectedTemplateId(null);
+  };
+
+  // Debug: Log cuando cambian los estados del modal
+  useEffect(() => {
+    console.log('Estados del modal de plantillas:', { showTemplateModal, selectedTemplateId });
+  }, [showTemplateModal, selectedTemplateId]);
 
   // Cargar métricas y URLs cuando se expande el componente
   useEffect(() => {
@@ -557,6 +587,19 @@ const TestingCardNode: React.FC<TestingCardNodeProps> = ({ data, selected }) => 
           <Trash2 size={12} />
         </button>
       </div>
+
+      {/* Modal de plantillas usando portal para renderizar fuera del nodo */}
+      {showTemplateModal && selectedTemplateId && createPortal(
+        <TemplateViewerModal
+          isOpen={showTemplateModal}
+          onClose={handleCloseTemplateModal}
+          plantillaId={selectedTemplateId}
+          plantillaNombre={`Plantilla ${selectedTemplateId}`}
+          plantillaDescripcion="Plantilla de ejemplo para Testing Cards"
+          onUseTemplate={handleUseTemplate}
+        />,
+        document.body
+      )}
     </div>
   );
 };

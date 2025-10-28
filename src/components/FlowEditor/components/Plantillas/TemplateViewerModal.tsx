@@ -48,6 +48,7 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
   onDuplicateTemplate
 }) => {
   // Estados locales para el manejo de datos y UI
+  console.log('TemplateViewerModal renderizado:', { isOpen, plantillaId, plantillaNombre });
   const [templateData, setTemplateData] = useState<TemplateServiceResponse | null>(null);
   const [loadingState, setLoadingState] = useState<LoadingState>(TEMPLATE_CONSTANTS.LOADING_STATES.IDLE);
   const [error, setError] = useState<string | null>(null);
@@ -138,6 +139,19 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
   };
 
   /**
+   * Maneja la aplicación de una Testing Card individual
+   */
+  const handleApplyTestingCard = (testingCardData: TemplateTestingCardData) => {
+    console.log('Aplicar Testing Card individual:', testingCardData);
+    // TODO: Implementar lógica para crear una nueva Testing Card basada en la plantilla
+    // Por ahora, usar el callback general de usar plantilla
+    if (onUseTemplate && plantillaId) {
+      onUseTemplate(plantillaId);
+      handleClose();
+    }
+  };
+
+  /**
    * Formatea una fecha para mostrar en la UI
    */
   const formatDate = (dateString: string): string => {
@@ -177,9 +191,17 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
     }
   };
 
-  // No renderizar nada si el modal no está abierto
-  if (!isOpen) return null;
+  // Debug: Log del estado del modal
+  console.log('TemplateViewerModal renderizando:', { isOpen, plantillaId });
 
+  // No renderizar nada si el modal no está abierto
+  if (!isOpen) {
+    console.log('TemplateViewerModal: Modal no está abierto, retornando null');
+    return null;
+  }
+
+  console.log('TemplateViewerModal: Modal está abierto, renderizando contenido');
+  
   // Renderizado del componente
   return (
     <div className="template-modal-backdrop" onClick={handleClose}>
@@ -323,6 +345,8 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
                 width="100%"
                 showControls={true}
                 onError={(err) => setError(err.message)}
+                onApplyTestingCard={handleApplyTestingCard}
+                showApplyButtons={true}
               />
             )}
           </div>

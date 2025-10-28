@@ -56,9 +56,9 @@
   --template-transition-slow: 0.5s ease-in-out;
 
   /* Z-indexes */
-  --template-z-modal: 1000;
-  --template-z-overlay: 1001;
-  --template-z-dropdown: 1002;
+  --template-z-modal: 9999;
+  --template-z-overlay: 10000;
+  --template-z-dropdown: 10001;
 }
 
 /* =================================================================
@@ -644,6 +644,17 @@
   border-top: var(--template-border-width) solid var(--color-border-ultra-light, #F3F4F6);
 }
 
+.template-card-footer-left {
+  display: flex;
+  align-items: center;
+  gap: var(--template-spacing-xs);
+}
+
+.template-card-footer-right {
+  display: flex;
+  align-items: center;
+}
+
 .template-card-status {
   display: flex;
   align-items: center;
@@ -706,6 +717,42 @@
   font-size: 0.7rem;
   color: var(--theme-text-secondary, #6B7280);
   font-style: italic;
+}
+
+/* Botón Aplicar */
+.template-apply-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--template-spacing-xs);
+  padding: var(--template-spacing-xs) var(--template-spacing-sm);
+  background: var(--template-primary);
+  color: white;
+  border: none;
+  border-radius: var(--template-border-radius);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--template-transition-fast);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 70px;
+  justify-content: center;
+}
+
+.template-apply-btn:hover {
+  background: var(--template-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--template-shadow-sm);
+}
+
+.template-apply-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.template-apply-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
 }
 
 /* =================================================================
@@ -834,6 +881,22 @@
     font-size: 0.8rem;
     -webkit-line-clamp: 3;
     line-clamp: 3;
+  }
+
+  .template-card-footer {
+    flex-direction: column;
+    gap: var(--template-spacing-xs);
+    align-items: stretch;
+  }
+
+  .template-card-footer-left {
+    justify-content: center;
+  }
+
+  .template-apply-btn {
+    font-size: 0.7rem;
+    padding: var(--template-spacing-xs);
+    min-width: 60px;
   }
 }
 

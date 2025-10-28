@@ -93,6 +93,12 @@ export interface TemplateFlowViewerProps {
   
   /** Función callback que se ejecuta si hay un error al cargar */
   onError?: (error: Error) => void;
+  
+  /** Función callback para aplicar una Testing Card específica */
+  onApplyTestingCard?: (testingCardData: TemplateTestingCardData) => void;
+  
+  /** Indica si debe mostrar botones "Aplicar" en los nodos */
+  showApplyButtons?: boolean;
 }
 
 /**
@@ -110,6 +116,12 @@ export interface TemplateTestingCardNodeProps {
   
   /** Función callback cuando se hace clic en el nodo (opcional) */
   onClick?: (nodeId: string) => void;
+  
+  /** Función callback para aplicar esta Testing Card específica */
+  onApplyTemplate?: (testingCardData: TemplateTestingCardData) => void;
+  
+  /** Indica si debe mostrar el botón "Aplicar" */
+  showApplyButton?: boolean;
 }
 
 /**

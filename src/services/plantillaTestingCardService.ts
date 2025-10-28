@@ -1,3 +1,4 @@
+
 import apiClient from '../apiClient';
 
 export interface PlantillaTestingCard {
@@ -24,67 +25,67 @@ export interface ActualizarPlantillaTestingCardData {
  * @returns {Promise<PlantillaTestingCard[]>} Lista de todas las plantillas testing card
  */
 export const obtenerPlantillasTestingCard = async (): Promise<PlantillaTestingCard[]> => {
-  const response = await apiClient.get('/plantilla-testing-card/');
+  const response = await apiClient.get('/plantilla_testing_card/');
   return response.data;
 };
 
 /**
  * Obtiene plantillas testing card por empleado
- * @param {number} idEmpleado - ID del empleado
+ * @param {number} idEmpleado _ ID del empleado
  * @returns {Promise<PlantillaTestingCard[]>} Lista de plantillas testing card del empleado
  */
 export const obtenerPlantillasTestingCardPorEmpleado = async (idEmpleado: number): Promise<PlantillaTestingCard[]> => {
-  const response = await apiClient.get(`/plantilla-testing-card/empleado/${idEmpleado}`);
+  const response = await apiClient.get(`/plantilla_testing_card/empleado/${idEmpleado}`);
   return response.data;
 };
 
 /**
  * Obtiene plantillas testing card por testing card
- * @param {number} idTestingCard - ID de la testing card
+ * @param {number} idTestingCard _ ID de la testing card
  * @returns {Promise<PlantillaTestingCard[]>} Lista de plantillas testing card de la testing card específica
  */
 export const obtenerPlantillasTestingCardPorTestingCard = async (idTestingCard: number): Promise<PlantillaTestingCard[]> => {
-  const response = await apiClient.get(`/plantilla-testing-card/testing-card/${idTestingCard}`);
+  const response = await apiClient.get(`/plantilla_testing_card/testing_card/${idTestingCard}`);
   return response.data;
 };
 
 /**
  * Obtiene una plantilla testing card específica por su ID
- * @param {string} id - ID de la plantilla testing card a buscar
+ * @param {string} id _ ID de la plantilla testing card a buscar
  * @returns {Promise<PlantillaTestingCard>} Los datos de la plantilla testing card
  */
 export const obtenerPlantillaTestingCardPorId = async (id: string): Promise<PlantillaTestingCard> => {
-  const response = await apiClient.get(`/plantilla-testing-card/${id}`);
+  const response = await apiClient.get(`/plantilla_testing_card/${id}`);
   return response.data;
 };
 
 /**
  * Crea una nueva plantilla testing card
- * @param {CrearPlantillaTestingCardData} plantillaData - Datos de la nueva plantilla testing card
+ * @param {CrearPlantillaTestingCardData} plantillaData _ Datos de la nueva plantilla testing card
  * @returns {Promise<PlantillaTestingCard>} La plantilla testing card creada
  */
 export const crearPlantillaTestingCard = async (plantillaData: CrearPlantillaTestingCardData): Promise<PlantillaTestingCard> => {
-  const response = await apiClient.post('/plantilla-testing-card/', plantillaData);
+  const response = await apiClient.post('/plantilla_testing_card/', plantillaData);
   return response.data;
 };
 
 /**
  * Actualiza los datos de una plantilla testing card existente
- * @param {ActualizarPlantillaTestingCardData} plantillaData - Datos a actualizar (debe incluir el id)
+ * @param {ActualizarPlantillaTestingCardData} plantillaData _ Datos a actualizar (debe incluir el id)
  * @returns {Promise<PlantillaTestingCard>} La plantilla testing card actualizada
  */
 export const actualizarPlantillaTestingCard = async (plantillaData: ActualizarPlantillaTestingCardData): Promise<PlantillaTestingCard> => {
-  const response = await apiClient.patch('/plantilla-testing-card/', plantillaData);
+  const response = await apiClient.patch('/plantilla_testing_card/', plantillaData);
   return response.data;
 };
 
 /**
  * Elimina una plantilla testing card
- * @param {string} id - ID de la plantilla testing card a eliminar
+ * @param {string} id _ ID de la plantilla testing card a eliminar
  * @returns {Promise<PlantillaTestingCard>} La plantilla testing card eliminada
  */
 export const eliminarPlantillaTestingCard = async (id: string): Promise<PlantillaTestingCard> => {
-  const response = await apiClient.delete('/plantilla-testing-card/', {
+  const response = await apiClient.delete('/plantilla_testing_card/', {
     data: { id }
   });
   return response.data;

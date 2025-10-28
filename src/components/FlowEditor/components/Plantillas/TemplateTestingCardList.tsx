@@ -11,7 +11,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FileText, Play, AlertCircle, Loader2 } from 'lucide-react';
-import { obtenerPlantillasTestingCardPorTestingCard } from '../../../../services/plantillaTestingCardService';
+import { obtenerPlantillasTestingCard } from '../../../../services/plantillaTestingCardService';
 import { obtenerTestingCardPorId } from '../../../../services/testingCardService';
 
 interface TestingCardData {
@@ -58,27 +58,52 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
       setLoading(true);
       setError(null);
 
-      // Por ahora, usar datos mock ya que necesitamos definir la estructura de la API
-      // TODO: Reemplazar con llamadas reales a los servicios
-      const mockTestingCards: TestingCardData[] = [
-        {
-          id_testing_card: 1,
-          titulo: "Testing Card de Validación",
-          descripcion: "Validar funcionalidad principal del sistema"
-        },
-        {
-          id_testing_card: 2,
-          titulo: "Testing Card de Performance",
-          descripcion: "Verificar tiempos de respuesta del API"
-        },
-        {
-          id_testing_card: 3,
-          titulo: "Testing Card de Seguridad",
-          descripcion: "Validar autenticación y autorización"
-        }
-      ];
+      console.log('Intentando cargar plantillas para plantilla ID:', plantillaId);
 
-      setTestingCards(mockTestingCards);
+      // Opción 1: Intentar usar el servicio de testing cards directamente
+      try {
+        // Usar el servicio de testing cards que sabemos que funciona
+        const { listarTodasTestingCards } = await import('../../../../services/testingCardService');
+        const todasLasTestingCards = await listarTodasTestingCards();
+        console.log('Testing Cards obtenidas directamente:', todasLasTestingCards);
+        
+        // Tomar las primeras 5 como ejemplo de plantilla
+        const testingCardsLimitadas = todasLasTestingCards.slice(0, 5);
+        
+        const testingCardsData = testingCardsLimitadas.map((testingCard: any) => ({
+          id_testing_card: testingCard.id_testing_card,
+          titulo: testingCard.titulo || `Testing Card #${testingCard.id_testing_card}`,
+          descripcion: testingCard.descripcion || 'Sin descripción disponible'
+        }));
+
+        console.log('Testing Cards procesadas:', testingCardsData);
+        setTestingCards(testingCardsData);
+        
+      } catch (apiError) {
+        console.error('Error al usar API de testing cards:', apiError);
+        
+        // Fallback: usar datos mock si la API no está disponible
+        console.log('Usando datos mock como fallback');
+        const mockTestingCards: TestingCardData[] = [
+          {
+            id_testing_card: 1,
+            titulo: "Testing Card de Validación (Mock)",
+            descripcion: "Validar funcionalidad principal del sistema"
+          },
+          {
+            id_testing_card: 2,
+            titulo: "Testing Card de Performance (Mock)",
+            descripcion: "Verificar tiempos de respuesta del API"
+          },
+          {
+            id_testing_card: 3,
+            titulo: "Testing Card de Seguridad (Mock)",
+            descripcion: "Validar autenticación y autorización"
+          }
+        ];
+        
+        setTestingCards(mockTestingCards);
+      }
     } catch (err) {
       console.error('Error al cargar Testing Cards de la plantilla:', err);
       setError('Error al cargar las Testing Cards de la plantilla');

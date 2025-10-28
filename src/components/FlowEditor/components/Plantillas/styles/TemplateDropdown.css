@@ -1,0 +1,177 @@
+/* =================================================================
+   TEMPLATE DROPDOWN - COMPONENTE ELEGANTE PARA PLANTILLAS
+   ================================================================= */
+
+/* @section: Contenedor principal del dropdown */
+.template-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.template-dropdown.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* @section: Botón trigger del dropdown */
+.template-dropdown__trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--theme-bg-secondary);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--border-radius-md);
+  color: var(--theme-text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  min-height: 32px;
+}
+
+.template-dropdown__trigger:hover {
+  background: var(--theme-bg-tertiary);
+  border-color: var(--color-primary-purple);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.template-dropdown__trigger:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.template-dropdown__trigger:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* @section: Icono chevron con animación */
+.template-dropdown__chevron {
+  transition: transform var(--transition-fast);
+}
+
+.template-dropdown__chevron.rotated {
+  transform: rotate(180deg);
+}
+
+/* @section: Menú desplegable */
+.template-dropdown__menu {
+  position: absolute;
+  top: calc(100% + var(--spacing-xs));
+  right: 0;
+  min-width: 180px;
+  background: var(--theme-bg-primary);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
+  overflow: hidden;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* @section: Items del menú */
+.template-dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: transparent;
+  border: none;
+  color: var(--theme-text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border-bottom: 1px solid var(--color-border-ultra-light);
+}
+
+.template-dropdown__item:last-child {
+  border-bottom: none;
+}
+
+.template-dropdown__item:hover {
+  background: var(--theme-bg-secondary);
+  color: var(--color-primary-purple);
+}
+
+.template-dropdown__item:active {
+  background: var(--theme-bg-tertiary);
+}
+
+/* @section: Estados específicos para cada item */
+.template-dropdown__item:first-child:hover {
+  background: color-mix(in srgb, var(--color-primary-blue) 8%, var(--theme-bg-primary));
+  color: var(--color-primary-blue);
+}
+
+.template-dropdown__item:last-child:hover {
+  background: color-mix(in srgb, var(--color-primary-green) 8%, var(--theme-bg-primary));
+  color: var(--color-primary-green);
+}
+
+/* @section: Responsive adjustments */
+@media (max-width: 768px) {
+  .template-dropdown__menu {
+    min-width: 160px;
+    right: auto;
+    left: 0;
+  }
+  
+  .template-dropdown__trigger {
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-xs);
+  }
+  
+  .template-dropdown__item {
+    padding: var(--spacing-sm);
+    font-size: var(--font-size-xs);
+  }
+}
+
+/* @section: Variantes de tamaño */
+.template-dropdown.compact .template-dropdown__trigger {
+  padding: calc(var(--spacing-xs) / 2) var(--spacing-xs);
+  font-size: var(--font-size-xs);
+  min-height: 28px;
+}
+
+.template-dropdown.compact .template-dropdown__item {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-xs);
+}
+
+/* @section: Estado de loading (opcional para futuras mejoras) */
+.template-dropdown.loading .template-dropdown__trigger {
+  cursor: wait;
+}
+
+.template-dropdown.loading .template-dropdown__chevron {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

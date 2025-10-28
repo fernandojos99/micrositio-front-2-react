@@ -18,6 +18,7 @@ import { UrlTestingCard, obtenerPorTestingCard as obtenerUrlsPorTestingCard } fr
 import TestingCardPlaybookService from '../../services/TestingCardPlaybookService';
 import { TestingCardPlaybook } from '../../types/testingCardPlaybook';
 import { Empleado, obtenerEmpleados } from '../../services/empleadosService';
+import TemplateDropdown from './components/Plantillas/TemplateDropdown';
 import './styles/TestingCardNode.css';
 
 interface TestingCardNodeProps {
@@ -49,6 +50,17 @@ const TestingCardNode: React.FC<TestingCardNodeProps> = ({ data, selected }) => 
   const [loadingResponsable, setLoadingResponsable] = useState(false);
 
   const toggleExpanded = () => setIsExpanded(prev => !prev);
+
+  // Handlers para las acciones de plantillas
+  const handleApplyTemplate = () => {
+    console.log('Aplicar plantilla para Testing Card:', data.id_testing_card);
+    // TODO: Implementar lógica para aplicar plantilla
+  };
+
+  const handleSaveTemplate = () => {
+    console.log('Guardar como plantilla para Testing Card:', data.id_testing_card);
+    // TODO: Implementar lógica para guardar como plantilla
+  };
 
   // Cargar métricas y URLs cuando se expande el componente
   useEffect(() => {
@@ -326,6 +338,12 @@ const TestingCardNode: React.FC<TestingCardNodeProps> = ({ data, selected }) => 
             {/*<span>Tipo #{data.id_experimento_tipo}</span> */}
           </div>
         </div>
+        
+        <TemplateDropdown
+          onApplyTemplate={handleApplyTemplate}
+          onSaveTemplate={handleSaveTemplate}
+          className="compact"
+        />
       </div>
 
       <div className="card-body">

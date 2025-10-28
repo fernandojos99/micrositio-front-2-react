@@ -123,7 +123,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     }
     
     // Validar solo alfanuméricos, guiones y guiones bajos
-    const aliasRegex = /^[a-zA-Z0-9_-]+$/;
+    const aliasRegex = /^[a-zA-Z0-9_@-]+$/;
     if (!aliasRegex.test(alias)) {
       return 'El alias solo puede contener letras, números, guiones y guiones bajos';
     }

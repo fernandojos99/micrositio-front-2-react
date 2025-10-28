@@ -24,7 +24,10 @@
 export { default as TemplateViewerModal } from './TemplateViewerModal';
 export { default as TemplateFlowViewer } from './TemplateFlowViewer';
 export { default as TemplateTestingCardNode } from './TemplateTestingCardNode';
+<<<<<<< HEAD
 export { default as TemplateTestingCardList } from './TemplateTestingCardList';
+=======
+>>>>>>> e3d08452b44b9c1911517dd776675adbbe5c2ade
 
 // Tipos y interfaces
 export type {

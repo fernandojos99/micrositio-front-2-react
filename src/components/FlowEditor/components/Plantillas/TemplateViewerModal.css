@@ -969,6 +969,7 @@
     page-break-inside: avoid;
   }
 }
+<<<<<<< HEAD
 
 /* =================================================================
    ESTILOS PARA LA LISTA DE TESTING CARDS (TemplateTestingCardList)
@@ -1208,3 +1209,5 @@
     padding: var(--template-spacing-sm);
   }
 }
+=======
+>>>>>>> e3d08452b44b9c1911517dd776675adbbe5c2ade

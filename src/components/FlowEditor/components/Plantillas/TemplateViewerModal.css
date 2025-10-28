@@ -1,0 +1,908 @@
+/**
+ * @fileoverview Estilos CSS para el sistema de plantillas de Testing Cards
+ * 
+ * Este archivo contiene todos los estilos necesarios para el sistema de gestión
+ * y visualización de plantillas, incluyendo el modal, el flow viewer y los nodos
+ * de Testing Cards en modo plantilla.
+ * 
+ * Estructura:
+ * 1. Variables CSS y configuración base
+ * 2. Estilos del modal (TemplateViewerModal)
+ * 3. Estilos del flow viewer (TemplateFlowViewer)
+ * 4. Estilos de los nodos (TemplateTestingCardNode)
+ * 5. Animaciones y transiciones
+ * 6. Responsive design
+ * 
+ * @author Micrositio Iris Team
+ * @version 1.0.0
+ * @since 2025-10-28
+ */
+
+/* =================================================================
+   VARIABLES CSS PARA EL SISTEMA DE PLANTILLAS
+   ================================================================= */
+
+:root {
+  /* Colores específicos para plantillas */
+  --template-primary: #8B5CF6;
+  --template-primary-light: #A78BFA;
+  --template-primary-dark: #7C3AED;
+  --template-secondary: #F3F4F6;
+  --template-accent: #10B981;
+  --template-warning: #F59E0B;
+  --template-error: #EF4444;
+
+  /* Espaciado específico para plantillas */
+  --template-spacing-xs: 4px;
+  --template-spacing-sm: 8px;
+  --template-spacing-md: 16px;
+  --template-spacing-lg: 24px;
+  --template-spacing-xl: 32px;
+
+  /* Bordes y radios */
+  --template-border-radius: 8px;
+  --template-border-radius-lg: 12px;
+  --template-border-width: 1px;
+
+  /* Sombras */
+  --template-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --template-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --template-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --template-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+
+  /* Transiciones */
+  --template-transition-fast: 0.15s ease-in-out;
+  --template-transition-normal: 0.3s ease-in-out;
+  --template-transition-slow: 0.5s ease-in-out;
+
+  /* Z-indexes */
+  --template-z-modal: 1000;
+  --template-z-overlay: 1001;
+  --template-z-dropdown: 1002;
+}
+
+/* =================================================================
+   ESTILOS DEL MODAL (TemplateViewerModal)
+   ================================================================= */
+
+/* Backdrop del modal */
+.template-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: var(--template-z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn var(--template-transition-normal);
+}
+
+/* Contenedor principal del modal */
+.template-modal-container {
+  background: var(--theme-bg-primary, #ffffff);
+  border-radius: var(--template-border-radius-lg);
+  box-shadow: var(--template-shadow-xl);
+  width: 90vw;
+  max-width: 1200px;
+  height: 80vh;
+  max-height: 800px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp var(--template-transition-normal);
+}
+
+/* Header del modal */
+.template-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--template-spacing-lg);
+  border-bottom: var(--template-border-width) solid var(--color-border-light, #E5E7EB);
+  background: var(--theme-bg-secondary, #F9FAFB);
+}
+
+.template-modal-title-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--template-spacing-sm);
+}
+
+.template-modal-title {
+  display: flex;
+  align-items: center;
+  gap: var(--template-spacing-sm);
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--theme-text-primary, #111827);
+}
+
+.template-info-badges {
+  display: flex;
+  gap: var(--template-spacing-sm);
+}
+
+.category-badge {
+  padding: var(--template-spacing-xs) var(--template-spacing-sm);
+  border-radius: var(--template-border-radius);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.complexity-badge {
+  padding: var(--template-spacing-xs) var(--template-spacing-sm);
+  background: var(--template-secondary);
+  color: var(--theme-text-secondary, #6B7280);
+  border-radius: var(--template-border-radius);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.template-modal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--template-spacing-sm);
+}
+
+.template-toggle-details-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--template-spacing-xs);
+  padding: var(--template-spacing-sm);
+  background: var(--theme-bg-tertiary, #F3F4F6);
+  border: var(--template-border-width) solid var(--color-border-light, #E5E7EB);
+  border-radius: var(--template-border-radius);
+  color: var(--theme-text-secondary, #6B7280);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--template-transition-fast);
+}
+
+.template-toggle-details-btn:hover {
+  background: var(--theme-bg-primary, #ffffff);
+  color: var(--theme-text-primary, #111827);
+  border-color: var(--template-primary);
+}
+
+.template-modal-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  border-radius: var(--template-border-radius);
+  color: var(--theme-text-secondary, #6B7280);
+  cursor: pointer;
+  transition: all var(--template-transition-fast);
+}
+
+.template-modal-close-btn:hover {
+  background: var(--theme-bg-tertiary, #F3F4F6);
+  color: var(--theme-text-primary, #111827);
+}
+
+/* Contenido principal del modal */
+.template-modal-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Panel de información lateral */
+.template-info-panel {
+  width: 300px;
+  padding: var(--template-spacing-lg);
+  background: var(--theme-bg-secondary, #F9FAFB);
+  border-right: var(--template-border-width) solid var(--color-border-light, #E5E7EB);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--template-spacing-lg);
+}
+
+.template-info-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--template-spacing-sm);
+}
+
+.template-info-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--theme-text-primary, #111827);
+  margin: 0;
+}
+
+.template-info-description {
+  font-size: 0.875rem;
+  color: var(--theme-text-secondary, #6B7280);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.template-info-subtitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--theme-text-primary, #111827);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.template-info-item {
+  display: flex;
+  align-items: center;
+  gap: var(--template-spacing-sm);
+  font-size: 0.875rem;
+  color: var(--theme-text-secondary, #6B7280);
+}
+
+.template-features {
+  display: flex;
+  flex-direction: column;
+  gap: var(--template-spacing-xs);
+}
+
+.template-feature {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.feature-value {
+  font-weight: 500;
+  color: var(--theme-text-primary, #111827);
+  text-transform: capitalize;
+}
+
+/* Contenedor del flow */
+.template-flow-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.template-flow-container.with-sidebar {
+  flex: 1;
+}
+
+.template-flow-container.full-width {
+  width: 100%;
+}
+
+/* Footer del modal */
+.template-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--template-spacing-lg);
+  border-top: var(--template-border-width) solid var(--color-border-light, #E5E7EB);
+  background: var(--theme-bg-secondary, #F9FAFB);
+}
+
+.template-modal-footer-info {
+  font-size: 0.875rem;
+  color: var(--theme-text-secondary, #6B7280);
+}
+
+.template-usage-info {
+  font-style: italic;
+}
+
+.template-modal-footer-actions {
+  display: flex;
+  gap: var(--template-spacing-sm);
+}
+
+/* Botones del modal */
+.template-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--template-spacing-xs);
+  padding: var(--template-spacing-sm) var(--template-spacing-md);
+  border-radius: var(--template-border-radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--template-transition-fast);
+  border: var(--template-border-width) solid transparent;
+}
+
+.template-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.template-btn-primary {
+  background: var(--template-primary);
+  color: white;
+}
+
+.template-btn-primary:hover:not(:disabled) {
+  background: var(--template-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--template-shadow-md);
+}
+
+.template-btn-secondary {
+  background: var(--theme-bg-tertiary, #F3F4F6);
+  color: var(--theme-text-secondary, #6B7280);
+  border-color: var(--color-border-light, #E5E7EB);
+}
+
+.template-btn-secondary:hover:not(:disabled) {
+  background: var(--theme-bg-primary, #ffffff);
+  color: var(--theme-text-primary, #111827);
+  border-color: var(--template-primary);
+}
+
+.template-btn-outline {
+  background: transparent;
+  color: var(--template-primary);
+  border-color: var(--template-primary);
+}
+
+.template-btn-outline:hover:not(:disabled) {
+  background: var(--template-primary);
+  color: white;
+}
+
+/* =================================================================
+   ESTILOS DEL FLOW VIEWER (TemplateFlowViewer)
+   ================================================================= */
+
+.template-flow-viewer {
+  position: relative;
+  background: var(--theme-bg-primary, #ffffff);
+}
+
+/* Estados de carga y error */
+.template-flow-loading,
+.template-flow-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: var(--template-spacing-md);
+  color: var(--theme-text-secondary, #6B7280);
+}
+
+.template-flow-loading .loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--template-secondary);
+  border-top: 3px solid var(--template-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.template-flow-error {
+  color: var(--template-error);
+}
+
+.template-flow-error button {
+  padding: var(--template-spacing-sm) var(--template-spacing-md);
+  background: var(--template-primary);
+  color: white;
+  border: none;
+  border-radius: var(--template-border-radius);
+  cursor: pointer;
+  transition: background var(--template-transition-fast);
+}
+
+.template-flow-error button:hover {
+  background: var(--template-primary-dark);
+}
+
+/* Overlay del flow */
+.template-flow-overlay {
+  position: absolute;
+  top: var(--template-spacing-md);
+  left: var(--template-spacing-md);
+  z-index: var(--template-z-overlay);
+  pointer-events: none;
+}
+
+.template-flow-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--template-spacing-xs);
+  padding: var(--template-spacing-xs) var(--template-spacing-sm);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  border: var(--template-border-width) solid var(--color-border-light, #E5E7EB);
+  border-radius: var(--template-border-radius);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--theme-text-secondary, #6B7280);
+  box-shadow: var(--template-shadow-sm);
+}
+
+/* =================================================================
+   ESTILOS DE LOS NODOS (TemplateTestingCardNode)
+   ================================================================= */
+
+/* Contenedor principal del nodo */
+.template-testing-card {
+  background: var(--theme-bg-primary, #ffffff);
+  border: 2px solid var(--template-primary);
+  border-radius: var(--template-border-radius-lg);
+  padding: var(--template-spacing-md);
+  min-width: 280px;
+  max-width: 320px;
+  box-shadow: var(--template-shadow-md);
+  transition: all var(--template-transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Efecto de patrón de líneas para indicar que es plantilla */
+.template-testing-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--template-primary),
+    var(--template-primary) 8px,
+    transparent 8px,
+    transparent 16px
+  );
+  opacity: 0.8;
+}
+
+/* Estados del nodo */
+.template-testing-card--clickable {
+  cursor: pointer;
+}
+
+.template-testing-card--clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--template-shadow-lg);
+  border-color: var(--template-primary-light);
+}
+
+.template-testing-card--selected {
+  border-color: var(--template-accent);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Variantes de tamaño */
+.template-testing-card--compact {
+  min-width: 240px;
+  max-width: 280px;
+  padding: var(--template-spacing-sm);
+}
+
+.template-testing-card--detailed {
+  min-width: 320px;
+  max-width: 380px;
+}
+
+/* Handles de conexión */
+.template-node-handle {
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--template-primary);
+  background: var(--theme-bg-primary, #ffffff);
+  opacity: 0.7;
+  transition: all var(--template-transition-fast);
+}
+
+.template-node-handle--target {
+  border-color: var(--template-accent);
+}
+
+.template-node-handle--source {
+  border-color: var(--template-primary);
+}
+
+.template-testing-card:hover .template-node-handle {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+/* Header del nodo */
+.template-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--template-spacing-sm);
+}
+
+.template-card-type {
+  display: flex;
+  align-items: center;
+  gap: var(--template-spacing-xs);
+  padding: var(--template-spacing-xs) var(--template-spacing-sm);
+  background: var(--template-primary);
+  color: white;
+  border-radius: var(--template-border-radius);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.template-card-category {
+  display: flex;
+  align-items: center;
+  gap: var(--template-spacing-xs);
+  padding: var(--template-spacing-xs) var(--template-spacing-sm);
+  background: var(--template-secondary);
+  color: var(--theme-text-secondary, #6B7280);
+  border-radius: var(--template-border-radius);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Cuerpo del nodo */
+.template-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--template-spacing-sm);
+}
+
+.template-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--theme-text-primary, #111827);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.template-card-description {
+  font-size: 0.875rem;
+  color: var(--theme-text-secondary, #6B7280);
+  line-height: 1.4;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Hipótesis */
+.template-card-hypothesis {
+  padding: var(--template-spacing-sm);
+  background: rgba(139, 92, 246, 0.05);
+  border-left: 3px solid var(--template-primary);
+  border-radius: 0 var(--template-border-radius) var(--template-border-radius) 0;
+}
+
+.template-card-hypothesis-label {
+  display: flex;
+  align-items: center;
+  gap: var(--template-spacing-xs);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--template-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--template-spacing-xs);
+}
+
+.template-card-hypothesis-text {
+  font-size: 0.875rem;
+  color: var(--theme-text-secondary, #6B7280);
+  line-height: 1.4;
+  margin: 0;
+  font-style: italic;
+}
+
+/* Fechas */
+.template-card-dates {
+  display: flex;
+  align-items: center;
+}
+
+.template-card-date-item {
+  display: flex;
+  align-items: center;
+  gap: var(--template-spacing-xs);
+  font-size: 0.75rem;
+  color: var(--theme-text-secondary, #6B7280);
+}
+
+.template-card-dates-text {
+  font-weight: 500;
+}
+
+/* Responsable */
+.template-card-responsible {
+  display: flex;
+  align-items: center;
+  gap: var(--template-spacing-xs);
+  font-size: 0.75rem;
+  color: var(--theme-text-secondary, #6B7280);
+}
+
+/* Footer del nodo */
+.template-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--template-spacing-sm);
+  padding-top: var(--template-spacing-sm);
+  border-top: var(--template-border-width) solid var(--color-border-ultra-light, #F3F4F6);
+}
+
+.template-card-status {
+  display: flex;
+  align-items: center;
+  gap: var(--template-spacing-xs);
+  padding: var(--template-spacing-xs) var(--template-spacing-sm);
+  border-radius: var(--template-border-radius);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  min-width: 80px;
+  justify-content: center;
+}
+
+.template-card-preview-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--template-spacing-xs);
+  padding: var(--template-spacing-xs) var(--template-spacing-sm);
+  background: var(--template-secondary);
+  color: var(--theme-text-secondary, #6B7280);
+  border-radius: var(--template-border-radius);
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+/* Indicador de acceso */
+.template-card-access-indicator {
+  position: absolute;
+  top: var(--template-spacing-sm);
+  right: var(--template-spacing-sm);
+}
+
+.template-access-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(2px);
+  border: var(--template-border-width) solid var(--color-border-light, #E5E7EB);
+}
+
+.template-access-badge.public {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: var(--template-accent);
+}
+
+.template-access-badge.private {
+  background: rgba(107, 114, 128, 0.1);
+  border-color: var(--theme-text-secondary, #6B7280);
+}
+
+/* Información de uso */
+.template-card-usage-info {
+  text-align: center;
+  margin-top: var(--template-spacing-xs);
+  font-size: 0.7rem;
+  color: var(--theme-text-secondary, #6B7280);
+  font-style: italic;
+}
+
+/* =================================================================
+   ANIMACIONES Y TRANSICIONES
+   ================================================================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Animación para los nodos al aparecer */
+.template-testing-card {
+  animation: nodeSlideIn 0.4s ease-out;
+}
+
+@keyframes nodeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =================================================================
+   RESPONSIVE DESIGN
+   ================================================================= */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .template-modal-container {
+    width: 95vw;
+    height: 85vh;
+  }
+
+  .template-info-panel {
+    width: 250px;
+  }
+
+  .template-testing-card {
+    min-width: 260px;
+    max-width: 300px;
+  }
+}
+
+/* Móvil */
+@media (max-width: 768px) {
+  .template-modal-container {
+    width: 95vw;
+    height: 90vh;
+    margin: var(--template-spacing-sm);
+  }
+
+  .template-modal-content {
+    flex-direction: column;
+  }
+
+  .template-info-panel {
+    width: 100%;
+    max-height: 200px;
+    border-right: none;
+    border-bottom: var(--template-border-width) solid var(--color-border-light, #E5E7EB);
+  }
+
+  .template-flow-container {
+    flex: 1;
+    min-height: 300px;
+  }
+
+  .template-modal-header {
+    padding: var(--template-spacing-md);
+  }
+
+  .template-modal-title {
+    font-size: 1.125rem;
+  }
+
+  .template-modal-footer {
+    flex-direction: column;
+    gap: var(--template-spacing-sm);
+    align-items: stretch;
+  }
+
+  .template-modal-footer-actions {
+    justify-content: center;
+  }
+
+  .template-testing-card {
+    min-width: 240px;
+    max-width: 280px;
+    padding: var(--template-spacing-sm);
+  }
+
+  .template-card-title {
+    font-size: 0.9rem;
+  }
+
+  .template-card-description {
+    font-size: 0.8rem;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+}
+
+/* Móvil pequeño */
+@media (max-width: 480px) {
+  .template-modal-container {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .template-testing-card {
+    min-width: 200px;
+    max-width: 240px;
+  }
+
+  .template-btn {
+    font-size: 0.8rem;
+    padding: var(--template-spacing-sm);
+  }
+}
+
+/* =================================================================
+   TEMA OSCURO (si está disponible)
+   ================================================================= */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --template-secondary: #374151;
+  }
+
+  .template-flow-badge {
+    background: rgba(31, 41, 55, 0.9);
+    border-color: #4B5563;
+  }
+
+  .template-access-badge {
+    background: rgba(31, 41, 55, 0.9);
+    border-color: #4B5563;
+  }
+}
+
+/* =================================================================
+   IMPRESIÓN (opcional)
+   ================================================================= */
+
+@media print {
+  .template-modal-backdrop {
+    position: static;
+    background: none;
+    backdrop-filter: none;
+  }
+
+  .template-modal-container {
+    box-shadow: none;
+    width: 100%;
+    height: auto;
+    max-width: none;
+    max-height: none;
+  }
+
+  .template-modal-header,
+  .template-modal-footer {
+    display: none;
+  }
+
+  .template-testing-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

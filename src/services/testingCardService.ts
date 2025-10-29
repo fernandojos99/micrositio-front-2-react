@@ -2,7 +2,7 @@ import apiClient from '../apiClient';
 
 // Obtener Testing Card por ID
 export const obtenerTestingCardPorId = async (id_testing_card: string | number) => {
-  const response = await apiClient.get(`/t/testing_card/${id_testing_card}`);
+  const response = await apiClient.get(`/testing_card/t/${id_testing_card}`);
   return response.data;
 };
 

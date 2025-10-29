@@ -18,7 +18,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Eye, FileText, Calendar, Target } from 'lucide-react';
+import { X, Eye, FileText, Target, BarChart3 } from 'lucide-react';
 import TemplateTestingCardList from './TemplateTestingCardList';
 import { 
   TemplateViewerModalProps, 
@@ -29,6 +29,7 @@ import {
 import { obtenerTestingCardPorId } from '../../../../services/testingCardService';
 import TestingCardPlaybookService from '../../../../services/TestingCardPlaybookService';
 import { TestingCardPlaybook } from '../../../../types/testingCardPlaybook';
+import { MetricaTestingCard, obtenerPorTestingCard } from '../../../../services/metricaTestingCardService';
 import './TemplateViewerModal.css';
 
 /**
@@ -60,6 +61,10 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
   const [selectedTestingCard, setSelectedTestingCard] = useState<any | null>(null);
   const [selectedTestingCardPlaybook, setSelectedTestingCardPlaybook] = useState<TestingCardPlaybook | null>(null);
   const [loadingSelectedCard, setLoadingSelectedCard] = useState(false);
+  
+  // Estados para las métricas de la Testing Card seleccionada
+  const [selectedCardMetricas, setSelectedCardMetricas] = useState<MetricaTestingCard[]>([]);
+  const [loadingSelectedCardMetricas, setLoadingSelectedCardMetricas] = useState(false);
 
   /**
    * Effect para cargar los datos de la plantilla cuando se abre el modal
@@ -156,6 +161,7 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
   const handleSelectTestingCard = async (testingCardData: any) => {
     console.log('Testing Card seleccionada:', testingCardData);
     setLoadingSelectedCard(true);
+    setLoadingSelectedCardMetricas(true);
     
     try {
       // Cargar los detalles completos de la Testing Card
@@ -170,42 +176,95 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
       } else {
         setSelectedTestingCardPlaybook(null);
       }
+
+      // Cargar las métricas de la Testing Card
+      try {
+        const metricasData = await obtenerPorTestingCard(testingCardData.id_testing_card);
+        setSelectedCardMetricas(metricasData || []);
+      } catch (metricasError) {
+        console.error('Error al cargar métricas de Testing Card:', metricasError);
+        setSelectedCardMetricas([]);
+      }
     } catch (error) {
       console.error('Error al cargar detalles de Testing Card:', error);
       setSelectedTestingCard(null);
       setSelectedTestingCardPlaybook(null);
+      setSelectedCardMetricas([]);
     } finally {
       setLoadingSelectedCard(false);
+      setLoadingSelectedCardMetricas(false);
     }
   };
 
   /**
-   * Obtiene el color de la categoría para la UI
+   * Renderiza las métricas de la Testing Card seleccionada
    */
-  const getCategoryColor = (categoria: string): string => {
-    const colors: Record<string, string> = {
-      'Marketing': '#ff6b6b',
-      'Producto': '#4ecdc4',
-      'UX/UI': '#45b7d1',
-      'Tecnología': '#96ceb4',
-      'Ventas': '#feca57',
-      'Customer Success': '#ff9ff3',
-      'Operaciones': '#a29bfe',
-      'General': '#6c5ce7'
-    };
-    return colors[categoria] || '#6c5ce7';
-  };
-
-  /**
-   * Obtiene el icono para el nivel de complejidad
-   */
-  const getComplexityIcon = (level: string) => {
-    switch (level) {
-      case 'simple': return '●';
-      case 'medium': return '●●';
-      case 'complex': return '●●●';
-      default: return '●';
+  const renderSelectedCardMetricas = () => {
+    if (loadingSelectedCardMetricas) {
+      return (
+        <div className="selected-card-metricas-loading">
+          <span style={{ fontSize: '12px', color: 'var(--theme-text-secondary)', fontStyle: 'italic' }}>
+            Cargando métricas...
+          </span>
+        </div>
+      );
     }
+
+    if (selectedCardMetricas.length === 0) {
+      return (
+        <div className="selected-card-metricas-empty">
+          <span style={{ fontSize: '12px', color: 'var(--theme-text-secondary)', fontStyle: 'italic' }}>
+            No hay métricas definidas
+          </span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="selected-card-metricas-list">
+        {selectedCardMetricas.map((metrica) => (
+          <div key={metrica.id} className="selected-card-metrica-item" style={{
+            marginBottom: '8px',
+            padding: '8px',
+            backgroundColor: 'rgba(59, 130, 246, 0.05)',
+            borderRadius: '4px',
+            border: '1px solid rgba(59, 130, 246, 0.1)'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              marginBottom: '4px'
+            }}>
+              <BarChart3 size={14} />
+              <span style={{ fontWeight: '600', fontSize: '13px' }}>
+                {metrica.nombre}
+              </span>
+              <span style={{
+                backgroundColor: '#3b82f6',
+                color: '#ffffff',
+                padding: '2px 6px',
+                borderRadius: '4px',
+                fontWeight: '600',
+                fontSize: '10px',
+                border: '1px solid #2563eb',
+                minWidth: '20px',
+                textAlign: 'center'
+              }}>
+                {metrica.operador}
+              </span>
+              <span style={{
+                color: '#64748b',
+                fontWeight: '500',
+                fontSize: '11px'
+              }}>
+                {metrica.criterio}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   /**
@@ -301,17 +360,34 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
           </p>
         </div>
 
+        {/* Métricas de éxito */}
+        <div className="selected-card-metricas" style={{ marginBottom: '16px' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            marginBottom: '8px',
+            fontSize: '13px',
+            fontWeight: 600,
+            color: 'var(--theme-text-primary)'
+          }}>
+            <BarChart3 size={14} />
+            Métricas de Éxito
+          </div>
+          {renderSelectedCardMetricas()}
+        </div>
+
         {/* Información adicional */}
         <div className="selected-card-meta">
-          <div className="selected-card-meta-item">
+          {/*<div className="selected-card-meta-item">
             <Calendar size={14} />
             <span>
               {new Date(selectedTestingCard.dia_inicio).toLocaleDateString('es-ES')} - {' '}
               {new Date(selectedTestingCard.dia_fin).toLocaleDateString('es-ES')}
             </span>
-          </div>
+          </div>*/}
           
-          <div className="selected-card-status">
+          {/*<div className="selected-card-status">
             <span
               className={`status-badge ${selectedTestingCard.status?.toLowerCase().replace(' ', '-')}`}
               style={{
@@ -338,7 +414,7 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
             >
               {selectedTestingCard.status}
             </span>
-          </div>
+          </div>*/}
         </div>
 
         {/* Botón para aplicar esta Testing Card específica */}

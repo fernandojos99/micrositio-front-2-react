@@ -48,7 +48,6 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
   plantillaNombre,
   plantillaDescripcion,
   onUseTemplate,
-  onDuplicateTemplate
 }) => {
   // Estados locales para el manejo de datos y UI
   console.log('TemplateViewerModal renderizado:', { isOpen, plantillaId, plantillaNombre });
@@ -136,15 +135,7 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
     }
   };
 
-  /**
-   * Maneja la acción de duplicar la plantilla
-   */
-  const handleDuplicateTemplate = () => {
-    if (onDuplicateTemplate && plantillaId) {
-      onDuplicateTemplate(plantillaId);
-      handleClose();
-    }
-  };
+  
 
   /**
    * Maneja la aplicación de una Testing Card individual
@@ -453,25 +444,8 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
               Cancelar
             </button>
 
-            {onDuplicateTemplate && (
-              <button 
-                onClick={handleDuplicateTemplate}
-                className="template-btn template-btn-outline"
-                disabled={loadingState === TEMPLATE_CONSTANTS.LOADING_STATES.LOADING}
-              >
-                <Copy size={16} />
-                Duplicar
-              </button>
-            )}
+           
 
-            <button 
-              onClick={handleUseTemplate}
-              className="template-btn template-btn-primary"
-              disabled={loadingState !== TEMPLATE_CONSTANTS.LOADING_STATES.SUCCESS}
-            >
-              <FileText size={16} />
-              Usar esta plantilla
-            </button>
           </div>
         </div>
       </div>

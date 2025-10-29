@@ -11,8 +11,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { FileText, Play, AlertCircle, Loader2 } from 'lucide-react';
-import { obtenerPlantillasTestingCard } from '../../../../services/plantillaTestingCardService';
-import { obtenerTestingCardPorId } from '../../../../services/testingCardService';
 
 interface TestingCardData {
   id_testing_card: number;
@@ -25,6 +23,8 @@ interface TemplateTestingCardListProps {
   plantillaId: number;
   /** Callback cuando se aplica una Testing Card específica */
   onApplyTestingCard: (testingCardData: TestingCardData) => void;
+  /** Callback cuando se selecciona una Testing Card para ver detalles */
+  onSelectTestingCard?: (testingCardData: TestingCardData) => void;
   /** Clase CSS adicional */
   className?: string;
 }
@@ -35,6 +35,7 @@ interface TemplateTestingCardListProps {
 const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
   plantillaId,
   onApplyTestingCard,
+  onSelectTestingCard,
   className = ''
 }) => {
   const [testingCards, setTestingCards] = useState<TestingCardData[]>([]);
@@ -150,8 +151,8 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
       <div className={`template-list-container ${className}`}>
         <div className="template-list-empty">
           <FileText size={48} />
-          <h3>No hay Testing Cards</h3>
-          <p>Esta plantilla no contiene Testing Cards.</p>
+          <h3>No hay plantillas disponibles</h3>
+          //<p>Esta plantilla no contiene Testing Cards.</p>
         </div>
       </div>
     );
@@ -167,7 +168,12 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
       
       <div className="template-list-items">
         {testingCards.map((testingCard) => (
-          <div key={testingCard.id_testing_card} className="template-list-item">
+          <div 
+            key={testingCard.id_testing_card} 
+            className="template-list-item"
+            onClick={() => onSelectTestingCard?.(testingCard)}
+            style={{ cursor: onSelectTestingCard ? 'pointer' : 'default' }}
+          >
             <div className="template-list-item-icon">
               <FileText size={20} />
             </div>
@@ -178,7 +184,10 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
             </div>
             
             <button
-              onClick={() => handleApplyTestingCard(testingCard)}
+              onClick={(e) => {
+                e.stopPropagation(); // Evitar que se dispare el click del contenedor
+                handleApplyTestingCard(testingCard);
+              }}
               className="template-list-item-apply-btn"
               title={`Aplicar: ${testingCard.titulo}`}
             >

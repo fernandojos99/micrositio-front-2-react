@@ -1208,3 +1208,149 @@
     padding: var(--template-spacing-sm);
   }
 }
+
+/* =================================================================
+   ESTILOS PARA EL LAYOUT DE DOS PANELES
+   ================================================================= */
+
+/* Contenedor principal modificado para dos paneles */
+.template-flow-container {
+  display: flex;
+  height: 100%;
+  gap: var(--template-spacing-md);
+}
+
+/* Panel izquierdo - Lista de Testing Cards */
+.template-cards-section {
+  flex: 1;
+  min-width: 0; /* Permite que el flex item se encoja */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Panel derecho - Detalles de Testing Card seleccionada */
+.template-selected-card-panel {
+  flex: 0 0 350px; /* Ancho fijo para el panel de detalles */
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: var(--template-border-radius);
+  padding: var(--template-spacing-md);
+  overflow-y: auto;
+  max-height: 100%;
+}
+
+/* Estilos para el placeholder cuando no hay Testing Card seleccionada */
+.selected-card-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--theme-text-secondary);
+  height: 200px;
+  gap: var(--template-spacing-md);
+}
+
+.selected-card-placeholder svg {
+  color: #d1d5db;
+}
+
+.selected-card-placeholder h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--theme-text-primary);
+}
+
+.selected-card-placeholder p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Estilos para los detalles de la Testing Card seleccionada */
+.selected-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--template-spacing-md);
+}
+
+.selected-card-header h3 {
+  margin: 0 0 var(--template-spacing-sm) 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--theme-text-primary);
+  line-height: 1.4;
+}
+
+.selected-card-header p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--theme-text-secondary);
+  line-height: 1.5;
+}
+
+/* Estilos para la meta información de la Testing Card */
+.selected-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--template-spacing-sm);
+}
+
+.selected-card-meta-item {
+  display: flex;
+  align-items: center;
+  gap: var(--template-spacing-sm);
+  font-size: 0.85rem;
+  color: var(--theme-text-secondary);
+}
+
+.selected-card-status {
+  margin-top: var(--template-spacing-sm);
+}
+
+/* Estado de carga para detalles */
+.selected-card-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--template-spacing-md);
+  height: 150px;
+  color: var(--theme-text-secondary);
+}
+
+/* Ajustes para cuando el sidebar está oculto */
+.template-flow-container.full-width .template-selected-card-panel {
+  flex: 0 0 300px; /* Hacer el panel un poco más pequeño cuando no hay sidebar */
+}
+
+/* Responsive para el layout de dos paneles */
+@media (max-width: 1024px) {
+  .template-selected-card-panel {
+    flex: 0 0 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .template-flow-container {
+    flex-direction: column;
+  }
+  
+  .template-selected-card-panel {
+    flex: 0 0 250px;
+    max-height: 250px;
+  }
+}
+
+/* Mejorar la apariencia de hover para elementos clickeables */
+.template-list-item:hover {
+  background-color: #f8fafc;
+  border-color: var(--template-primary-light);
+  transform: translateY(-1px);
+  box-shadow: var(--template-shadow-md);
+}
+
+.template-list-item {
+  transition: all 0.2s ease-in-out;
+}

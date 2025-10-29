@@ -18,7 +18,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Eye, FileText, Calendar, User, Hash, Heart } from 'lucide-react';
+import { X, Copy, Eye, FileText, Calendar, Target } from 'lucide-react';
 import TemplateTestingCardList from './TemplateTestingCardList';
 import { 
   TemplateViewerModalProps, 
@@ -26,6 +26,9 @@ import {
   LoadingState, 
   TEMPLATE_CONSTANTS 
 } from './types';
+import { obtenerTestingCardPorId } from '../../../../services/testingCardService';
+import TestingCardPlaybookService from '../../../../services/TestingCardPlaybookService';
+import { TestingCardPlaybook } from '../../../../types/testingCardPlaybook';
 import './TemplateViewerModal.css';
 
 /**
@@ -53,6 +56,11 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
   const [loadingState, setLoadingState] = useState<LoadingState>(TEMPLATE_CONSTANTS.LOADING_STATES.IDLE);
   const [error, setError] = useState<string | null>(null);
   const [showDetails, setShowDetails] = useState(true);
+  
+  // Estados para la Testing Card seleccionada
+  const [selectedTestingCard, setSelectedTestingCard] = useState<any | null>(null);
+  const [selectedTestingCardPlaybook, setSelectedTestingCardPlaybook] = useState<TestingCardPlaybook | null>(null);
+  const [loadingSelectedCard, setLoadingSelectedCard] = useState(false);
 
   /**
    * Effect para cargar los datos de la plantilla cuando se abre el modal
@@ -141,7 +149,7 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
   /**
    * Maneja la aplicación de una Testing Card individual
    */
-  const handleApplyTestingCard = (testingCardData: TemplateTestingCardData) => {
+  const handleApplyTestingCard = (testingCardData: any) => {
     console.log('Aplicar Testing Card individual:', testingCardData);
     // TODO: Implementar lógica para crear una nueva Testing Card basada en la plantilla
     // Por ahora, usar el callback general de usar plantilla
@@ -152,14 +160,32 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
   };
 
   /**
-   * Formatea una fecha para mostrar en la UI
+   * Maneja la selección de una Testing Card para mostrar detalles
    */
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+  const handleSelectTestingCard = async (testingCardData: any) => {
+    console.log('Testing Card seleccionada:', testingCardData);
+    setLoadingSelectedCard(true);
+    
+    try {
+      // Cargar los detalles completos de la Testing Card
+      const fullTestingCard = await obtenerTestingCardPorId(testingCardData.id_testing_card);
+      setSelectedTestingCard(fullTestingCard);
+      
+      // Cargar el playbook si existe id_experimento_tipo
+      if (fullTestingCard.id_experimento_tipo && fullTestingCard.id_experimento_tipo > 0) {
+        const playbookService = new TestingCardPlaybookService();
+        const playbookData = await playbookService.obtenerPorPagina(fullTestingCard.id_experimento_tipo);
+        setSelectedTestingCardPlaybook(playbookData);
+      } else {
+        setSelectedTestingCardPlaybook(null);
+      }
+    } catch (error) {
+      console.error('Error al cargar detalles de Testing Card:', error);
+      setSelectedTestingCard(null);
+      setSelectedTestingCardPlaybook(null);
+    } finally {
+      setLoadingSelectedCard(false);
+    }
   };
 
   /**
@@ -191,6 +217,154 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
     }
   };
 
+  /**
+   * Renderiza los detalles de la Testing Card seleccionada
+   */
+  const renderSelectedTestingCardDetails = () => {
+    if (loadingSelectedCard) {
+      return (
+        <div className="selected-card-loading">
+          <div className="template-loading-spinner"></div>
+          <p>Cargando detalles...</p>
+        </div>
+      );
+    }
+
+    if (!selectedTestingCard) {
+      return (
+        <div className="selected-card-placeholder">
+          <FileText size={48} />
+          <h3>Selecciona una Testing Card</h3>
+          <p>Haz clic en una Testing Card de la lista para ver sus detalles completos.</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="selected-card-details">
+        <div className="selected-card-header">
+          <h3 className="selected-card-title">{selectedTestingCard.titulo}</h3>
+          <p className="selected-card-description">{selectedTestingCard.descripcion}</p>
+        </div>
+
+        {/* Información del experimento */}
+        {selectedTestingCardPlaybook && (
+          <div className="selected-card-experiment" style={{
+            marginBottom: '16px',
+            padding: '12px',
+            backgroundColor: 'rgba(108, 99, 255, 0.05)',
+            borderLeft: '3px solid #6C63FF',
+            borderRadius: '4px'
+          }}>
+            <div style={{
+              fontSize: '12px',
+              fontWeight: 600,
+              color: '#6C63FF',
+              marginBottom: '6px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              Tipo de Experimento
+            </div>
+            <div style={{
+              fontSize: '14px',
+              fontWeight: 600,
+              color: 'var(--theme-text-primary)',
+              marginBottom: '4px'
+            }}>
+              {selectedTestingCardPlaybook.titulo}
+            </div>
+            <div style={{
+              fontSize: '12px',
+              color: 'var(--theme-text-secondary)',
+              display: 'flex',
+              gap: '12px'
+            }}>
+              <span><strong>Campo:</strong> {selectedTestingCardPlaybook.campo}</span>
+              <span><strong>Tipo:</strong> {selectedTestingCardPlaybook.tipo}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Hipótesis */}
+        <div className="selected-card-hypothesis" style={{ marginBottom: '16px' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            marginBottom: '8px',
+            fontSize: '13px',
+            fontWeight: 600,
+            color: 'var(--theme-text-primary)'
+          }}>
+            <Target size={14} />
+            Hipótesis
+          </div>
+          <p style={{
+            fontSize: '13px',
+            color: 'var(--theme-text-secondary)',
+            lineHeight: '1.5',
+            margin: 0
+          }}>
+            {selectedTestingCard.hipotesis}
+          </p>
+        </div>
+
+        {/* Información adicional */}
+        <div className="selected-card-meta">
+          <div className="selected-card-meta-item">
+            <Calendar size={14} />
+            <span>
+              {new Date(selectedTestingCard.dia_inicio).toLocaleDateString('es-ES')} - {' '}
+              {new Date(selectedTestingCard.dia_fin).toLocaleDateString('es-ES')}
+            </span>
+          </div>
+          
+          <div className="selected-card-status">
+            <span
+              className={`status-badge ${selectedTestingCard.status?.toLowerCase().replace(' ', '-')}`}
+              style={{
+                backgroundColor:
+                  selectedTestingCard.status === 'EN VALIDACION'
+                    ? '#facc15'
+                    : selectedTestingCard.status === 'EN PLANEACION'
+                    ? '#22c55e'
+                    : selectedTestingCard.status === 'EN ANALISIS'
+                    ? '#2563eb'
+                    : selectedTestingCard.status === 'TERMINADO'
+                    ? '#ef4444'                  
+                    : '#9ca3af',
+                color: '#fff',
+                borderRadius: '8px',
+                fontSize: '11px',
+                fontWeight: 600,
+                padding: '4px 10px',
+                textAlign: 'center',
+                textTransform: 'capitalize',
+                letterSpacing: '0.5px',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
+              }}
+            >
+              {selectedTestingCard.status}
+            </span>
+          </div>
+        </div>
+
+        {/* Botón para aplicar esta Testing Card específica */}
+        <div className="selected-card-actions" style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
+          <button
+            onClick={() => handleApplyTestingCard(selectedTestingCard)}
+            className="template-btn template-btn-primary"
+            style={{ width: '100%' }}
+          >
+            <FileText size={16} />
+            Aplicar esta Testing Card
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   // Debug: Log del estado del modal
   console.log('TemplateViewerModal renderizando:', { isOpen, plantillaId });
 
@@ -216,147 +390,60 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
               <Eye size={24} />
               Vista previa de plantilla
             </h2>
-            
-            {templateData && (
-              <div className="template-info-badges">
-                <span 
-                  className="category-badge"
-                  style={{ backgroundColor: getCategoryColor(templateData.plantilla.categoria) }}
-                >
-                  {templateData.plantilla.categoria}
-                </span>
-                
-                <span className="complexity-badge">
-                  {getComplexityIcon(templateData.metadata?.complexity_level || 'simple')} 
-                  {templateData.metadata?.complexity_level || 'Simple'}
-                </span>
-              </div>
-            )}
+
+
           </div>
 
-          {/* Botón para mostrar/ocultar detalles */}
-          <div className="template-modal-header-actions">
-            <button
-              onClick={() => setShowDetails(!showDetails)}
-              className="template-toggle-details-btn"
-              title={showDetails ? 'Ocultar detalles' : 'Mostrar detalles'}
-            >
-              <FileText size={18} />
-              {showDetails ? 'Ocultar detalles' : 'Mostrar detalles'}
-            </button>
 
-            <button 
-              onClick={handleClose} 
-              className="template-modal-close-btn"
-              title="Cerrar modal"
-            >
-              <X size={24} />
-            </button>
-          </div>
         </div>
 
         {/* Contenido principal del modal */}
         <div className="template-modal-content">
-          {/* Panel de información lateral (condicional) */}
-          {showDetails && templateData && (
-            <div className="template-info-panel">
-              <div className="template-info-section">
-                <h3 className="template-info-title">{templateData.plantilla.nombre}</h3>
-                <p className="template-info-description">
-                  {templateData.plantilla.descripcion}
-                </p>
-              </div>
-
-              <div className="template-info-section">
-                <h4 className="template-info-subtitle">Información general</h4>
-                
-                <div className="template-info-item">
-                  <Calendar size={16} />
-                  <span>Creada: {formatDate(templateData.plantilla.fecha_creacion)}</span>
-                </div>
-
-                <div className="template-info-item">
-                  <User size={16} />
-                  <span>Creador: Usuario #{templateData.plantilla.creado_por}</span>
-                </div>
-
-                <div className="template-info-item">
-                  <Hash size={16} />
-                  <span>Testing Cards: {templateData.metadata?.total_cards || 0}</span>
-                </div>
-
-                <div className="template-info-item">
-                  <Heart size={16} />
-                  <span>Usos: {templateData.plantilla.usos_count}</span>
-                </div>
-              </div>
-
-              {templateData.metadata && (
-                <div className="template-info-section">
-                  <h4 className="template-info-subtitle">Características</h4>
-                  
-                  <div className="template-features">
-                    <div className="template-feature">
-                      <span>Complejidad:</span>
-                      <span className="feature-value">
-                        {templateData.metadata.complexity_level}
-                      </span>
-                    </div>
-                    
-                    <div className="template-feature">
-                      <span>Learning Cards:</span>
-                      <span className="feature-value">
-                        {templateData.metadata.has_learning_cards ? 'Sí' : 'No'}
-                      </span>
-                    </div>
-                  </div>
+          {/* Área principal - Lista de Testing Cards y detalles */}
+          <div className={`template-flow-container ${showDetails ? 'with-sidebar' : 'full-width'}`}>
+            {/* Lista de Testing Cards (lado izquierdo) */}
+            <div className="template-cards-section">
+              {loadingState === TEMPLATE_CONSTANTS.LOADING_STATES.LOADING && (
+                <div className="template-loading-state">
+                  <div className="template-loading-spinner"></div>
+                  <p>Cargando plantilla...</p>
                 </div>
               )}
+
+              {loadingState === TEMPLATE_CONSTANTS.LOADING_STATES.ERROR && (
+                <div className="template-error-state">
+                  <X size={48} />
+                  <h3>Error al cargar plantilla</h3>
+                  <p>{error}</p>
+                  <button 
+                    onClick={loadTemplateData}
+                    className="template-retry-btn"
+                  >
+                    Reintentar
+                  </button>
+                </div>
+              )}
+
+              {loadingState === TEMPLATE_CONSTANTS.LOADING_STATES.SUCCESS && (
+                <TemplateTestingCardList
+                  plantillaId={plantillaId}
+                  onApplyTestingCard={handleApplyTestingCard}
+                  onSelectTestingCard={handleSelectTestingCard}
+                  className="template-testing-card-list"
+                />
+              )}
             </div>
-          )}
 
-          {/* Área principal - Lista de Testing Cards */}
-          <div className={`template-flow-container ${showDetails ? 'with-sidebar' : 'full-width'}`}>
-            {loadingState === TEMPLATE_CONSTANTS.LOADING_STATES.LOADING && (
-              <div className="template-loading-state">
-                <div className="template-loading-spinner"></div>
-                <p>Cargando plantilla...</p>
-              </div>
-            )}
-
-            {loadingState === TEMPLATE_CONSTANTS.LOADING_STATES.ERROR && (
-              <div className="template-error-state">
-                <X size={48} />
-                <h3>Error al cargar plantilla</h3>
-                <p>{error}</p>
-                <button 
-                  onClick={loadTemplateData}
-                  className="template-retry-btn"
-                >
-                  Reintentar
-                </button>
-              </div>
-            )}
-
-            {loadingState === TEMPLATE_CONSTANTS.LOADING_STATES.SUCCESS && (
-              <TemplateTestingCardList
-                plantillaId={plantillaId}
-                onApplyTestingCard={handleApplyTestingCard}
-                className="template-testing-card-list"
-              />
-            )}
+            {/* Panel de detalles de Testing Card seleccionada (lado derecho) */}
+            <div className="template-selected-card-panel">
+              {renderSelectedTestingCardDetails()}
+            </div>
           </div>
         </div>
 
         {/* Footer del modal con acciones */}
         <div className="template-modal-footer">
-          <div className="template-modal-footer-info">
-            {templateData && (
-              <span className="template-usage-info">
-                Esta plantilla ha sido usada {templateData.plantilla.usos_count} veces
-              </span>
-            )}
-          </div>
+
 
           <div className="template-modal-footer-actions">
             <button 

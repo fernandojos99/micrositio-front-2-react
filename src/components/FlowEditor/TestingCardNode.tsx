@@ -53,18 +53,18 @@ const TestingCardNode: React.FC<TestingCardNodeProps> = ({ data, selected }) => 
 
   // Estados para el modal de plantillas
   const [showTemplateModal, setShowTemplateModal] = useState(false);
-  const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
+  //const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
 
   const toggleExpanded = () => setIsExpanded(prev => !prev);
 
   // Handlers para las acciones de plantillas
   const handleApplyTemplate = () => {
-    console.log('Aplicar plantilla para Testing Card:', data.id_testing_card);
-    console.log('Estados antes del cambio:', { showTemplateModal, selectedTemplateId });
+    console.log('Vamos a abrir el modal plantilla para la TC:', data.id_testing_card);
+    //console.log('Estados antes del cambio:', { showTemplateModal, selectedTemplateId });
     // Por ahora, abrir modal con una plantilla de ejemplo
-    setSelectedTemplateId(1); // ID de plantilla de ejemplo
+    //setSelectedTemplateId(1); // ID de plantilla de ejemplo
     setShowTemplateModal(true);
-    console.log('Estados después del cambio - showTemplateModal debería ser true');
+    //console.log('Estados después del cambio - showTemplateModal debería ser true');
   };
 
   const handleSaveTemplate = () => {
@@ -74,23 +74,24 @@ const TestingCardNode: React.FC<TestingCardNodeProps> = ({ data, selected }) => 
   };
 
   // Handler para usar una plantilla seleccionada
+  /** 
   const handleUseTemplate = (templateId: number) => {
     console.log('Usar plantilla:', templateId, 'en Testing Card:', data.id_testing_card);
     // TODO: Implementar lógica para aplicar la plantilla seleccionada
     alert(`Aplicar plantilla ${templateId} (pendiente de implementar)`);
-  };
+  };*/
 
   // Handler para cerrar el modal de plantillas
   const handleCloseTemplateModal = () => {
     console.log('Cerrando modal de plantillas');
     setShowTemplateModal(false);
-    setSelectedTemplateId(null);
+    //setSelectedTemplateId(null);
   };
 
   // Debug: Log cuando cambian los estados del modal
-  useEffect(() => {
+  /**useEffect(() => {
     console.log('Estados del modal de plantillas:', { showTemplateModal, selectedTemplateId });
-  }, [showTemplateModal, selectedTemplateId]);
+  }, [showTemplateModal, selectedTemplateId]);*/
 
   // Cargar métricas y URLs cuando se expande el componente
   useEffect(() => {
@@ -589,14 +590,11 @@ const TestingCardNode: React.FC<TestingCardNodeProps> = ({ data, selected }) => 
       </div>
 
       {/* Modal de plantillas usando portal para renderizar fuera del nodo */}
-      {showTemplateModal && selectedTemplateId && createPortal(
+      {showTemplateModal && createPortal(
         <TemplateViewerModal
           isOpen={showTemplateModal}
           onClose={handleCloseTemplateModal}
-          plantillaId={selectedTemplateId}
-          plantillaNombre={`Plantilla ${selectedTemplateId}`}
-          plantillaDescripcion="Plantilla de ejemplo para Testing Cards"
-          onUseTemplate={handleUseTemplate}
+          id_testing_card={data.id_testing_card}
         />,
         document.body
       )}

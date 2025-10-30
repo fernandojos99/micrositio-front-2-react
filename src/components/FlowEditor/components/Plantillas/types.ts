@@ -56,11 +56,14 @@ export interface TemplateViewerModalProps {
   /** Función para cerrar el modal */
   onClose: () => void;
   
+  /** ID de la testing card desde donde se está llamando el modal */
+  id_testing_card: number;
+  
   /** ID de la plantilla a mostrar */
-  plantillaId: number;
+  plantillaId?: number;
   
   /** Nombre de la plantilla para mostrar en el título */
-  plantillaNombre: string;
+  plantillaNombre?: string;
   
   /** Descripción opcional de la plantilla */
   plantillaDescripcion?: string;

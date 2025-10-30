@@ -45,7 +45,7 @@ export const obtenerPlantillasTestingCardPorEmpleado = async (idEmpleado: number
  * @returns {Promise<PlantillaTestingCard[]>} Lista de plantillas testing card de la testing card específica
  */
 export const obtenerPlantillasTestingCardPorTestingCard = async (idTestingCard: number): Promise<PlantillaTestingCard[]> => {
-  const response = await apiClient.get(`/plantilla_testing_card/testing_card/${idTestingCard}`);
+  const response = await apiClient.get(`/plantilla_testing_card/testing-card/${idTestingCard}`);
   return response.data;
 };
 

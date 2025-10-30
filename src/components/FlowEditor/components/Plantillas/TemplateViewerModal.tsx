@@ -71,10 +71,53 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
   console.log('TemplateViewerModal recibió id_testing_card:', id_testing_card);
 
   /**
-   * Función placeholder para cargar datos de plantilla
+   * Función para cargar datos de plantilla
    */
-  const loadTemplateData = () => {
-    console.log('Cargar datos de plantilla para testing card:', id_testing_card);
+  const loadTemplateData = async () => {
+    try {
+      setLoadingState(TEMPLATE_CONSTANTS.LOADING_STATES.LOADING);
+      setError(null);
+      
+      console.log('Cargando datos de plantilla para testing card:', id_testing_card);
+
+      // Simular carga de datos de plantilla
+      // TODO: Reemplazar con llamada real al servicio cuando esté disponible
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simular delay de API
+      
+      // Por ahora usar datos mock hasta que esté la API real
+      const mockTemplateData: TemplateServiceResponse = {
+        plantilla: {
+          id_plantilla: id_testing_card,
+          nombre: `Plantilla para Testing Card ${id_testing_card}`,
+          descripcion: 'Plantilla con testing cards disponibles para aplicar',
+          categoria: 'General',
+          es_publica: true,
+          creado_por: 1,
+          fecha_creacion: new Date().toISOString(),
+          fecha_modificacion: new Date().toISOString(),
+          usos_count: 0
+        },
+        testing_cards: [],
+        metadata: {
+          total_cards: 0,
+          has_learning_cards: false,
+          complexity_level: 'simple'
+        }
+      };
+
+      setTemplateData(mockTemplateData);
+      setLoadingState(TEMPLATE_CONSTANTS.LOADING_STATES.SUCCESS);
+      
+      console.log('Datos de plantilla cargados exitosamente');
+    } catch (err) {
+      console.error('Error cargando datos de plantilla:', err);
+      setError(
+        err instanceof Error 
+          ? err.message 
+          : 'Error desconocido al cargar la plantilla'
+      );
+      setLoadingState(TEMPLATE_CONSTANTS.LOADING_STATES.ERROR);
+    }
   };
 
   /**
@@ -86,37 +129,14 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
 
   /**
    * Effect para cargar los datos de la plantilla cuando se abre el modal
-   
+   */
   useEffect(() => {
-    if (isOpen && plantillaId) {
+    if (isOpen && id_testing_card) {
       loadTemplateData();
     }
-  }, [isOpen, plantillaId]);*/
+  }, [isOpen, id_testing_card]);
 
-  /**
-   * Carga los datos completos de la plantilla desde el servicio
-   
-  const loadTemplateData = async () => {
-    try {
-      setLoadingState(TEMPLATE_CONSTANTS.LOADING_STATES.LOADING);
-      setError(null);
 
-      // TODO: Reemplazar con llamada real al servicio
-      // const response = await TemplateService.getTemplateById(plantillaId);
-      
-
-      setTemplateData(mockResponse);
-      setLoadingState(TEMPLATE_CONSTANTS.LOADING_STATES.SUCCESS);
-    } catch (err) {
-      console.error('Error cargando datos de plantilla:', err);
-      setError(
-        err instanceof Error 
-          ? err.message 
-          : 'Error desconocido al cargar la plantilla'
-      );
-      setLoadingState(TEMPLATE_CONSTANTS.LOADING_STATES.ERROR);
-    }
-  };*/
 
   /**
    * Maneja el cierre del modal y limpia el estado
@@ -492,6 +512,7 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
               { loadingState === TEMPLATE_CONSTANTS.LOADING_STATES.SUCCESS && (
                 <TemplateTestingCardList
                   id_testing_card={id_testing_card}
+                  id_testing_card_template={selectedTestingCard ? selectedTestingCard.id_testing_card : null}
                   onApplyTestingCard={handleApplyTestingCard}
                   onSelectTestingCard={handleSelectTestingCard}
                   className="template-testing-card-list"

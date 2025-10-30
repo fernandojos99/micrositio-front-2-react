@@ -19,8 +19,10 @@ interface TestingCardData {
 }
 
 interface TemplateTestingCardListProps {
-  /** ID de la plantilla */
-  plantillaId: number;
+  /** ID de la testing card desde donde se está llamando */
+  id_testing_card: number;
+  /** ID de la  tetsing de plantilla de la testing card */
+  id_testing_card_template?: number;
   /** Callback cuando se aplica una Testing Card específica */
   onApplyTestingCard: (testingCardData: TestingCardData) => void;
   /** Callback cuando se selecciona una Testing Card para ver detalles */
@@ -33,7 +35,7 @@ interface TemplateTestingCardListProps {
  * Componente que muestra una lista simple de Testing Cards de una plantilla
  */
 const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
-  plantillaId,
+  id_testing_card,
   onApplyTestingCard,
   onSelectTestingCard,
   className = ''
@@ -42,34 +44,51 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  /**
-   * Carga las Testing Cards de la plantilla
-   */
-  useEffect(() => {
-    if (plantillaId) {
-      loadTestingCards();
-    }
-  }, [plantillaId]);
+
+  // Log para confirmar que se recibe el id_testing_card
+  console.log('TemplateTestingCardList recibió id_testing_card:', id_testing_card);
 
   /**
-   * Obtiene las Testing Cards asociadas a la plantilla
+   * Carga las Testing Cards
+   */
+  useEffect(() => {
+    loadTestingCards();
+  }, []);
+
+  /**
+   * Obtiene las Testing Cards disponibles
    */
   const loadTestingCards = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      console.log('Intentando cargar plantillas para plantilla ID:', plantillaId);
+      console.log('Cargando Testing Cards disponibles');
 
-      // Opción 1: Intentar usar el servicio de testing cards directamente
+      // Cargar testing cards directamente del servicio
       try {
-        // Usar el servicio de testing cards que sabemos que funciona
-        const { listarTodasTestingCards } = await import('../../../../services/testingCardService');
-        const todasLasTestingCards = await listarTodasTestingCards();
-        console.log('Testing Cards obtenidas directamente:', todasLasTestingCards);
+        // Primero intentar obtener testing cards de plantillas
+        const { obtenerTodasTestingCardsDePlantillas, listarTodasTestingCards } = await import('../../../../services/testingCardService');
         
-        // Tomar las primeras 5 como ejemplo de plantilla
-        const testingCardsLimitadas = todasLasTestingCards.slice(0, 5);
+        let todasLasTestingCards = [];
+        
+        try {
+          todasLasTestingCards = await obtenerTodasTestingCardsDePlantillas();
+          console.log('Testing Cards de plantillas obtenidas:', todasLasTestingCards);
+        } catch (plantillasError) {
+          console.warn('Error al obtener testing cards de plantillas, usando todas las testing cards:', plantillasError);
+          // Si falla, obtener todas las testing cards
+          todasLasTestingCards = await listarTodasTestingCards();
+          console.log('Todas las Testing Cards obtenidas:', todasLasTestingCards);
+        }
+        
+        // Verificar que tenemos datos
+        if (!Array.isArray(todasLasTestingCards)) {
+          throw new Error('Los datos obtenidos no son un array válido');
+        }
+        
+        // Tomar las primeras 10 como ejemplo
+        const testingCardsLimitadas = todasLasTestingCards.slice(0, 10);
         
         const testingCardsData = testingCardsLimitadas.map((testingCard: any) => ({
           id_testing_card: testingCard.id_testing_card,
@@ -100,29 +119,93 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
             id_testing_card: 3,
             titulo: "Testing Card de Seguridad (Mock)",
             descripcion: "Validar autenticación y autorización"
+          },
+          {
+            id_testing_card: 4,
+            titulo: "Testing Card de UI/UX (Mock)",
+            descripcion: "Validar interfaz de usuario y experiencia"
+          },
+          {
+            id_testing_card: 5,
+            titulo: "Testing Card de Integración (Mock)",
+            descripcion: "Verificar integración entre componentes"
           }
         ];
         
+        console.log('Datos mock establecidos:', mockTestingCards);
         setTestingCards(mockTestingCards);
       }
     } catch (err) {
-      console.error('Error al cargar Testing Cards de la plantilla:', err);
-      setError('Error al cargar las Testing Cards de la plantilla');
+      console.error('Error al cargar Testing Cards:', err);
+      setError('Error al cargar las Testing Cards');
     } finally {
       setLoading(false);
     }
   };
 
   /**
-   * Maneja el click en aplicar una Testing Card específica
+   * Maneja el click en aplicar una Testing Card específica como plantilla
+   * 1. Obtiene la plantilla de la Testing Card seleccionada
+   * 2. Aplica la plantilla a la Testing Card actual
    */
-  const handleApplyTestingCard = (testingCard: TestingCardData) => {
-    console.log('Aplicando Testing Card:', testingCard);
-    onApplyTestingCard(testingCard);
+  const handleApplyTestingCard = async (testingCardTemplate: TestingCardData) => {
+    try {
+      console.log('Iniciando aplicación de plantilla...');
+      console.log('Testing Card Template:', testingCardTemplate);
+      console.log('Testing Card destino ID:', id_testing_card);
+
+      // Paso 1: Obtener la plantilla de la Testing Card seleccionada
+      const { obtenerPlantillasTestingCardPorTestingCard } = await import('../../../../services/plantillaTestingCardService');
+      const { aplicarPlantillaATestingCard } = await import('../../../../services/testingCardService');
+      
+      console.log('Obteniendo plantillas para Testing Card:', testingCardTemplate.id_testing_card);
+      const plantillasResponse = await obtenerPlantillasTestingCardPorTestingCard(testingCardTemplate.id_testing_card);
+      
+      console.log('Plantillas obtenidas:', plantillasResponse);
+      
+      // Verificar que se obtuvieron plantillas
+      if (!plantillasResponse || plantillasResponse.length === 0) {
+        throw new Error('No se encontraron plantillas para esta Testing Card');
+      }
+
+      // Tomar la primera plantilla disponible (o podrías implementar lógica para seleccionar una específica)
+      const plantillaSeleccionada = plantillasResponse[0];
+      const id_plantilla_testing_card = plantillaSeleccionada.id_plantilla_testing_card;
+
+      console.log('Plantilla seleccionada:', plantillaSeleccionada);
+      console.log('ID de plantilla a aplicar:', id_plantilla_testing_card);
+
+      // Paso 2: Aplicar la plantilla a la Testing Card actual
+      console.log(`Aplicando plantilla ${id_plantilla_testing_card} a Testing Card ${id_testing_card}`);
+      //const plantillaId = parseInt(id_plantilla_testing_card);
+      const aplicacionResponse = await aplicarPlantillaATestingCard(id_testing_card, id_plantilla_testing_card);
+      
+      console.log('Plantilla aplicada exitosamente:', aplicacionResponse);
+
+      // Notificar al componente padre sobre la aplicación exitosa
+      onApplyTestingCard(testingCardTemplate);
+
+      // Opcional: Mostrar mensaje de éxito
+      alert(`Plantilla "${testingCardTemplate.titulo}" aplicada exitosamente a la Testing Card ${id_testing_card}`);
+
+    } catch (error) {
+      console.error('Error al aplicar plantilla:', error);
+      
+      // Mostrar error al usuario
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido al aplicar la plantilla';
+      alert(`Error: ${errorMessage}`);
+      
+      // También notificar al componente padre (solo pasamos la testing card original)
+      onApplyTestingCard(testingCardTemplate);
+    }
   };
+
+  // Debug logs
+  console.log('Estado actual - Loading:', loading, 'Error:', error, 'TestingCards count:', testingCards.length);
 
   // Estado de carga
   if (loading) {
+    console.log('Renderizando estado de carga');
     return (
       <div className={`template-list-container ${className}`}>
         <div className="template-list-loading">
@@ -135,6 +218,7 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
 
   // Estado de error
   if (error) {
+    console.log('Renderizando estado de error:', error);
     return (
       <div className={`template-list-container ${className}`}>
         <div className="template-list-error">
@@ -147,22 +231,24 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
 
   // Lista vacía
   if (testingCards.length === 0) {
+    console.log('Renderizando estado de lista vacía');
     return (
       <div className={`template-list-container ${className}`}>
         <div className="template-list-empty">
           <FileText size={48} />
-          <h3>No hay plantillas disponibles</h3>
-          //<p>Esta plantilla no contiene Testing Cards.</p>
+          <h3>No hay Testing Cards disponibles</h3>
+          <p>No se encontraron Testing Cards para mostrar.</p>
         </div>
       </div>
     );
   }
 
   // Renderizar lista de Testing Cards
+  console.log('Renderizando lista de Testing Cards:', testingCards);
   return (
     <div className={`template-list-container ${className}`}>
       <div className="template-list-header">
-        <h3>Testing Cards de la Plantilla</h3>
+        <h3>Testing Cards Disponibles</h3>
         <span className="template-list-count">{testingCards.length} elementos</span>
       </div>
       

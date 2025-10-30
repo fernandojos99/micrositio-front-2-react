@@ -44,8 +44,8 @@ export const actualizarTestingCard = async (id_testing_card: string | number, te
 
 // Aplicar una plantilla una Testing Card existente
 // Solo copia, titulo, descripcion, id_experimiento ademas de crear las metricas asociadas
-export const aplicarPlantillaATestingCard = async (id_testing_card:number, id_plantilla_testing_card:number) => {
-  const response = await apiClient.patch('/testing_card/aplicar_plantilla', { id_testing_card, id_plantilla_testing_card });
+export const aplicarPlantillaATestingCard = async (id_testing_card:number, id_plantilla_testing_card:string|number) => {
+  const response = await apiClient.patch('/testing_card/aplicar-plantilla', { id_testing_card, id_plantilla_testing_card });
   return response.data;
 };
 

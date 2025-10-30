@@ -58,7 +58,9 @@ export interface TemplateViewerModalProps {
   
   /** ID de la testing card desde donde se está llamando el modal */
   id_testing_card: number;
-  
+
+  id_testing_card_template?: number;
+
   /** ID de la plantilla a mostrar */
   plantillaId?: number;
   

@@ -67,10 +67,37 @@ const TestingCardNode: React.FC<TestingCardNodeProps> = ({ data, selected }) => 
     //console.log('Estados después del cambio - showTemplateModal debería ser true');
   };
 
-  const handleSaveTemplate = () => {
-    console.log('Guardar como plantilla para Testing Card:', data.id_testing_card);
-    // TODO: Implementar lógica para guardar como plantilla
-    alert(`Guardar Testing Card ${data.titulo} como plantilla (pendiente de implementar)`);
+  const handleSaveTemplate = async () => {
+    try {
+      console.log('Guardar como plantilla para Testing Card:', data.id_testing_card);
+      
+      // Importar la función para crear plantilla
+      const { crearPlantillaTestingCard } = await import('../../services/plantillaTestingCardService');
+      
+      // Por ahora usar un id_empleado por defecto (1)
+      // TODO: Obtener el id_empleado del usuario actual desde el contexto de autenticación
+      const id_empleado = 10;
+      
+      console.log('Creando plantilla con datos:', {
+        id_testing_card: data.id_testing_card,
+        id_empleado: id_empleado
+      });
+      
+      // Llamar al servicio para crear la plantilla
+      const plantillaCreada = await crearPlantillaTestingCard(data.id_testing_card, id_empleado);
+      
+      console.log('Plantilla creada exitosamente:', plantillaCreada);
+      
+      // Mostrar mensaje de éxito al usuario
+      alert(`✅ Testing Card "${data.titulo}" guardada como plantilla exitosamente!\n\nID de plantilla: ${plantillaCreada.id_plantilla_testing_card}`);
+      
+    } catch (error) {
+      console.error('Error al guardar como plantilla:', error);
+      
+      // Mostrar mensaje de error al usuario
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido al guardar la plantilla';
+      alert(`❌ Error al guardar como plantilla: ${errorMessage}`);
+    }
   };
 
   // Handler para usar una plantilla seleccionada

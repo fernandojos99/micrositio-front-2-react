@@ -64,8 +64,8 @@ export const obtenerPlantillaTestingCardPorId = async (id: string): Promise<Plan
  * @param {CrearPlantillaTestingCardData} plantillaData _ Datos de la nueva plantilla testing card
  * @returns {Promise<PlantillaTestingCard>} La plantilla testing card creada
  */
-export const crearPlantillaTestingCard = async (plantillaData: CrearPlantillaTestingCardData): Promise<PlantillaTestingCard> => {
-  const response = await apiClient.post('/plantilla_testing_card/', plantillaData);
+export const crearPlantillaTestingCard = async ( id_testing_card: number, id_empleado:number  ) => {
+  const response = await apiClient.post('/plantilla_testing_card/', { id_testing_card, id_empleado });
   return response.data;
 };
 

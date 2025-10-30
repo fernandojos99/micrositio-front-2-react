@@ -2,13 +2,19 @@ import apiClient from '../apiClient';
 
 // Obtener Testing Card por ID
 export const obtenerTestingCardPorId = async (id_testing_card: string | number) => {
-  const response = await apiClient.get(`/testing_card/t`, { params: { id_testing_card } });
+  const response = await apiClient.get(`/testing_card/t/${id_testing_card}`);
   return response.data;
 };
 
 // Obtener Testing Cards por Secuencia
 export const obtenerTestingCardsPorSecuencia = async (id_secuencia: string | number) => {
   const response = await apiClient.get('/testing_card/s', { params: { id_secuencia } });
+  return response.data;
+};
+
+// Obtener todas las  Testing Cards asociadas a una platilla 
+export const obtenerTodasTestingCardsDePlantillas = async () => {
+  const response = await apiClient.get('/testing_card/plantillas');
   return response.data;
 };
 
@@ -33,6 +39,13 @@ export const crearTestingCard = async (testingCardData: any) => {
 // Actualizar una Testing Card
 export const actualizarTestingCard = async (id_testing_card: string | number, testingCardData: any) => {
   const response = await apiClient.patch('/testing_card/', { id_testing_card, ...testingCardData });
+  return response.data;
+};
+
+// Aplicar una plantilla una Testing Card existente
+// Solo copia, titulo, descripcion, id_experimiento ademas de crear las metricas asociadas
+export const aplicarPlantillaATestingCard = async (id_testing_card:number, id_plantilla_testing_card:string|number) => {
+  const response = await apiClient.patch('/testing_card/aplicar-plantilla', { id_testing_card, id_plantilla_testing_card });
   return response.data;
 };
 

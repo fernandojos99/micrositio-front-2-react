@@ -10,7 +10,7 @@ export interface Proyecto {
   nombre: string;
   descripcion: string;
   colaboradores: Colaborador[];
-
+  id_categoria: number; // Agregado para manejar la categoría del proyecto
   fecha_inicio: string;
   fecha_fin_estimada: string;
   estado: 'ACTIVO' | 'INACTIVO' | 'COMPLETADO';

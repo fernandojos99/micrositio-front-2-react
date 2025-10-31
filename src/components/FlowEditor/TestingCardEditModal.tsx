@@ -345,7 +345,7 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
       operador: '', 
       criterio: '',
       needsCreation: true // Marca que necesita ser creada en BD
-    };
+    };  
     setFormData({
       ...formData,
       metricas: [...(formData.metricas || []), newMetric]

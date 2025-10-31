@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Handle, Position } from 'reactflow';
 import {
   Edit3,
@@ -18,6 +19,8 @@ import { UrlTestingCard, obtenerPorTestingCard as obtenerUrlsPorTestingCard } fr
 import TestingCardPlaybookService from '../../services/TestingCardPlaybookService';
 import { TestingCardPlaybook } from '../../types/testingCardPlaybook';
 import { Empleado, obtenerEmpleados } from '../../services/empleadosService';
+import TemplateDropdown from './components/Plantillas/TemplateDropdown';
+import { TemplateViewerModal } from './components/Plantillas';
 import './styles/TestingCardNode.css';
 
 interface TestingCardNodeProps {
@@ -48,7 +51,74 @@ const TestingCardNode: React.FC<TestingCardNodeProps> = ({ data, selected }) => 
   const [responsable, setResponsable] = useState<Empleado | null>(null);
   const [loadingResponsable, setLoadingResponsable] = useState(false);
 
+  // Estados para el modal de plantillas
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  //const [selectedTemplateId, setSelectedTemplateId] = useState<number | null>(null);
+
   const toggleExpanded = () => setIsExpanded(prev => !prev);
+
+  // Handlers para las acciones de plantillas
+  const handleApplyTemplate = () => {
+    console.log('Vamos a abrir el modal plantilla para la TC:', data.id_testing_card);
+    //console.log('Estados antes del cambio:', { showTemplateModal, selectedTemplateId });
+    // Por ahora, abrir modal con una plantilla de ejemplo
+    //setSelectedTemplateId(1); // ID de plantilla de ejemplo
+    setShowTemplateModal(true);
+    //console.log('Estados después del cambio - showTemplateModal debería ser true');
+  };
+
+  const handleSaveTemplate = async () => {
+    try {
+      console.log('Guardar como plantilla para Testing Card:', data.id_testing_card);
+      
+      // Importar la función para crear plantilla
+      const { crearPlantillaTestingCard } = await import('../../services/plantillaTestingCardService');
+      
+      // Por ahora usar un id_empleado por defecto (1)
+      // TODO: Obtener el id_empleado del usuario actual desde el contexto de autenticación
+      const id_empleado = 10;
+      
+      console.log('Creando plantilla con datos:', {
+        id_testing_card: data.id_testing_card,
+        id_empleado: id_empleado
+      });
+      
+      // Llamar al servicio para crear la plantilla
+      const plantillaCreada = await crearPlantillaTestingCard(data.id_testing_card, id_empleado);
+      
+      console.log('Plantilla creada exitosamente:', plantillaCreada);
+      
+      // Mostrar mensaje de éxito al usuario
+      alert(`✅ Testing Card "${data.titulo}" guardada como plantilla exitosamente!\n\nID de plantilla: ${plantillaCreada.id_plantilla_testing_card}`);
+      
+    } catch (error) {
+      console.error('Error al guardar como plantilla:', error);
+      
+      // Mostrar mensaje de error al usuario
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido al guardar la plantilla';
+      alert(`❌ Error al guardar como plantilla: ${errorMessage}`);
+    }
+  };
+
+  // Handler para usar una plantilla seleccionada
+  /** 
+  const handleUseTemplate = (templateId: number) => {
+    console.log('Usar plantilla:', templateId, 'en Testing Card:', data.id_testing_card);
+    // TODO: Implementar lógica para aplicar la plantilla seleccionada
+    alert(`Aplicar plantilla ${templateId} (pendiente de implementar)`);
+  };*/
+
+  // Handler para cerrar el modal de plantillas
+  const handleCloseTemplateModal = () => {
+    console.log('Cerrando modal de plantillas');
+    setShowTemplateModal(false);
+    //setSelectedTemplateId(null);
+  };
+
+  // Debug: Log cuando cambian los estados del modal
+  /**useEffect(() => {
+    console.log('Estados del modal de plantillas:', { showTemplateModal, selectedTemplateId });
+  }, [showTemplateModal, selectedTemplateId]);*/
 
   // Cargar métricas y URLs cuando se expande el componente
   useEffect(() => {
@@ -326,6 +396,12 @@ const TestingCardNode: React.FC<TestingCardNodeProps> = ({ data, selected }) => 
             {/*<span>Tipo #{data.id_experimento_tipo}</span> */}
           </div>
         </div>
+        
+        <TemplateDropdown
+          onApplyTemplate={handleApplyTemplate}
+          onSaveTemplate={handleSaveTemplate}
+          className="compact"
+        />
       </div>
 
       <div className="card-body">
@@ -539,6 +615,16 @@ const TestingCardNode: React.FC<TestingCardNodeProps> = ({ data, selected }) => 
           <Trash2 size={12} />
         </button>
       </div>
+
+      {/* Modal de plantillas usando portal para renderizar fuera del nodo */}
+      {showTemplateModal && createPortal(
+        <TemplateViewerModal
+          isOpen={showTemplateModal}
+          onClose={handleCloseTemplateModal}
+          id_testing_card={data.id_testing_card}
+        />,
+        document.body
+      )}
     </div>
   );
 };

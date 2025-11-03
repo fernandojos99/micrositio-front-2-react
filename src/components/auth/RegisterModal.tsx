@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Mail, Lock, Eye, EyeOff, UserPlus, AlertCircle } from 'lucide-react';
 import Button from '../ui/Button/Button';
-import { crearUsuario } from '../../services/usuarioService';
+import { crearUsuarioVisitante } from '../../services/usuarioService';
 import styles from './LoginModal.module.css';
 
 interface RegisterModalProps {
@@ -63,10 +63,10 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
       return 'El alias debe tener máximo 50 caracteres';
     }
     
-    // Validar solo alfanuméricos, guiones y guiones bajos
-    const aliasRegex = /^[a-zA-Z0-9_@-]+$/;
+    // Validar solo alfanuméricos, guiones, guiones bajos y @
+    const aliasRegex = /^[a-zA-Z0-9@._-]+$/;
     if (!aliasRegex.test(alias)) {
-      return 'El alias solo puede contener letras, números, guiones y guiones bajos';
+      return 'El alias solo puede contener letras, números, @ (arroba), guiones y guiones bajos';
     }
     
     return '';
@@ -79,6 +79,21 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
     
     if (password.length < 8) {
       return 'La contraseña debe tener al menos 8 caracteres';
+    }
+    
+    // Verificar al menos una mayúscula
+    if (!/[A-Z]/.test(password)) {
+      return 'La contraseña debe contener al menos una letra mayúscula';
+    }
+    
+    // Verificar al menos un número
+    if (!/[0-9]/.test(password)) {
+      return 'La contraseña debe contener al menos un número';
+    }
+    
+    // Verificar al menos un carácter especial
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      return 'La contraseña debe contener al menos un carácter especial (!@#$%^&*...)';
     }
     
     return '';
@@ -134,7 +149,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
 
     try {
       // Crear el usuario usando el servicio
-      const nuevoUsuario = await crearUsuario({
+      const nuevoUsuario = await crearUsuarioVisitante({
         alias: formData.alias,
         password: formData.password,
         tipo: 'VISITANTE', // Por defecto los registros desde el frontend son visitantes
@@ -181,6 +196,53 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
            validateConfirmPassword(formData.confirmPassword, formData.password) === '';
   };
 
+  /**
+   * Obtiene las razones por las que el formulario no es válido
+   * @returns {string[]} Array de mensajes de advertencia
+   */
+  const getValidationWarnings = (): string[] => {
+    const warnings: string[] = [];
+    
+    // Verificar alias
+    if (!formData.alias.trim()) {
+      warnings.push('El alias es requerido');
+    } else {
+      const aliasError = validateAlias(formData.alias);
+      if (aliasError) {
+        warnings.push(aliasError);
+      }
+    }
+    
+    // Verificar contraseña
+    if (!formData.password) {
+      warnings.push('La contraseña es requerida');
+    } else {
+      if (formData.password.length < 8) {
+        warnings.push('La contraseña debe tener al menos 8 caracteres');
+      }
+      if (!/[A-Z]/.test(formData.password)) {
+        warnings.push('La contraseña debe contener al menos una letra mayúscula');
+      }
+      if (!/[0-9]/.test(formData.password)) {
+        warnings.push('La contraseña debe contener al menos un número');
+      }
+      if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(formData.password)) {
+        warnings.push('La contraseña debe contener al menos un carácter especial');
+      }
+    }
+    
+    // Verificar confirmación de contraseña
+    if (!formData.confirmPassword) {
+      warnings.push('La confirmación de contraseña es requerida');
+    } else if (formData.confirmPassword.length < 8) {
+      warnings.push('La confirmación debe tener al menos 8 caracteres');
+    } else if (formData.password && formData.confirmPassword !== formData.password) {
+      warnings.push('Las contraseñas no coinciden');
+    }
+    
+    return warnings;
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -202,9 +264,9 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         <div className={styles['modal-body']}>
-          <p className={styles['modal-description']}>
+          {/*<p className={styles['modal-description']}>
             Crea tu cuenta para acceder a todas las funcionalidades
-          </p>
+          </p>*/}
 
           {authError && (
             <div className={styles['auth-error']}>
@@ -310,8 +372,45 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
             <div className={styles['demo-credentials']}>
               <h4>Requisitos:</h4>
               <p><strong>Alias:</strong> 3-50 caracteres, solo letras, números, guiones y @</p>
-              <p><strong>Contraseña:</strong> Mínimo 8 caracteres</p>
+              <p><strong>Contraseña:</strong> Mínimo 8 caracteres, una mayúscula, un número y un carácter especial</p>
             </div>
+
+            {/* @section: Advertencias de validación */}
+            {!isFormValid() && (
+              <div className={styles['validation-warnings']} style={{
+                marginTop: '12px',
+                padding: '12px',
+                backgroundColor: 'rgba(234, 179, 8, 0.1)',
+                border: '1px solid rgba(234, 179, 8, 0.3)',
+                borderRadius: '8px'
+              }}>
+                {/*<div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginBottom: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: 'rgb(146, 64, 14)'
+                }}>
+                  <AlertCircle size={16} />
+                  <span>Para habilitar el botón "Crear Cuenta":</span>
+                </div>
+                <ul style={{
+                  margin: '0',
+                  paddingLeft: '20px',
+                  fontSize: '13px',
+                  color: 'rgb(146, 64, 14)',
+                  lineHeight: '1.4'
+                }}>
+                  {getValidationWarnings().map((warning, index) => (
+                    <li key={index} style={{ marginBottom: '4px' }}>
+                      {warning}
+                    </li>
+                  ))}
+                </ul>*/}
+              </div>
+            )}
 
             <Button
               type="submit"

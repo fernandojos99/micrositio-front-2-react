@@ -54,17 +54,52 @@ const UsersProjectsList: React.FC = () => {
     setLoading(true);
     try {
       // Obtener lista completa de usuarios
-      const data = await obtenerTodosUsuarios();
-      setUsuarios(data);
+      const response = await obtenerTodosUsuarios();
+      console.log('🔍 Respuesta del servicio obtenerTodosUsuarios:', response);
+      
+      // Validar que la respuesta sea un array válido
+      let usuariosData: Usuario[] = [];
+      
+      if (Array.isArray(response)) {
+        usuariosData = response;
+      } else if (response && typeof response === 'object') {
+        // Intentar extraer datos de diferentes estructuras posibles
+        const responseObj = response as any;
+        if (Array.isArray(responseObj.data)) {
+          usuariosData = responseObj.data;
+        } else if (Array.isArray(responseObj.usuarios)) {
+          usuariosData = responseObj.usuarios;
+        } else {
+          console.warn('⚠️ Respuesta del servicio no es un array válido:', response);
+          usuariosData = [];
+        }
+      } else {
+        console.warn('⚠️ Respuesta del servicio no es un array válido:', response);
+        usuariosData = [];
+      }
+      
+      console.log('✅ Usuarios procesados:', usuariosData);
+      setUsuarios(usuariosData);
       
       // Para cada usuario, cargar sus proyectos asignados de forma paralela
-      await Promise.all(data.map(async (u) => {
-        const projs = await obtenerProyectosPorUsuario(u.id_usuario);
-        // Actualizar el estado manteniendo los datos existentes de otros usuarios
-        setProyectosPorUsuario(prev => ({ ...prev, [u.id_usuario]: projs }));
-      }));
+      if (usuariosData.length > 0) {
+        await Promise.all(usuariosData.map(async (u) => {
+          try {
+            const projs = await obtenerProyectosPorUsuario(u.id_usuario);
+            // Actualizar el estado manteniendo los datos existentes de otros usuarios
+            setProyectosPorUsuario(prev => ({ ...prev, [u.id_usuario]: Array.isArray(projs) ? projs : [] }));
+          } catch (projError) {
+            console.error(`Error cargando proyectos para usuario ${u.id_usuario}:`, projError);
+            // Establecer array vacío en caso de error
+            setProyectosPorUsuario(prev => ({ ...prev, [u.id_usuario]: [] }));
+          }
+        }));
+      }
     } catch (error) {
       console.error('Error cargando usuarios y proyectos:', error);
+      // En caso de error, establecer array vacío para evitar crashes
+      setUsuarios([]);
+      setProyectosPorUsuario({});
     } finally {
       setLoading(false);
     }
@@ -175,7 +210,7 @@ const UsersProjectsList: React.FC = () => {
       
       {/* Lista de usuarios con sus proyectos asignados */}
       <ul className={styles.userList}>
-        {usuarios.map(u => (
+        {Array.isArray(usuarios) && usuarios.length > 0 ? usuarios.map(u => (
           <li key={u.id_usuario} className={styles.userItem}>
             
             {/* Encabezado del usuario con información y botones de acción */}
@@ -233,7 +268,13 @@ const UsersProjectsList: React.FC = () => {
               )}
             </div>
           </li>
-        ))}
+        )) : (
+          <li className={styles.noUsers}>
+            <div className={styles.noUsersMessage}>
+              {loading ? 'Cargando usuarios...' : 'No hay usuarios disponibles'}
+            </div>
+          </li>
+        )}
       </ul>
     </div>
   );

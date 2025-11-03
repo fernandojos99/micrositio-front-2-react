@@ -16,6 +16,7 @@ import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Users, Settings, Shield, UserPlus } from 'lucide-react';
 import UsersProjectsList from '../../components/UsersProjects/UsersProjectsList';
+import ErrorBoundary from '../../components/ErrorBoundary/ErrorBoundary';
 import styles from './Administracion.module.css';
 
 /**
@@ -79,7 +80,9 @@ const Administracion: React.FC = () => {
           <h2>Gestión de Usuarios y Proyectos</h2>
           <p>Administra la asignación de proyectos y permisos de usuarios</p>
         </div>
-        <UsersProjectsList />
+        <ErrorBoundary>
+          <UsersProjectsList />
+        </ErrorBoundary>
       </section>
     </div>
   );

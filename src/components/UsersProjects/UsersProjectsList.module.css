@@ -210,6 +210,23 @@
   border-radius: 8px;
 }
 
+/* Sin usuarios */
+.noUsers {
+  list-style: none;
+  padding: 2rem;
+  text-align: center;
+}
+
+.noUsersMessage {
+  color: #6b7280;
+  font-size: 1rem;
+  font-style: italic;
+  padding: 2rem;
+  background: #f9fafb;
+  border: 1px dashed #d1d5db;
+  border-radius: 12px;
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .userHeader {

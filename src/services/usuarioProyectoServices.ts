@@ -25,3 +25,18 @@ export const obtenerProyectosPorUsuario = async (userId: string) => {
     throw error;
   }
 };
+
+/**
+ * Elimina la relación usuario-proyecto
+ * @param data { id_usuario, id_proyecto }
+ */
+export const eliminarUsuarioProyecto = async (data: usuarioProyecto) => {
+  try {
+    // Algunos backends esperan el body en data para delete
+    const response = await apiClient.delete('/api/usuarioProyecto', { data });
+    return response.data;
+  } catch (error) {
+    console.error('Error al eliminar usuarioProyecto:', error);
+    throw error;
+  }
+};

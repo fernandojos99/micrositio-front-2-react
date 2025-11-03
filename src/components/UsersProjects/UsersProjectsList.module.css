@@ -1,0 +1,10 @@
+.container {
+  padding: 1rem;
+}
+.userList { list-style: none; padding: 0; }
+.userItem { border: 1px solid #e5e7eb; padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 6px; }
+.userHeader { display:flex; justify-content:space-between; align-items:center; }
+.assignBtn { background:#2563eb; color:white; border:none; padding:0.35rem 0.6rem; border-radius:4px; cursor:pointer }
+.proyectosList { margin-top:0.5rem; }
+.proyectoItem { display:flex; gap:0.5rem; align-items:center; }
+.noProjects { color:#6b7280; font-size:0.9rem; }

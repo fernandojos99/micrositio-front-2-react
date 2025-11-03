@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Mail, Lock, Eye, EyeOff, UserPlus, AlertCircle } from 'lucide-react';
 import Button from '../ui/Button/Button';
+import { crearUsuario } from '../../services/usuarioService';
 import styles from './LoginModal.module.css';
 
 interface RegisterModalProps {
@@ -10,7 +11,7 @@ interface RegisterModalProps {
 
 const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
-    email: '',
+    alias: '',
     password: '',
     confirmPassword: ''
   });
@@ -41,7 +42,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (isOpen) {
-      setFormData({ email: '', password: '', confirmPassword: '' });
+      setFormData({ alias: '', password: '', confirmPassword: '' });
       setErrors({});
       setAuthError('');
       setShowPassword(false);
@@ -49,14 +50,23 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
     }
   }, [isOpen]);
 
-  const validateEmail = (email: string): string => {
-    if (!email.trim()) {
-      return 'El correo electrónico es requerido';
+  const validateAlias = (alias: string): string => {
+    if (!alias.trim()) {
+      return 'El alias es requerido';
     }
     
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return 'El formato del correo electrónico no es válido';
+    if (alias.length < 3) {
+      return 'El alias debe tener al menos 3 caracteres';
+    }
+    
+    if (alias.length > 50) {
+      return 'El alias debe tener máximo 50 caracteres';
+    }
+    
+    // Validar solo alfanuméricos, guiones y guiones bajos
+    const aliasRegex = /^[a-zA-Z0-9_@-]+$/;
+    if (!aliasRegex.test(alias)) {
+      return 'El alias solo puede contener letras, números, guiones y guiones bajos';
     }
     
     return '';
@@ -101,8 +111,8 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
     
-    const emailError = validateEmail(formData.email);
-    if (emailError) newErrors.email = emailError;
+    const aliasError = validateAlias(formData.alias);
+    if (aliasError) newErrors.alias = aliasError;
     
     const passwordError = validatePassword(formData.password);
     if (passwordError) newErrors.password = passwordError;
@@ -123,19 +133,34 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
     setAuthError('');
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Crear el usuario usando el servicio
+      const nuevoUsuario = await crearUsuario({
+        alias: formData.alias,
+        password: formData.password,
+        tipo: 'VISITANTE', // Por defecto los registros desde el frontend son visitantes
+        activo: true
+      });
       
-      if (formData.email === 'test@error.com') {
-        throw new Error('Este correo electrónico ya está registrado');
-      }
-      
-      console.log('Registro exitoso:', { email: formData.email });
-      alert(`¡Registro exitoso! Se ha enviado un correo de confirmación a ${formData.email}`);
+      console.log('Usuario creado exitosamente:', nuevoUsuario);
+      alert(`¡Registro exitoso! Usuario "${formData.alias}" creado correctamente.`);
       onClose();
       
     } catch (error) {
       console.error('Error en registro:', error);
-      setAuthError(error instanceof Error ? error.message : 'Error al crear la cuenta. Por favor intenta de nuevo.');
+      
+      // Manejar diferentes tipos de errores
+      let errorMessage = 'Error al crear la cuenta. Por favor intenta de nuevo.';
+      
+      if (error instanceof Error) {
+        // Si el error contiene información sobre alias duplicado u otros errores específicos
+        if (error.message.includes('alias') || error.message.includes('duplicate')) {
+          errorMessage = 'Este alias ya está en uso. Por favor elige otro.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      setAuthError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -148,10 +173,10 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
   };
 
   const isFormValid = (): boolean => {
-    return formData.email.trim() !== '' && 
+    return formData.alias.trim() !== '' && 
            formData.password.length >= 8 && 
            formData.confirmPassword.length >= 8 &&
-           validateEmail(formData.email) === '' && 
+           validateAlias(formData.alias) === '' && 
            validatePassword(formData.password) === '' &&
            validateConfirmPassword(formData.confirmPassword, formData.password) === '';
   };
@@ -190,26 +215,26 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
 
           <form onSubmit={handleSubmit} className={styles['login-form']}>
             <div className={styles['form-group']}>
-              <label htmlFor="email" className={styles['form-label']}>
+              <label htmlFor="alias" className={styles['form-label']}>
                 <Mail size={16} className={styles['form-label-icon']} />
-                Correo Electrónico
+                Correo del Usuaio
               </label>
               <div className={styles['input-container']}>
                 <input
-                  type="email"
-                  id="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  className={`${styles['form-input']} ${errors.email ? styles['input-error'] : ''}`}
-                  placeholder="tu@email.com"
+                  type="text"
+                  id="alias"
+                  value={formData.alias}
+                  onChange={(e) => handleInputChange('alias', e.target.value)}
+                  className={`${styles['form-input']} ${errors.alias ? styles['input-error'] : ''}`}
+                  placeholder="Tu correo electrónico"
                   disabled={isLoading}
-                  autoComplete="email"
+                  autoComplete="username"
                 />
               </div>
-              {errors.email && (
+              {errors.alias && (
                 <span className={styles['error-text']}>
                   <AlertCircle size={14} />
-                  {errors.email}
+                  {errors.alias}
                 </span>
               )}
             </div>
@@ -284,7 +309,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
 
             <div className={styles['demo-credentials']}>
               <h4>Requisitos:</h4>
-              <p><strong>Email:</strong> Formato válido (ej: usuario@dominio.com)</p>
+              <p><strong>Alias:</strong> 3-50 caracteres, solo letras, números, guiones y @</p>
               <p><strong>Contraseña:</strong> Mínimo 8 caracteres</p>
             </div>
 

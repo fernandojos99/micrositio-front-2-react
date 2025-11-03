@@ -160,8 +160,47 @@
 }
 
 /* =================================================================
-   BOTÓN DE LOGIN (USUARIO NO AUTENTICADO)
+   BOTONES DE AUTENTICACIÓN (USUARIO NO AUTENTICADO)
    ================================================================= */
+
+/* @section: Contenedor de botones de autenticación */
+.auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* @section: Botón de registro */
+.register-button {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  background: transparent;
+  color: var(--theme-text-primary);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--border-radius-xl);
+  border: 2px solid var(--color-primary-purple);
+  transition: all var(--transition-normal);
+  cursor: pointer;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+}
+
+.register-button:hover {
+  background: var(--color-primary-purple);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.register-button:active {
+  transform: translateY(0);
+}
+
+.register-icon {
+  height: 1rem;
+  width: 1rem;
+}
 
 /* @section: Botón de login */
 .login-button {
@@ -335,6 +374,16 @@
 }
 
 .dark .logo-text {
+  color: var(--color-text-primary);
+}
+
+.dark .register-button {
+  color: var(--theme-text-primary);
+  border-color: var(--color-primary-yellow);
+}
+
+.dark .register-button:hover {
+  background: var(--color-primary-yellow);
   color: var(--color-text-primary);
 }
 

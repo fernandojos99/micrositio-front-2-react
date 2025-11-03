@@ -7,11 +7,7 @@ import {
   LogIn, 
   LogOut, 
   User, 
-  Settings, 
-  Users, 
-  Briefcase, 
-  BookOpen,
-  ChevronDown 
+  Settings
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import BubbleBackground from '../BubbleBackground/BubbleBackground';
@@ -46,9 +42,8 @@ const Header: React.FC = () => {
   const { isDarkMode, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   
-  // @state: Control del modal de login y navegación
+  // @state: Control del modal de login
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [showNavMenu, setShowNavMenu] = useState(false);
 
   /**
    * Maneja el clic en el botón de login
@@ -82,44 +77,8 @@ const Header: React.FC = () => {
           </h1>
         </Link>
 
-        {/* @section: Navegación principal (solo para usuarios autenticados) */}
-        {user && (
-          <nav className={styles['main-nav']}>
-            <Link to="/proyectos" className={styles['nav-link']}>
-              <Briefcase size={16} />
-              Proyectos
-            </Link>
-            <Link to="/equipo" className={styles['nav-link']}>
-              <Users size={16} />
-              Equipo
-            </Link>
-            <Link to="/libro-digital" className={styles['nav-link']}>
-              <BookOpen size={16} />
-              Libro Digital
-            </Link>
-            {user.tipo === 'EDITOR' && (
-              <Link to="/administracion" className={styles['nav-link-admin']}>
-                <Settings size={16} />
-                Administración
-              </Link>
-            )}
-          </nav>
-        )}
-
         {/* @section: Acciones del header */}
         <div className={styles['header-actions']}>
-          {/* @component: Toggle de tema */}
-          <button 
-            onClick={toggleTheme}
-            className={styles['theme-toggle']}
-            aria-label={isDarkMode ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-          >
-            {isDarkMode ? 
-              <Sun className={styles['theme-icon-sun']} /> : 
-              <Moon className={styles['theme-icon-moon']} />
-            }
-          </button>
-
           {/* @section: Autenticación condicional */}
           {user ? (
             /* @section: Usuario autenticado */
@@ -160,6 +119,28 @@ const Header: React.FC = () => {
               <span>Login</span>
             </button>
           )}
+
+          {/* @component: Botón de configuración (solo para usuarios autenticados) */}
+          {user && (
+            <button 
+              className={styles['settings-button']}
+              aria-label="Configuración"
+            >
+              <Settings className={styles['settings-icon']} />
+            </button>
+          )}
+
+          {/* @component: Toggle de tema */}
+          <button 
+            onClick={toggleTheme}
+            className={styles['theme-toggle']}
+            aria-label={isDarkMode ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+          >
+            {isDarkMode ? 
+              <Sun className={styles['theme-icon-sun']} /> : 
+              <Moon className={styles['theme-icon-moon']} />
+            }
+          </button>
         </div>
       </div>
 

@@ -229,6 +229,38 @@
   transform: rotate(15deg) scale(1.1);
 }
 
+/* @section: Botón de configuración */
+.settings-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: var(--spacing-sm);
+  border-radius: 50%;
+  background-color: transparent;
+  transition: all var(--transition-normal);
+  border: none;
+  margin-left: var(--spacing-sm);
+}
+
+.settings-button:hover {
+  background-color: var(--theme-bg-secondary);
+  transform: translateY(-2px);
+}
+
+.settings-icon {
+  height: 1.25rem;
+  width: 1.25rem;
+  color: var(--theme-text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.settings-button:hover .settings-icon {
+  color: var(--theme-text-primary);
+  transform: rotate(90deg);
+}
+
 /* =================================================================
    BOTÓN DE LOGIN (USUARIO NO AUTENTICADO)
    ================================================================= */
@@ -458,13 +490,15 @@
     gap: var(--spacing-sm);
   }
   
-  .theme-toggle {
+  .theme-toggle,
+  .settings-button {
     width: 2rem;
     height: 2rem;
   }
   
   .theme-icon-sun,
-  .theme-icon-moon {
+  .theme-icon-moon,
+  .settings-icon {
     width: 1rem;
     height: 1rem;
   }
@@ -478,7 +512,8 @@
 .theme-toggle:focus,
 .login-button:focus,
 .user-profile:focus,
-.logout-button:focus {
+.logout-button:focus,
+.settings-button:focus {
   outline: 2px solid var(--color-primary-purple);
   outline-offset: 2px;
 }
@@ -486,7 +521,8 @@
 .dark .theme-toggle:focus,
 .dark .login-button:focus,
 .dark .user-profile:focus,
-.dark .logout-button:focus {
+.dark .logout-button:focus,
+.dark .settings-button:focus {
   outline-color: var(--color-primary-yellow);
 }
 
@@ -496,7 +532,8 @@
   .theme-toggle:hover,
   .login-button:hover,
   .user-profile:hover,
-  .logout-button:hover {
+  .logout-button:hover,
+  .settings-button:hover {
     transform: none;
   }
   
@@ -505,7 +542,8 @@
   }
   
   .theme-toggle:hover .theme-icon-sun,
-  .theme-toggle:hover .theme-icon-moon {
+  .theme-toggle:hover .theme-icon-moon,
+  .settings-button:hover .settings-icon {
     transform: none;
   }
 }

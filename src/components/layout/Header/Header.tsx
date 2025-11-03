@@ -1,7 +1,18 @@
 import React, { useState } from 'react';
 import { useTheme } from '../../../hooks/useTheme';
 import { useAuth } from '../../../contexts/AuthContext';
-import { Sun, Moon, LogIn, LogOut, User } from 'lucide-react';
+import { 
+  Sun, 
+  Moon, 
+  LogIn, 
+  LogOut, 
+  User, 
+  Settings, 
+  Users, 
+  Briefcase, 
+  BookOpen,
+  ChevronDown 
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import BubbleBackground from '../BubbleBackground/BubbleBackground';
 import LoginModal from '../../auth/LoginModal';
@@ -35,8 +46,9 @@ const Header: React.FC = () => {
   const { isDarkMode, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   
-  // @state: Control del modal de login
+  // @state: Control del modal de login y navegación
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showNavMenu, setShowNavMenu] = useState(false);
 
   /**
    * Maneja el clic en el botón de login
@@ -69,6 +81,30 @@ const Header: React.FC = () => {
             <span className={styles['logo-repository']}>Start up Lab</span>
           </h1>
         </Link>
+
+        {/* @section: Navegación principal (solo para usuarios autenticados) */}
+        {user && (
+          <nav className={styles['main-nav']}>
+            <Link to="/proyectos" className={styles['nav-link']}>
+              <Briefcase size={16} />
+              Proyectos
+            </Link>
+            <Link to="/equipo" className={styles['nav-link']}>
+              <Users size={16} />
+              Equipo
+            </Link>
+            <Link to="/libro-digital" className={styles['nav-link']}>
+              <BookOpen size={16} />
+              Libro Digital
+            </Link>
+            {user.tipo === 'EDITOR' && (
+              <Link to="/administracion" className={styles['nav-link-admin']}>
+                <Settings size={16} />
+                Administración
+              </Link>
+            )}
+          </nav>
+        )}
 
         {/* @section: Acciones del header */}
         <div className={styles['header-actions']}>

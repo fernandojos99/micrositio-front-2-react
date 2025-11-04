@@ -7,11 +7,13 @@ import {
   LogIn, 
   LogOut, 
   User, 
-  Settings
+  Settings,
+  UserPlus
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import BubbleBackground from '../BubbleBackground/BubbleBackground';
 import LoginModal from '../../auth/LoginModal';
+import RegisterModal from '../../auth/RegisterModal';
 import styles from './Header.module.css';
 
 /**
@@ -42,8 +44,9 @@ const Header: React.FC = () => {
   const { isDarkMode, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   
-  // @state: Control del modal de login
+  // @state: Control de los modales
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
 
   /**
    * Maneja el clic en el botón de login
@@ -51,6 +54,14 @@ const Header: React.FC = () => {
    */
   const handleLoginClick = () => {
     setShowLoginModal(true);
+  };
+
+  /**
+   * Maneja el clic en el botón de registro
+   * @function handleRegisterClick
+   */
+  const handleRegisterClick = () => {
+    setShowRegisterModal(true);
   };
 
   /**
@@ -111,13 +122,22 @@ const Header: React.FC = () => {
             </div>
           ) : (
             /* @section: Usuario no autenticado */
-            <button 
-              onClick={handleLoginClick}
-              className={styles['login-button']}
-            >
-              <LogIn className={styles['login-icon']} />
-              <span>Login</span>
-            </button>
+            <div className={styles['auth-buttons']}>
+              <button 
+                onClick={handleRegisterClick}
+                className={styles['register-button']}
+              >
+                <UserPlus className={styles['register-icon']} />
+                <span>Registro</span>
+              </button>
+              <button 
+                onClick={handleLoginClick}
+                className={styles['login-button']}
+              >
+                <LogIn className={styles['login-icon']} />
+                <span>Login</span>
+              </button>
+            </div>
           )}
 
           {/* @component: Botón de configuración (solo para usuarios autenticados) */}
@@ -148,6 +168,12 @@ const Header: React.FC = () => {
       <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
+      />
+
+      {/* @component: Modal de registro */}
+      <RegisterModal
+        isOpen={showRegisterModal}
+        onClose={() => setShowRegisterModal(false)}
       />
     </header>
   );

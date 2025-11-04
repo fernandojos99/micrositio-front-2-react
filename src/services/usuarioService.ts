@@ -71,6 +71,16 @@ export const crearUsuario = async (usuarioData: CrearUsuarioData): Promise<Usuar
 };
 
 /**
+ * Crea un nuevo usuario VISITANTE
+ * @param {CrearUsuarioData} usuarioData - Datos del nuevo usuario
+ * @returns {Promise<Usuario>} El usuario creado
+ */
+export const crearUsuarioVisitante = async (usuarioData: CrearUsuarioData): Promise<Usuario> => {
+  const response = await apiClient.post('/usuarios/visitante', usuarioData);
+  return response.data;
+};
+
+/**
  * Obtiene un usuario específico por su ID
  * @param {string} id - ID del usuario (UUID)
  * @returns {Promise<Usuario>} Los datos del usuario

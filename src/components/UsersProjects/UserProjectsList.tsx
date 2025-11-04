@@ -4,8 +4,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import {eliminarUsuarioProyecto } from '../../services/usuarioProyectoServices';
-import { obtenerProyectoPorId, obtenerProyectosPorIdUsuario  } from '../../services/proyectosService';
+import { eliminarUsuarioProyecto } from '../../services/usuarioProyectoServices';
+import { obtenerProyectoPorId, obtenerProyectosPorIdUsuario } from '../../services/proyectosService';
 import styles from './UserProjectsList.module.css';
 
 /**
@@ -113,14 +113,15 @@ const UserProjectsList: React.FC<UserProjectsListProps> = ({
             const proyectoCompleto = await obtenerProyectoPorId(p.id_proyecto);
             return {
               id_proyecto: p.id_proyecto,
-              nombre: proyectoCompleto.nombre || `Proyecto ${p.id_proyecto}`
+              // Manejar tanto 'titulo' como 'nombre' que pueden venir del backend
+              nombre: p.titulo || proyectoCompleto.nombre || `Proyecto ${p.id_proyecto}`
             };
           } catch (error) {
             console.error(`Error cargando proyecto ${p.id_proyecto}:`, error);
-            // En caso de error, mostrar solo el ID
+            // En caso de error, usar titulo si está disponible o mostrar solo el ID
             return {
               id_proyecto: p.id_proyecto,
-              nombre: `Proyecto ${p.id_proyecto}`
+              nombre: p.titulo || `Proyecto ${p.id_proyecto}`
             };
           }
         })
@@ -128,6 +129,7 @@ const UserProjectsList: React.FC<UserProjectsListProps> = ({
 
       console.log('✅ Proyectos completos cargados:', proyectosCompletos);
       setProyectos(proyectosCompletos);
+      console.log('🔄 Estado actualizado, proyectos en componente:', proyectosCompletos.length);
 
     } catch (error) {
       console.error('❌ Error cargando proyectos del usuario:', error);
@@ -199,6 +201,7 @@ const UserProjectsList: React.FC<UserProjectsListProps> = ({
 
   // @render: Mostrar mensaje cuando no hay proyectos asignados
   if (proyectos.length === 0) {
+    console.log('🔍 Renderizando: No hay proyectos para mostrar, userId:', userId);
     return (
       <div className={`${styles.projectsList} ${className}`}>
         <div className={styles.noProjects}>
@@ -208,6 +211,7 @@ const UserProjectsList: React.FC<UserProjectsListProps> = ({
     );
   }
 
+  console.log('🎯 Renderizando proyectos:', proyectos.length, 'para usuario:', userId);
   return (
     <div className={`${styles.projectsList} ${className}`}>
       {proyectos.map((proyecto) => (

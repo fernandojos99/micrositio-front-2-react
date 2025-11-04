@@ -5,9 +5,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
-import { obtenerProyectos } from '../../services/proyectosService';
+import { obtenerProyectos, obtenerProyectosPorIdUsuario } from '../../services/proyectosService';
 import { crearUsuarioProyecto } from '../../services/usuarioProyectoServices';
-import {obtenerProyectosPorIdUsuario} from '../../services/proyectosService';
 import Button from '../ui/Button/Button';
 import styles from './AssignProjectModal.module.css';
 

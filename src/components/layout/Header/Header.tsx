@@ -142,12 +142,13 @@ const Header: React.FC = () => {
 
           {/* @component: Botón de configuración (solo para usuarios autenticados) */}
           {user && (
-            <button 
+            <Link 
+              to="/administracion"
               className={styles['settings-button']}
               aria-label="Configuración"
             >
               <Settings className={styles['settings-icon']} />
-            </button>
+            </Link>
           )}
 
           {/* @component: Toggle de tema */}

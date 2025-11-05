@@ -1,10 +1,19 @@
 import React, { useState } from 'react';
 import { useTheme } from '../../../hooks/useTheme';
 import { useAuth } from '../../../contexts/AuthContext';
-import { Sun, Moon, LogIn, LogOut, User } from 'lucide-react';
+import { 
+  Sun, 
+  Moon, 
+  LogIn, 
+  LogOut, 
+  User, 
+  Settings,
+  UserPlus
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import BubbleBackground from '../BubbleBackground/BubbleBackground';
 import LoginModal from '../../auth/LoginModal';
+import RegisterModal from '../../auth/RegisterModal';
 import styles from './Header.module.css';
 
 /**
@@ -35,8 +44,9 @@ const Header: React.FC = () => {
   const { isDarkMode, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   
-  // @state: Control del modal de login
+  // @state: Control de los modales
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
 
   /**
    * Maneja el clic en el botón de login
@@ -44,6 +54,14 @@ const Header: React.FC = () => {
    */
   const handleLoginClick = () => {
     setShowLoginModal(true);
+  };
+
+  /**
+   * Maneja el clic en el botón de registro
+   * @function handleRegisterClick
+   */
+  const handleRegisterClick = () => {
+    setShowRegisterModal(true);
   };
 
   /**
@@ -72,18 +90,6 @@ const Header: React.FC = () => {
 
         {/* @section: Acciones del header */}
         <div className={styles['header-actions']}>
-          {/* @component: Toggle de tema */}
-          <button 
-            onClick={toggleTheme}
-            className={styles['theme-toggle']}
-            aria-label={isDarkMode ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-          >
-            {isDarkMode ? 
-              <Sun className={styles['theme-icon-sun']} /> : 
-              <Moon className={styles['theme-icon-moon']} />
-            }
-          </button>
-
           {/* @section: Autenticación condicional */}
           {user ? (
             /* @section: Usuario autenticado */
@@ -116,14 +122,46 @@ const Header: React.FC = () => {
             </div>
           ) : (
             /* @section: Usuario no autenticado */
-            <button 
-              onClick={handleLoginClick}
-              className={styles['login-button']}
-            >
-              <LogIn className={styles['login-icon']} />
-              <span>Login</span>
-            </button>
+            <div className={styles['auth-buttons']}>
+              <button 
+                onClick={handleRegisterClick}
+                className={styles['register-button']}
+              >
+                <UserPlus className={styles['register-icon']} />
+                <span>Registro</span>
+              </button>
+              <button 
+                onClick={handleLoginClick}
+                className={styles['login-button']}
+              >
+                <LogIn className={styles['login-icon']} />
+                <span>Login</span>
+              </button>
+            </div>
           )}
+
+          {/* @component: Botón de configuración (solo para usuarios autenticados) */}
+          {user && (
+            <Link 
+              to="/administracion"
+              className={styles['settings-button']}
+              aria-label="Configuración"
+            >
+              <Settings className={styles['settings-icon']} />
+            </Link>
+          )}
+
+          {/* @component: Toggle de tema */}
+          <button 
+            onClick={toggleTheme}
+            className={styles['theme-toggle']}
+            aria-label={isDarkMode ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+          >
+            {isDarkMode ? 
+              <Sun className={styles['theme-icon-sun']} /> : 
+              <Moon className={styles['theme-icon-moon']} />
+            }
+          </button>
         </div>
       </div>
 
@@ -131,6 +169,12 @@ const Header: React.FC = () => {
       <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
+      />
+
+      {/* @component: Modal de registro */}
+      <RegisterModal
+        isOpen={showRegisterModal}
+        onClose={() => setShowRegisterModal(false)}
       />
     </header>
   );

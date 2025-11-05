@@ -16,6 +16,7 @@ import Equipo from './pages/Equipo/Equipo';
 import Perfil from './pages/Perfil/Perfil';
 import Assistant from './pages/Assistant';
 import LibroDigital from './pages/LibroDigital/LibroDigital';
+import Administracion from './pages/Administracion/Administracion';
 
 /**
  * Componente principal de la aplicación
@@ -42,6 +43,7 @@ import LibroDigital from './pages/LibroDigital/LibroDigital';
  * - /licencias : Página de licencias
  * - /assistant : Asistente interactivo
  * - /libro-digital : Página del libro digital
+ * - /administracion : Panel de administración (solo EDITORES)
  * 
  * @returns {JSX.Element} Aplicación completa
  */
@@ -63,6 +65,7 @@ function App() {
                 <Route path="licencias" element={<Licencias />} />
                 <Route path="assistant" element={<Assistant />} />
                 <Route path="libro-digital" element={<LibroDigital />} />
+                <Route path="administracion" element={<Administracion />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Route>
             </Routes>

@@ -46,8 +46,18 @@ export const obtenerUsuarioPorIdEmpleado = async (id_empleado: number): Promise<
  * @returns {Promise<Usuario[]>} Lista de todos los usuarios
  */
 export const obtenerTodosUsuarios = async (): Promise<Usuario[]> => {
-  const response = await apiClient.get('/usuarios/');
-  return response.data;
+  try {
+    console.log('🔍 Llamando al endpoint: GET /usuarios/');
+    const response = await apiClient.get('/usuarios/');
+    console.log('📊 Respuesta completa del servidor:', response);
+    console.log('📋 Datos recibidos:', response.data);
+    console.log('🔍 Tipo de datos:', typeof response.data, 'Es array?', Array.isArray(response.data));
+    
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error en obtenerTodosUsuarios:', error);
+    throw error;
+  }
 };
 
 /**
@@ -57,6 +67,16 @@ export const obtenerTodosUsuarios = async (): Promise<Usuario[]> => {
  */
 export const crearUsuario = async (usuarioData: CrearUsuarioData): Promise<Usuario> => {
   const response = await apiClient.post('/usuarios/', usuarioData);
+  return response.data;
+};
+
+/**
+ * Crea un nuevo usuario VISITANTE
+ * @param {CrearUsuarioData} usuarioData - Datos del nuevo usuario
+ * @returns {Promise<Usuario>} El usuario creado
+ */
+export const crearUsuarioVisitante = async (usuarioData: CrearUsuarioData): Promise<Usuario> => {
+  const response = await apiClient.post('/usuarios/visitante', usuarioData);
   return response.data;
 };
 

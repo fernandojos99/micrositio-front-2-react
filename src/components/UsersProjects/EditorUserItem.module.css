@@ -1,0 +1,254 @@
+/* Estilos para el componente EditorUserItem */
+
+.editorItem {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.editorItem:hover {
+  border-color: #6f42c1;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.editorItem.selected {
+  border-color: #6f42c1;
+  background-color: #f8f5ff;
+  box-shadow: 0 4px 12px rgba(111, 66, 193, 0.15);
+}
+
+.editorItem.inactive {
+  opacity: 0.7;
+  background-color: #f8f9fa;
+  border-style: dashed;
+}
+
+.editorItem.inactive:hover {
+  border-color: #dc3545;
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.1);
+}
+
+.userHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-grow: 1;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.userInfo:hover {
+  background-color: #f8f9fa;
+}
+
+.userInfo:focus {
+  outline: 2px solid #6f42c1;
+  outline-offset: 2px;
+  background-color: #f8f9fa;
+}
+
+.userMainInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.userIdentity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.userAlias {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.empleadoName {
+  font-size: 14px;
+  color: #666;
+  font-style: italic;
+  font-weight: normal;
+}
+
+.userBadges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.userType {
+  display: inline-block;
+  padding: 4px 8px;
+  background-color: #6f42c1;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
+}
+
+.userStatus {
+  display: inline-block;
+  padding: 3px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  border-radius: 10px;
+  letter-spacing: 0.3px;
+}
+
+.userStatus.active {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.userStatus.inactive {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.userDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.empleadoInfo {
+  font-size: 12px;
+  color: #666;
+}
+
+.userId {
+  font-size: 11px;
+  color: #999;
+  font-family: 'Courier New', monospace;
+}
+
+.userActions {
+  display: flex;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.projectsSection {
+  border-top: 1px solid #f0f0f0;
+  padding-top: 12px;
+  margin-top: 8px;
+}
+
+/* Estados especiales para usuarios inactivos */
+.editorItem.inactive .userAlias {
+  color: #6c757d;
+}
+
+.editorItem.inactive .empleadoName {
+  color: #adb5bd;
+}
+
+.editorItem.inactive .empleadoInfo {
+  color: #adb5bd;
+}
+
+.editorItem.inactive .userId {
+  color: #ced4da;
+}
+
+/* Estados de enfoque */
+.editorItem:has(.userInfo:focus-within) {
+  border-color: #6f42c1;
+  box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.1);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .editorItem {
+    padding: 12px;
+  }
+  
+  .userHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .userInfo {
+    padding: 12px;
+  }
+  
+  .userIdentity {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .userBadges {
+    justify-content: flex-start;
+  }
+  
+  .userAlias {
+    font-size: 15px;
+  }
+  
+  .empleadoName {
+    font-size: 13px;
+  }
+  
+  .userActions {
+    align-self: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .editorItem {
+    padding: 10px;
+    margin-bottom: 8px;
+  }
+  
+  .userDetails {
+    font-size: 11px;
+  }
+  
+  .empleadoInfo {
+    font-size: 11px;
+    word-break: break-word;
+  }
+  
+  .userId {
+    font-size: 10px;
+  }
+  
+  .userBadges {
+    gap: 6px;
+  }
+  
+  .userType,
+  .userStatus {
+    font-size: 9px;
+    padding: 2px 5px;
+  }
+}

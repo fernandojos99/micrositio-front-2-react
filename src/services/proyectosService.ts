@@ -5,6 +5,12 @@ export const obtenerProyectos = async (): Promise<any[]> => {
   return response.data;
 };
 
+export const obtenerProyectosPorIdUsuario = async (id: string): Promise<any[]> => {
+  const response = await apiClient.get(`/proyectos/usuario/${id}`);
+  return response.data;
+};
+
+
 export const obtenerProyectoPorId = async (id: number) => {
   // Debe ser POST, no GET
   const response = await apiClient.post('/proyectos/p', { id_proyecto: id });

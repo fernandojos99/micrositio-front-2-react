@@ -202,7 +202,7 @@ const VisitanteUserItem: React.FC<VisitanteUserItemProps> = ({
               <span className={styles.userType}>VISITANTE</span>
             </div>
             
-            {/* Información adicional del usuario */}
+            {/* Información adicional del usuario 
             <div className={styles.userDetails}>
               <span className={styles.userStatus}>
                 Estado: {usuario.activo ? 'Activo' : 'Inactivo'}
@@ -210,7 +210,7 @@ const VisitanteUserItem: React.FC<VisitanteUserItemProps> = ({
               <span className={styles.userId}>
                 ID: {usuario.id_usuario}
               </span>
-            </div>
+            </div>*/}
           </div>
 
           {/* Dropdown de acciones específicas para visitantes */}

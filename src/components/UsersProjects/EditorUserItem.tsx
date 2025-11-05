@@ -251,12 +251,12 @@ const EditorUserItem: React.FC<EditorUserItemProps> = ({
             <div className={styles.userDetails}>
               {empleadoAsociado && (
                 <span className={styles.empleadoInfo}>
-                  Empleado #{empleadoAsociado.numero_empleado} | {empleadoAsociado.correo}
+                 {/* Empleado #{empleadoAsociado.numero_empleado} |*/} {empleadoAsociado.correo}
                 </span>
               )}
-              <span className={styles.userId}>
+              {/*<span className={styles.userId}>
                 ID: {usuario.id_usuario}
-              </span>
+              </span>*/}
             </div>
           </div>
 

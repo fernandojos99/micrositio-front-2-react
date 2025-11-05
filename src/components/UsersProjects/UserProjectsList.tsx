@@ -231,9 +231,9 @@ const UserProjectsList: React.FC<UserProjectsListProps> = ({
             <span className={styles.projectName}>
               {proyecto.nombre}
             </span>
-            <span className={styles.projectId}>
+            {/*<span className={styles.projectId}>
               ID: {proyecto.id_proyecto}
-            </span>
+            </span>*/}
           </button>
 
           {/* @section: Botón para eliminar proyecto de la asignación */}

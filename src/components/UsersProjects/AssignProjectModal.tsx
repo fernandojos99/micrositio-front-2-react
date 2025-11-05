@@ -91,6 +91,7 @@ const AssignProjectModal: React.FC<AssignProjectModalProps> = ({
    * Carga todos los proyectos disponibles y los ya asignados al usuario
    */
   useEffect(() => {
+    console.log('🎪 useEffect - isOpen:', isOpen, 'userId:', userId, 'condición cumplida:', isOpen && userId);
     if (isOpen && userId) {
       loadModalData();
     }
@@ -123,6 +124,7 @@ const AssignProjectModal: React.FC<AssignProjectModalProps> = ({
    * Carga tanto los proyectos disponibles como los ya asignados al usuario
    */
   const loadModalData = async () => {
+    console.log('🚀 INICIANDO loadModalData - userId:', userId, 'isOpen:', isOpen);
     setLoading(true);
     try {
       // Cargar todos los proyectos disponibles y los asignados al usuario en paralelo
@@ -131,16 +133,26 @@ const AssignProjectModal: React.FC<AssignProjectModalProps> = ({
         obtenerProyectosPorIdUsuario(userId)
       ]);
 
-      console.log('🔍 Todos los proyectos:', todosProyectos);
-      console.log('🔍 Proyectos asignados al usuario:', proyectosAsignados);
+      console.log('🔍 Todos los proyectos (respuesta completa):', todosProyectos);
+      console.log('🔍 Proyectos asignados al usuario (respuesta completa):', proyectosAsignados);
+
+      // obtenerProyectos() devuelve directamente un array, no un objeto {success, data}
+      // obtenerProyectosPorIdUsuario() SÍ devuelve {success, data, total}
+      const todosProyectosArray = Array.isArray(todosProyectos) ? todosProyectos : [];
+      console.log('🔍 Proyectos extraídos (directos del array):', todosProyectosArray);
+      console.log('🔍 Es array?', Array.isArray(todosProyectosArray), 'Longitud:', todosProyectosArray?.length);
 
       // Procesar proyectos disponibles
-      const proyectosFormateados = Array.isArray(todosProyectos) 
-        ? todosProyectos.map(p => ({
-            id_proyecto: p.id_proyecto,
-            nombre: p.nombre || `Proyecto ${p.id_proyecto}`
+      // Nota: el endpoint devuelve 'id' y 'titulo', no 'id_proyecto' y 'nombre'
+      const proyectosFormateados = Array.isArray(todosProyectosArray) 
+        ? todosProyectosArray.map(p => ({
+            id_proyecto: p.id || p.id_proyecto,
+            nombre: p.titulo || p.nombre || `Proyecto ${p.id || p.id_proyecto}`
           }))
         : [];
+
+      console.log('🎯 Proyectos formateados:', proyectosFormateados);
+      console.log('🎯 Cantidad de proyectos formateados:', proyectosFormateados.length);
 
       // Extraer IDs de proyectos ya asignados - manejar la estructura de respuesta
       const proyectosAsignadosArray = (proyectosAsignados as any)?.data || [];
@@ -148,8 +160,12 @@ const AssignProjectModal: React.FC<AssignProjectModalProps> = ({
         ? proyectosAsignadosArray.map((p: any) => p.id_proyecto)
         : [];
 
+      console.log('🔍 IDs asignados:', idsAsignados);
+
       setAllProjects(proyectosFormateados);
       setAssignedProjectIds(idsAsignados);
+
+      console.log('✅ Estados actualizados - AllProjects:', proyectosFormateados.length, 'AssignedIds:', idsAsignados.length);
 
     } catch (error) {
       console.error('❌ Error cargando datos del modal:', error);
@@ -208,6 +224,12 @@ const AssignProjectModal: React.FC<AssignProjectModalProps> = ({
     project => !assignedProjectIds.includes(project.id_proyecto)
   );
 
+  console.log('🎯 FILTROS:');
+  console.log('- Todos los proyectos:', allProjects.length);
+  console.log('- IDs asignados:', assignedProjectIds);
+  console.log('- Proyectos disponibles después del filtro:', availableProjects.length);
+  console.log('- Proyectos disponibles:', availableProjects);
+
   // @render: No renderizar si el modal no está abierto
   if (!isOpen) return null;
 
@@ -231,6 +253,13 @@ const AssignProjectModal: React.FC<AssignProjectModalProps> = ({
 
         {/* @section: Cuerpo del modal con lista de proyectos */}
         <div className={styles.modalBody}>
+          {(() => {
+            console.log('🎬 RENDER CHECK:');
+            console.log('- Loading:', loading);
+            console.log('- Available projects length:', availableProjects.length);
+            console.log('- All projects length:', allProjects.length);
+            return null;
+          })()}
           {loading ? (
             <div className={styles.loading}>
               Cargando proyectos disponibles...
@@ -248,7 +277,9 @@ const AssignProjectModal: React.FC<AssignProjectModalProps> = ({
                 Selecciona los proyectos que deseas asignar al usuario:
               </p>
               
-              {availableProjects.map((project) => (
+              {availableProjects.map((project) => {
+                console.log('🎨 RENDERING PROJECT:', project);
+                return (
                 <div key={project.id_proyecto} className={styles.projectItem}>
                   {/* @section: Información del proyecto */}
                   <div className={styles.projectInfo}>
@@ -271,7 +302,8 @@ const AssignProjectModal: React.FC<AssignProjectModalProps> = ({
                     {assigningProjectId === project.id_proyecto ? 'Asignando...' : 'Asignar'}
                   </Button>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

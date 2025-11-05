@@ -5,8 +5,12 @@ export interface usuarioProyecto {
   id_proyecto: number;
 }
 
-export const crearUsuarioProyecto = async (data: usuarioProyecto) => {
-  const response = await apiClient.post('/usuario_proyecto/', data);
+export const crearUsuarioProyecto = async (userId: string, projectId: number) => {
+  // Convertir userId de string a number porque el backend espera id_usuario como number
+  const response = await apiClient.post('/usuario_proyecto/', { 
+    id_usuario: userId, 
+    id_proyecto: projectId 
+  });
   return response.data;
 }
 
@@ -18,8 +22,9 @@ export const crearUsuarioProyecto = async (data: usuarioProyecto) => {
  */
 export const eliminarUsuarioProyecto = async (userId: string, id_proyecto: number) => {
   try {
-    // Algunos backends esperan el body en data para delete
-    const response = await apiClient.delete(`/usuario_proyecto/${userId}/${id_proyecto}`);
+    // Convertir userId a number para consistencia con el backend
+    const numericUserId = Number(userId);
+    const response = await apiClient.delete(`/usuario_proyecto/${numericUserId}/${id_proyecto}`);
     return response.data;
   } catch (error) {
     console.error('Error al eliminar usuarioProyecto:', error);

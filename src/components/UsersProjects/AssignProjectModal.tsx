@@ -186,10 +186,8 @@ const AssignProjectModal: React.FC<AssignProjectModalProps> = ({
 
     try {
       // Crear la relación usuario-proyecto usando el servicio
-      await crearUsuarioProyecto({
-        id_usuario: Number(userId),
-        id_proyecto: projectId
-      });
+      // Nota: El backend espera id_usuario como number, pero tenemos userId como string
+      await crearUsuarioProyecto(userId, projectId);
 
       // Actualizar la lista local de proyectos asignados
       setAssignedProjectIds(prev => [...prev, projectId]);

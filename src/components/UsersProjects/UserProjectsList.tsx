@@ -95,12 +95,18 @@ const UserProjectsList: React.FC<UserProjectsListProps> = ({
     setLoading(true);
     try {
       // Obtener IDs de proyectos asignados al usuario
-      const proyectosIds = await obtenerProyectosPorIdUsuario(userId);
-      console.log('🔍 Proyectos IDs para usuario', userId, ':', proyectosIds);
+      const response = await obtenerProyectosPorIdUsuario(userId);
+      console.log('🔍 Respuesta completa para usuario', userId, ':', response);
+      
+      // Extraer el array de proyectos de la respuesta
+      const proyectosIds = (response as any)?.data || [];
+      console.log('🔍 Proyectos IDs extraídos:', proyectosIds);
+      console.log('🔍 Tipo de datos:', typeof proyectosIds, 'Es array?', Array.isArray(proyectosIds));
+      console.log('🔍 Longitud:', proyectosIds?.length);
 
       // Validar que se obtuvieron proyectos
       if (!Array.isArray(proyectosIds) || proyectosIds.length === 0) {
-        console.log('ℹ️ Usuario sin proyectos asignados');
+        console.log('ℹ️ Usuario sin proyectos asignados - Array?', Array.isArray(proyectosIds), 'Length:', proyectosIds?.length);
         setProyectos([]);
         return;
       }

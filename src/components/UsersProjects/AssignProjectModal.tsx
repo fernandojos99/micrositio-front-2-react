@@ -142,9 +142,10 @@ const AssignProjectModal: React.FC<AssignProjectModalProps> = ({
           }))
         : [];
 
-      // Extraer IDs de proyectos ya asignados
-      const idsAsignados = Array.isArray(proyectosAsignados)
-        ? proyectosAsignados.map((p: any) => p.id_proyecto)
+      // Extraer IDs de proyectos ya asignados - manejar la estructura de respuesta
+      const proyectosAsignadosArray = (proyectosAsignados as any)?.data || [];
+      const idsAsignados = Array.isArray(proyectosAsignadosArray)
+        ? proyectosAsignadosArray.map((p: any) => p.id_proyecto)
         : [];
 
       setAllProjects(proyectosFormateados);

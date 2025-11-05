@@ -164,10 +164,7 @@ const UserProjectsList: React.FC<UserProjectsListProps> = ({
     
     try {
       // Eliminar la relación usuario-proyecto usando el servicio
-      await eliminarUsuarioProyecto({
-        id_usuario: Number(userId),
-        id_proyecto: projectId
-      });
+      await eliminarUsuarioProyecto(userId, projectId);
 
       // Actualizar la lista local removiendo el proyecto eliminado
       setProyectos(prev => prev.filter(p => p.id_proyecto !== projectId));

@@ -70,3 +70,20 @@ export const actualizarPlantillaSecuencia = async (
 export const eliminarPlantillaSecuencia = async (id: string): Promise<void> => {
   await apiClient.delete(`/plantilla-secuencia/${id}`);
 };
+
+/**
+ * Aplica una plantilla de secuencia a otra secuencia
+ * @param {number} idSecuenciaDestino - ID de la secuencia donde se aplicará la plantilla
+ * @param {string} idPlantillaSecuencia - ID de la plantilla de secuencia a aplicar
+ * @returns {Promise<any>} Resultado de la aplicación
+ */
+export const aplicarPlantillaSecuencia = async (
+  idSecuenciaDestino: number, 
+  idPlantillaSecuencia: string
+): Promise<any> => {
+  const response = await apiClient.post('/plantilla-secuencia/aplicar', {
+    id_secuencia_destino: idSecuenciaDestino,
+    id_plantilla_secuencia: idPlantillaSecuencia
+  });
+  return response.data;
+};

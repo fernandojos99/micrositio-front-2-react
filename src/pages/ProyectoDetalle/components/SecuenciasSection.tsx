@@ -345,25 +345,28 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
                       </div>
                     )}
 
-                    {/* @section: Contador de testing cards */}
+                    {/* @section: Contador de testing cards con template dropdown */}
                     <div className={styles['secuencia-testing-counter']}>
-                      <FlaskConical size={14} className={styles['secuencia-testing-counter-icon']} />
-                      <span className={styles['secuencia-testing-counter-text']}>
-                        {secuencia.testing_cards_count || 0} experimentos
-                      </span>
+                      {/* Template dropdown en la misma fila */}
+                      <div 
+                        className={styles['secuencia-template-dropdown']}
+                        onClick={(e) => e.stopPropagation()} // Prevenir selección de secuencia al hacer clic en el dropdown
+                      >
+                        <TemplateDropdown
+                          onApplyTemplate={() => handleApplyTemplate(secuencia.id)}
+                          onSaveTemplate={() => handleSaveTemplate(secuencia.id)}
+                          className="compact"
+                        />
+                      </div>
+                      
+                      {/* Contador de experimentos */}
+                      <div className={styles['secuencia-testing-counter-content']}>
+                        <FlaskConical size={14} className={styles['secuencia-testing-counter-icon']} />
+                        <span className={styles['secuencia-testing-counter-text']}>
+                          {secuencia.testing_cards_count || 0} experimentos
+                        </span>
+                      </div>
                     </div>
-                  </div>
-
-                  {/* @section: Template dropdown en la parte inferior izquierda */}
-                  <div 
-                    className={styles['secuencia-template-dropdown']}
-                    onClick={(e) => e.stopPropagation()} // Prevenir selección de secuencia al hacer clic en el dropdown
-                  >
-                    <TemplateDropdown
-                      onApplyTemplate={() => handleApplyTemplate(secuencia.id)}
-                      onSaveTemplate={() => handleSaveTemplate(secuencia.id)}
-                      className="compact"
-                    />
                   </div>
                 </div>
               ))}

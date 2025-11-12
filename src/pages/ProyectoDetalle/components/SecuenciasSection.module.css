@@ -66,7 +66,6 @@
   cursor: pointer;
   transition: all var(--transition-normal);
   position: relative;
-  padding-bottom: calc(var(--spacing-md) + 2.5rem); /* Espacio adicional para el template dropdown */
 }
 
 .secuencia-card:hover {
@@ -227,13 +226,19 @@
 .secuencia-testing-counter {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: var(--spacing-xs);
+  justify-content: space-between;
+  gap: var(--spacing-sm);
   margin-top: var(--spacing-sm);
   padding-top: var(--spacing-xs);
   border-top: 1px solid var(--theme-border);
   font-size: var(--font-size-xs);
   color: var(--theme-text-tertiary);
+}
+
+.secuencia-testing-counter-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
 .secuencia-testing-counter-icon {
@@ -272,11 +277,10 @@
   border: 2px solid var(--theme-bg-primary);
 }
 
-/* @section: Template dropdown en la parte inferior izquierda */
+/* @section: Template dropdown en la misma fila del contador */
 .secuencia-template-dropdown {
-  position: absolute;
-  bottom: var(--spacing-sm);
-  left: var(--spacing-sm);
+  display: flex;
+  align-items: center;
   z-index: 10;
 }
 

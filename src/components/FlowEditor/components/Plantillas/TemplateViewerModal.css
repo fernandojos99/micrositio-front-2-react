@@ -1354,3 +1354,57 @@
 .template-list-item {
   transition: all 0.2s ease-in-out;
 }
+
+/* =================================================================
+   ESTILOS ESPECÍFICOS PARA SECUENCIAS
+   ================================================================= */
+
+/* Meta información adicional para secuencias */
+.template-secuencia-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--template-spacing-xs);
+  margin-top: var(--template-spacing-sm);
+}
+
+.template-secuencia-meta-item {
+  display: flex;
+  align-items: center;
+  gap: var(--template-spacing-xs);
+  font-size: 0.75rem;
+  color: var(--theme-text-secondary, #6B7280);
+}
+
+.template-secuencia-meta-item svg {
+  flex-shrink: 0;
+}
+
+/* Contenedor del FlowEditor en el modal */
+.flow-editor-container {
+  margin-top: var(--template-spacing-md);
+  border: 1px solid var(--color-border-light, #E5E7EB);
+  border-radius: var(--template-border-radius);
+  overflow: hidden;
+  background: var(--theme-bg-primary, #ffffff);
+}
+
+/* Ajustes para el FlowEditor cuando está dentro del modal */
+.flow-editor-container .flow-editor {
+  height: 100%;
+}
+
+/* Responsive para secuencias */
+@media (max-width: 768px) {
+  .template-secuencia-meta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .template-secuencia-meta-item {
+    width: 100%;
+  }
+  
+  .flow-editor-container {
+    height: 300px !important;
+  }
+}

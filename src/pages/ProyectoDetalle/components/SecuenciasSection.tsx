@@ -7,6 +7,7 @@ import styles from './SecuenciasSection.module.css';
 import ActionDropdown from '../../../components/ui/ActionDropdown/ActionDropdown';
 import EditSecuenciaModal from './EditSecuenciaModal';
 import TemplateDropdown from '../../../components/FlowEditor/components/Plantillas/TemplateDropdown';
+import TemplateViewerModalSecuencia from '../../../components/FlowEditor/components/Plantillas/TemplateViewerModalSecuencia';
 
 /**
  * Props para el componente SecuenciasSection
@@ -85,6 +86,10 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
   // @state: Control del modal de edición
   const [showEditModal, setShowEditModal] = useState(false);
   const [secuenciaToEdit, setSecuenciaToEdit] = useState<Secuencia | null>(null);
+
+  // @state: Control del modal de plantillas
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [secuenciaForTemplate, setSecuenciaForTemplate] = useState<Secuencia | null>(null);
 
   /**
    * Formatea fecha de día específico (dia_inicio/dia_fin)
@@ -212,8 +217,13 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
    */
   const handleApplyTemplate = (secuenciaId: string) => {
     console.log('Aplicar plantilla para secuencia:', secuenciaId);
-    // TODO: Implementar lógica de aplicación de plantilla
-    // Aquí se abrirá un modal para seleccionar la plantilla a aplicar
+    
+    // Buscar la secuencia por ID
+    const secuencia = secuencias.find(s => s.id === secuenciaId);
+    if (secuencia) {
+      setSecuenciaForTemplate(secuencia);
+      setShowTemplateModal(true);
+    }
   };
 
   /**
@@ -225,6 +235,29 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
     console.log('Guardar como plantilla para secuencia:', secuenciaId);
     // TODO: Implementar lógica de guardado como plantilla
     // Aquí se abrirá un modal para dar nombre a la nueva plantilla
+  };
+
+  /**
+   * Maneja el cierre del modal de plantillas
+   */
+  const handleCloseTemplateModal = () => {
+    setShowTemplateModal(false);
+    setSecuenciaForTemplate(null);
+  };
+
+  /**
+   * Maneja cuando se aplica una plantilla exitosamente
+   */
+  const handleTemplateApplied = (secuenciaPlantilla: Secuencia) => {
+    console.log('Plantilla aplicada exitosamente:', secuenciaPlantilla);
+    
+    // Opcional: Refrescar datos si es necesario
+    if (typeof onEditarSecuencia === 'function') {
+      onEditarSecuencia();
+    }
+    
+    // Cerrar el modal
+    handleCloseTemplateModal();
   };
 
   /**
@@ -406,6 +439,15 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
         onClose={handleCloseEditModal}
         secuencia={secuenciaToEdit}
         onSecuenciaEditada={handleSecuenciaEditada}
+      />
+      
+      {/* @component: Modal de plantillas de secuencia */}
+      <TemplateViewerModalSecuencia
+        isOpen={showTemplateModal}
+        onClose={handleCloseTemplateModal}
+        id_secuencia_destino={secuenciaForTemplate?.id || ''}
+        id_proyecto={secuenciaForTemplate ? parseInt(secuenciaForTemplate.proyectoId) : undefined}
+        onTemplateApplied={handleTemplateApplied}
       />
     </div>
   );

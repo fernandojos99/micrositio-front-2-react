@@ -66,6 +66,7 @@
   cursor: pointer;
   transition: all var(--transition-normal);
   position: relative;
+  padding-bottom: calc(var(--spacing-md) + 2.5rem); /* Espacio adicional para el template dropdown */
 }
 
 .secuencia-card:hover {
@@ -269,6 +270,14 @@
   background-color: var(--color-primary-purple);
   border-radius: 50%;
   border: 2px solid var(--theme-bg-primary);
+}
+
+/* @section: Template dropdown en la parte inferior izquierda */
+.secuencia-template-dropdown {
+  position: absolute;
+  bottom: var(--spacing-sm);
+  left: var(--spacing-sm);
+  z-index: 10;
 }
 
 /* =================================================================

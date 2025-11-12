@@ -6,6 +6,7 @@ import ConfirmationModal from '../../../components/ui/ConfirmationModal/Confirma
 import styles from './SecuenciasSection.module.css';
 import ActionDropdown from '../../../components/ui/ActionDropdown/ActionDropdown';
 import EditSecuenciaModal from './EditSecuenciaModal';
+import TemplateDropdown from '../../../components/FlowEditor/components/Plantillas/TemplateDropdown';
 
 /**
  * Props para el componente SecuenciasSection
@@ -205,6 +206,28 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
   };
 
   /**
+   * Maneja la aplicación de plantilla para una secuencia específica
+   * @function handleApplyTemplate
+   * @param {string} secuenciaId - ID de la secuencia
+   */
+  const handleApplyTemplate = (secuenciaId: string) => {
+    console.log('Aplicar plantilla para secuencia:', secuenciaId);
+    // TODO: Implementar lógica de aplicación de plantilla
+    // Aquí se abrirá un modal para seleccionar la plantilla a aplicar
+  };
+
+  /**
+   * Maneja el guardado como plantilla de una secuencia específica
+   * @function handleSaveTemplate
+   * @param {string} secuenciaId - ID de la secuencia
+   */
+  const handleSaveTemplate = (secuenciaId: string) => {
+    console.log('Guardar como plantilla para secuencia:', secuenciaId);
+    // TODO: Implementar lógica de guardado como plantilla
+    // Aquí se abrirá un modal para dar nombre a la nueva plantilla
+  };
+
+  /**
    * Convierte el estado a un nombre de clase CSS válido
    * @function getEstadoClassName
    * @param {string} estado - Estado de la secuencia
@@ -329,6 +352,18 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
                         {secuencia.testing_cards_count || 0} experimentos
                       </span>
                     </div>
+                  </div>
+
+                  {/* @section: Template dropdown en la parte inferior izquierda */}
+                  <div 
+                    className={styles['secuencia-template-dropdown']}
+                    onClick={(e) => e.stopPropagation()} // Prevenir selección de secuencia al hacer clic en el dropdown
+                  >
+                    <TemplateDropdown
+                      onApplyTemplate={() => handleApplyTemplate(secuencia.id)}
+                      onSaveTemplate={() => handleSaveTemplate(secuencia.id)}
+                      className="compact"
+                    />
                   </div>
                 </div>
               ))}

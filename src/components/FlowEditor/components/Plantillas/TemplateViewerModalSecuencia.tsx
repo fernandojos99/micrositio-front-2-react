@@ -22,7 +22,7 @@ import { X, FileText, Users, Calendar } from 'lucide-react';
 import FlowEditor from '../../FlowEditor';
 import { Secuencia } from '../../../../types/secuencia';
 import { PlantillaSecuencia } from '../../../../services/plantillaSecuenciaService';
-import './styles/TemplateViewerModal.css';
+import './TemplateViewerModal.css';
 
 /**
  * Minimal inline fallback for TemplateSecuenciasList to avoid missing-module error.

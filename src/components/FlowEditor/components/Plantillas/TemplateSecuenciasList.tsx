@@ -102,8 +102,8 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
         const mockSecuencias: Secuencia[] = [
           {
             id: 'mock-1',
-            nombre: "Secuencia de Validación Inicial (Mock)",
-            descripcion: "Flujo completo de validación de funcionalidades principales",
+            nombre: "Plantilla de Validación Funcional",
+            descripcion: "Flujo completo de validación de funcionalidades principales del sistema",
             dia_inicio: '2025-01-15',
             dia_fin: '2025-01-30',
             estado: 'TERMINADO',
@@ -113,8 +113,8 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
           },
           {
             id: 'mock-2',
-            nombre: "Secuencia de Testing de Performance (Mock)",
-            descripcion: "Conjunto de experimentos para verificar rendimiento del sistema",
+            nombre: "Plantilla de Performance Testing",
+            descripcion: "Conjunto de experimentos para verificar rendimiento y escalabilidad",
             dia_inicio: '2025-02-01',
             dia_fin: '2025-02-15',
             estado: 'TERMINADO',
@@ -124,8 +124,8 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
           },
           {
             id: 'mock-3',
-            nombre: "Secuencia de Seguridad y Compliance (Mock)",
-            descripcion: "Testing cards enfocadas en validación de seguridad y normativas",
+            nombre: "Plantilla de Seguridad y Compliance",
+            descripcion: "Testing cards enfocadas en validación de seguridad y cumplimiento normativo",
             dia_inicio: '2025-02-16',
             dia_fin: '2025-02-28',
             estado: 'TERMINADO',
@@ -135,8 +135,8 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
           },
           {
             id: 'mock-4',
-            nombre: "Secuencia de UI/UX Testing (Mock)",
-            descripcion: "Validación completa de interfaz de usuario y experiencia",
+            nombre: "Plantilla de UI/UX Testing",
+            descripcion: "Validación completa de interfaz de usuario y experiencia del cliente",
             dia_inicio: '2025-03-01',
             dia_fin: '2025-03-15',
             estado: 'EN PROCESO',
@@ -146,7 +146,7 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
           },
           {
             id: 'mock-5',
-            nombre: "Secuencia de Integración y APIs (Mock)",
+            nombre: "Plantilla de Integración Completa",
             descripcion: "Testing de integración entre componentes y servicios externos",
             dia_inicio: '2025-03-16',
             dia_fin: '2025-03-30',
@@ -336,6 +336,7 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
             key={secuencia.id}
             className="template-list-item"
             onClick={() => handleSelectSecuencia(secuencia)}
+            style={{ cursor: onSelectSecuencia ? 'pointer' : 'default' }}
           >
             <div className="template-list-item-icon">
               <FileText size={20} />
@@ -375,13 +376,14 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
             </div>
             
             <button
-              className="template-list-item-apply-btn"
               onClick={(e) => {
-                e.stopPropagation();
+                e.stopPropagation(); // Evitar que se dispare el click del contenedor
                 handleApplySecuencia(secuencia);
               }}
-              title={`Aplicar plantilla "${secuencia.nombre}"`}
+              className="template-list-item-apply-btn"
+              title={`Aplicar: ${secuencia.nombre}`}
             >
+              <CheckCircle size={16} />
               Aplicar
             </button>
           </div>

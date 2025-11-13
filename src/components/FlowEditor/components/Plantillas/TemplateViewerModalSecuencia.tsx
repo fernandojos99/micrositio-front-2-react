@@ -20,82 +20,12 @@
 import React, { useState, useEffect } from 'react';
 import { X, FileText, Users, Calendar } from 'lucide-react';
 import FlowEditor from '../../FlowEditor';
+import TemplateSecuenciasList from './TemplateSecuenciasList';
 import { Secuencia } from '../../../../types/secuencia';
 import { PlantillaSecuencia } from '../../../../services/plantillaSecuenciaService';
 import './TemplateViewerModal.css';
 
-/**
- * Minimal inline fallback for TemplateSecuenciasList to avoid missing-module error.
- * This provides the props used by the parent modal and renders a simple list with
- * Select / Apply actions. Replace with the real component implementation when available.
- */
-interface TemplateSecuenciasListProps {
-  id_secuencia_destino: string;
-  id_proyecto?: number;
-  onApplySecuencia: (secuencia: Secuencia) => void;
-  onSelectSecuencia: (secuencia: Secuencia) => void;
-  className?: string;
-}
 
-const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
-  id_secuencia_destino,
-  id_proyecto,
-  onApplySecuencia,
-  onSelectSecuencia,
-  className
-}) => {
-  // Simple mock list — replace with real data fetching in the actual component
-  const mockSecuencias: Secuencia[] = [
-    {
-      id: `${id_secuencia_destino}-1`,
-      nombre: `Plantilla A (${id_proyecto ?? 'proj'})`,
-      descripcion: 'Descripción breve de la plantilla A',
-      dia_inicio: '2025-01-01',
-      dia_fin: '2025-01-07',
-      estado: 'EN PLANEACION',
-      proyectoId: (id_proyecto || 1).toString(),
-      fechaCreacion: new Date().toISOString(),
-      testing_cards_count: 3
-    },
-    {
-      id: `${id_secuencia_destino}-2`,
-      nombre: `Plantilla B (${id_proyecto ?? 'proj'})`,
-      descripcion: 'Descripción breve de la plantilla B',
-      dia_inicio: '2025-02-01',
-      dia_fin: '2025-02-14',
-      estado: 'TERMINADO',
-      proyectoId: (id_proyecto || 1).toString(),
-      fechaCreacion: new Date().toISOString(),
-      testing_cards_count: 5
-    }
-  ];
-
-  return (
-    <div className={`template-secuencias-list-root ${className || ''}`}>
-      <div className="template-secuencias-list-header">
-        <h4>Plantillas</h4>
-        <small>{mockSecuencias.length} disponibles</small>
-      </div>
-
-      <ul className="template-secuencias-list">
-        {mockSecuencias.map((s) => (
-          <li key={s.id} className="template-secuencias-list-item">
-            <div className="template-secuencia-info" onClick={() => onSelectSecuencia(s)} role="button" tabIndex={0}>
-              <strong>{s.nombre}</strong>
-              <p className="muted">{s.descripcion}</p>
-            </div>
-
-            <div className="template-secuencia-actions">
-              <button type="button" className="apply-btn" onClick={() => onApplySecuencia(s)}>
-                Aplicar
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};
 
 /**
  * Estados de carga del modal
@@ -402,9 +332,25 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
           )}
 
           {loadingState === 'success' && (
-            <div className={`template-flow-container ${showDetails ? 'with-sidebar' : 'full-width'}`}>
+            <div 
+              className={`template-flow-container ${showDetails ? 'with-sidebar' : 'full-width'}`}
+              style={{ 
+                display: 'flex', 
+                flex: 1, 
+                minHeight: '400px',
+                background: '#fff'
+              }}
+            >
               {/* Panel izquierdo - Lista de Secuencias */}
-              <div className="template-cards-section">
+              <div 
+                className="template-cards-section"
+                style={{ 
+                  flex: '0 0 40%', 
+                  borderRight: '1px solid #e5e7eb',
+                  background: '#f9fafb',
+                  overflow: 'auto'
+                }}
+              >
                 <TemplateSecuenciasList
                   id_secuencia_destino={id_secuencia_destino}
                   id_proyecto={id_proyecto}
@@ -415,7 +361,14 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
               </div>
 
               {/* Panel derecho - FlowEditor con la secuencia seleccionada */}
-              <div className="template-selected-card-panel">
+              <div 
+                className="template-selected-card-panel"
+                style={{ 
+                  flex: 1, 
+                  background: '#fff',
+                  overflow: 'auto'
+                }}
+              >
                 {renderSelectedSecuenciaFlow()}
               </div>
             </div>

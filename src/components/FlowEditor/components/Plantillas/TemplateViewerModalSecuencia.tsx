@@ -345,7 +345,7 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
               <div 
                 className="template-cards-section"
                 style={{ 
-                  flex: '0 0 40%', 
+                  flex: '0 0 55%', 
                   borderRight: '1px solid #e5e7eb',
                   background: '#f9fafb',
                   overflow: 'auto'
@@ -364,7 +364,7 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
               <div 
                 className="template-selected-card-panel"
                 style={{ 
-                  flex: 1, 
+                  flex: '0 0 45%', 
                   background: '#fff',
                   overflow: 'auto'
                 }}

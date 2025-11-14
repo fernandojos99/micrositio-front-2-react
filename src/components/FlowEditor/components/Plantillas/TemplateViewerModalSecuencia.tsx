@@ -231,16 +231,17 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
       <div className="selected-card-details">
         <div className="selected-card-header">
           <h3>{selectedSecuencia.nombre}</h3>
-          <p>{selectedSecuencia.descripcion}</p>
+          {/*<p>{selectedSecuencia.descripcion}</p>*/}
         </div>
 
         {/* Información meta de la secuencia */}
+        {/*
         <div className="selected-card-meta">
           <div className="selected-card-meta-item">
             <FileText size={16} />
             <span>{selectedSecuencia.testing_cards_count || 0} testing cards</span>
           </div>
-        </div>
+        </div>**}
 
         {/* FlowEditor para mostrar el flujo de la secuencia */}
         <div className="flow-editor-container" style={{ height: '400px', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
@@ -307,17 +308,18 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
               className={`template-flow-container ${showDetails ? 'with-sidebar' : 'full-width'}`}
               style={{ 
                 display: 'flex', 
+                flexDirection: 'column', // Cambiar a columna para layout vertical
                 flex: 1, 
                 minHeight: '400px',
                 background: '#fff'
               }}
             >
-              {/* Panel izquierdo - Lista de Secuencias */}
+              {/* Panel superior - Lista de Secuencias */}
               <div 
                 className="template-cards-section"
                 style={{ 
-                  flex: '0 0 55%', 
-                  borderRight: '1px solid #e5e7eb',
+                  flex: '0 0 40%', // 40% de altura
+                  borderBottom: '1px solid #e5e7eb', // Cambiar border a bottom
                   background: '#f9fafb',
                   overflow: 'auto'
                 }}
@@ -331,11 +333,11 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
                 />
               </div>
 
-              {/* Panel derecho - FlowEditor con la secuencia seleccionada */}
+              {/* Panel inferior - FlowEditor con la secuencia seleccionada */}
               <div 
                 className="template-selected-card-panel"
                 style={{ 
-                  flex: '0 0 45%', 
+                  flex: '0 0 60%', // 60% de altura para el FlowEditor
                   background: '#fff',
                   overflow: 'auto'
                 }}
@@ -346,7 +348,7 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
           )}
         </div>
 
-        {/* Footer del modal */}
+        {/* Footer del modal 
         <div className="template-modal-footer">
           <div className="template-modal-footer-info">
             <div className="template-usage-info">
@@ -364,7 +366,7 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
               Cancelar
             </button>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

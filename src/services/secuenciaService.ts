@@ -8,6 +8,14 @@ export const obtenerSecuenciasPorProyecto = async (id_proyecto: number) => {
   return response.data;
 };
 
+// Obtener secuencias por proyecto (usando GET con query param)
+export const obtenerSecuenciasId = async (id_secuencia: number) => {
+  const response = await apiClient.get(`/secuencias/${id_secuencia}`
+
+    
+  );
+  return response.data;
+}; 
 // Crear secuencia
 export const crearSecuencia = async (data: any) => {
   const response = await apiClient.post('/secuencias', data);

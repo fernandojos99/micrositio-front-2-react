@@ -12,8 +12,8 @@
 import React, { useState, useEffect } from 'react';
 import { Loader2, AlertCircle, FileText, Calendar, Users, CheckCircle } from 'lucide-react';
 import { Secuencia } from '../../../../types/secuencia';
-import { obtenerSecuenciasPorProyecto } from '../../../../services/secuenciaService';
-import { crearPlantillaSecuencia, aplicarPlantillaSecuencia } from '../../../../services/plantillaSecuenciaService';
+import { obtenerSecuenciasId } from '../../../../services/secuenciaService';
+import { crearPlantillaSecuencia, aplicarPlantillaSecuencia, obtenerPlantillasSecuencia } from '../../../../services/plantillaSecuenciaService';
 
 /**
  * Props del componente TemplateSecuenciasList
@@ -53,7 +53,7 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
    */
   useEffect(() => {
     loadSecuencias();
-  }, [id_proyecto]);
+  }, []); // Ahora no depende de id_proyecto ya que obtenemos todas las plantillas
 
   /**
    * Obtiene las Secuencias disponibles que pueden ser usadas como plantillas
@@ -63,39 +63,57 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
       setLoading(true);
       setError(null);
 
-      console.log('Cargando Secuencias disponibles como plantillas');
+      console.log('Cargando plantillas de secuencias disponibles...');
 
-      let todasLasSecuencias: Secuencia[] = [];
+      let secuenciasObtenidas: Secuencia[] = [];
       
       try {
-        if (id_proyecto) {
-          // Obtener secuencias del proyecto específico
-          todasLasSecuencias = await obtenerSecuenciasPorProyecto(id_proyecto);
-          console.log('Secuencias del proyecto obtenidas:', todasLasSecuencias);
-        } else {
-          // Si no hay proyecto específico, usar datos mock
-          console.warn('No se proporcionó id_proyecto, usando datos mock');
-          throw new Error('ID de proyecto requerido');
+        // Paso 1: Obtener todas las plantillas de secuencia disponibles
+        const plantillasResponse = await obtenerPlantillasSecuencia();
+        console.log('Respuesta completa de plantillas:', plantillasResponse);
+        
+        // Extraer el array de plantillas de la respuesta del backend
+        const plantillas = plantillasResponse.data || [];
+        console.log('Plantillas de secuencia extraídas:', plantillas);
+        
+        // Verificar que tengamos un array válido
+        if (!Array.isArray(plantillas)) {
+          throw new Error('Las plantillas obtenidas no son un array válido');
         }
         
-        // Verificar que tenemos datos
-        if (!Array.isArray(todasLasSecuencias)) {
+        // Paso 2: Para cada plantilla, obtener la secuencia asociada
+        for (const plantilla of plantillas) {
+          try {
+            const secuenciaResponse = await obtenerSecuenciasId(plantilla.id_secuencia);
+            console.log(`Respuesta de secuencia para plantilla ${plantilla.id_plantilla_secuencia}:`, secuenciaResponse);
+            
+            // Extraer la secuencia de la respuesta (puede tener estructura similar al backend)
+            const secuencia = secuenciaResponse?.data || secuenciaResponse;
+            
+            // Verificar que la secuencia existe, es válida y no es la actual
+            if (secuencia && secuencia.id && secuencia.id !== id_secuencia_destino) {
+              secuenciasObtenidas.push(secuencia);
+            }
+          } catch (secuenciaError) {
+            console.warn(`Error al obtener secuencia ${plantilla.id_secuencia}:`, secuenciaError);
+            // Continuar con las otras plantillas
+          }
+        }
+        
+        console.log('Secuencias procesadas desde plantillas:', secuenciasObtenidas);
+        
+        // Verificar que tenemos datos válidos
+        if (!Array.isArray(secuenciasObtenidas)) {
           throw new Error('Los datos obtenidos no son un array válido');
         }
         
-        // Filtrar secuencias que no sean la actual (evitar auto-referencia)
-        const secuenciasFiltradas = todasLasSecuencias.filter(
-          secuencia => secuencia.id !== id_secuencia_destino
-        );
+        // Limitar a 10 secuencias para mejor rendimiento
+        const secuenciasLimitadas = secuenciasObtenidas.slice(0, 10);
         
-        // Tomar las primeras 10 como ejemplo
-        const secuenciasLimitadas = secuenciasFiltradas.slice(0, 10);
-        
-        console.log('Secuencias procesadas:', secuenciasLimitadas);
         setSecuencias(secuenciasLimitadas);
         
       } catch (apiError) {
-        console.error('Error al usar API de secuencias:', apiError);
+        console.error('Error al usar API de plantillas/secuencias:', apiError);
         
         // Fallback: usar datos mock si la API no está disponible
         console.log('Usando datos mock como fallback');

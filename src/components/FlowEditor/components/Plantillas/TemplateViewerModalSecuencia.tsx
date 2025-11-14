@@ -56,8 +56,8 @@ interface TemplateSecuenciaServiceResponse {
   secuencia: Secuencia;
   metadata: {
     total_cards: number;
-    has_learning_cards: boolean;
-    complexity_level: 'simple' | 'medium' | 'complex';
+    //has_learning_cards: boolean;
+    //complexity_level: 'simple' | 'medium' | 'complex';
   };
 }
 
@@ -128,9 +128,9 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
           testing_cards_count: 5
         },
         metadata: {
-          total_cards: 5,
-          has_learning_cards: true,
-          complexity_level: 'medium'
+          total_cards: 5
+          //has_learning_cards: true,
+          //complexity_level: 'medium'
         }
       };
 
@@ -237,20 +237,8 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
         {/* Información meta de la secuencia */}
         <div className="selected-card-meta">
           <div className="selected-card-meta-item">
-            <Calendar size={16} />
-            <span>
-              {selectedSecuencia.dia_inicio && selectedSecuencia.dia_fin ? 
-                `${selectedSecuencia.dia_inicio} - ${selectedSecuencia.dia_fin}` : 
-                'Fechas no definidas'
-              }
-            </span>
-          </div>
-          <div className="selected-card-meta-item">
             <FileText size={16} />
             <span>{selectedSecuencia.testing_cards_count || 0} testing cards</span>
-          </div>
-          <div className="selected-card-meta-item">
-            <span className="selected-card-status">{selectedSecuencia.estado}</span>
           </div>
         </div>
 
@@ -284,26 +272,9 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
         <div className="template-modal-header">
           <div className="template-modal-title-section">
             <h2 className="template-modal-title">Plantillas de Secuencias</h2>
-            <div className="template-info-badges">
-              <span className="category-badge">Secuencias</span>
-              {templateData && (
-                <span className="complexity-badge">
-                  {templateData.metadata.complexity_level}
-                </span>
-              )}
-            </div>
           </div>
           
           <div className="template-modal-header-actions">
-            <button
-              type="button"
-              className="template-toggle-details-btn"
-              onClick={() => setShowDetails(!showDetails)}
-              title={showDetails ? 'Ocultar detalles' : 'Mostrar detalles'}
-            >
-              {showDetails ? 'Ocultar' : 'Mostrar'} detalles
-            </button>
-            
             <button
               type="button"
               className="template-modal-close-btn"

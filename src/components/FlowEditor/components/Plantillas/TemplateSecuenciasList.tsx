@@ -366,7 +366,7 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
               
               {/* Información adicional de la secuencia */}
               <div className="template-secuencia-meta">
-                <div className="template-secuencia-meta-item">
+                {/*<div className="template-secuencia-meta-item">
                   <Calendar size={14} />
                   <span>
                     {secuencia.dia_inicio && secuencia.dia_fin ? 
@@ -374,14 +374,14 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
                       'Fechas no definidas'
                     }
                   </span>
-                </div>
+                </div>*/}
                 
                 <div className="template-secuencia-meta-item">
                   <Users size={14} />
                   <span>{secuencia.testing_cards_count || 0} testing cards</span>
                 </div>
                 
-                <div className="template-secuencia-meta-item">
+                {/*<div className="template-secuencia-meta-item">
                   <CheckCircle 
                     size={14} 
                     style={{ color: getEstadoColor(secuencia.estado) }}
@@ -389,7 +389,7 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
                   <span style={{ color: getEstadoColor(secuencia.estado) }}>
                     {secuencia.estado}
                   </span>
-                </div>
+                </div>*/}
               </div>
             </div>
             

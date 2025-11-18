@@ -266,7 +266,7 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
   return (
     <div className="template-modal-backdrop" onClick={handleClose}>
       <div 
-        className="template-modal-container"
+        className="template-modal-container template-modal-secuencias"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header del modal */}
@@ -306,22 +306,14 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
           {loadingState === 'success' && (
             <div 
               className={`template-flow-container ${showDetails ? 'with-sidebar' : 'full-width'}`}
-              style={{ 
-                display: 'flex', 
-                flexDirection: 'column', // Cambiar a columna para layout vertical
-                flex: 1, 
-                minHeight: '400px',
-                background: '#fff'
-              }}
             >
               {/* Panel superior - Lista de Secuencias */}
               <div 
                 className="template-cards-section"
                 style={{ 
-                  flex: '0 0 40%', // 40% de altura
-                  borderBottom: '1px solid #e5e7eb', // Cambiar border a bottom
-                  background: '#f9fafb',
-                  overflow: 'auto'
+                  flex: '0 0 40%',
+                  borderBottom: '1px solid #e5e7eb',
+                  background: '#f9fafb'
                 }}
               >
                 <TemplateSecuenciasList
@@ -337,9 +329,8 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
               <div 
                 className="template-selected-card-panel"
                 style={{ 
-                  flex: '0 0 60%', // 60% de altura para el FlowEditor
-                  background: '#fff',
-                  overflow: 'auto'
+                  flex: '0 0 60%',
+                  background: '#fff'
                 }}
               >
                 {renderSelectedSecuenciaFlow()}

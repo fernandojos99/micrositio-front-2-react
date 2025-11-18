@@ -12,7 +12,7 @@ export const obtenerSecuenciasPorProyecto = async (id_proyecto: number) => {
 export const obtenerSecuenciasId = async (id_secuencia: number) => {
   const response = await apiClient.get(`/secuencias/${id_secuencia}`
 
-    
+
   );
   return response.data;
 }; 
@@ -25,6 +25,11 @@ export const crearSecuencia = async (data: any) => {
 // Actualizar secuencia
 export const actualizarSecuencia = async (id: number, data: any) => {
   const response = await apiClient.patch('/secuencias', { id_secuencia: id, ...data });
+  return response.data;
+};
+
+export const aplicarPlantillaSecuencia = async (id_secuencia: number, id_plantilla_secuencia: number) => {
+  const response = await apiClient.patch('/secuencias/aplicar-plantilla', { id_secuencia, id_plantilla_secuencia });
   return response.data;
 };
 

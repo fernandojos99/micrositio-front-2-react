@@ -1598,3 +1598,23 @@
     padding: var(--template-spacing-xs) var(--template-spacing-sm);
   }
 }
+
+/* =================================================================
+   ESTILOS ESPECÍFICOS PARA MODAL DE SECUENCIAS
+   ================================================================= */
+
+/* Override para el modal de secuencias con scroll interno */
+.template-modal-secuencias {
+  height: 80vh !important;
+  max-height: 800px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+.template-modal-secuencias .template-modal-content {
+  flex: 1 !important;
+  overflow: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+}

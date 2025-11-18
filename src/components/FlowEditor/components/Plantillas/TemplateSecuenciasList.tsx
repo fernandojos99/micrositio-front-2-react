@@ -13,7 +13,8 @@ import React, { useState, useEffect } from 'react';
 import { Loader2, AlertCircle, FileText, Calendar, Users, CheckCircle } from 'lucide-react';
 import { Secuencia } from '../../../../types/secuencia';
 import { obtenerSecuenciasId } from '../../../../services/secuenciaService';
-import { crearPlantillaSecuencia, aplicarPlantillaSecuencia, obtenerPlantillasSecuencia } from '../../../../services/plantillaSecuenciaService';
+import { crearPlantillaSecuencia, obtenerPlantillasSecuencia } from '../../../../services/plantillaSecuenciaService';
+import {aplicarPlantillaSecuencia, } from '../../../../services/plantillaSecuenciaService';
 
 /**
  * Props del componente TemplateSecuenciasList

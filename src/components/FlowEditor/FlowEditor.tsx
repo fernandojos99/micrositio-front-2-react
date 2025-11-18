@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -43,6 +43,7 @@ interface FlowEditorProps {
 export interface FlowEditorRef {
   saveCurrentPositions: () => Promise<void>;
   getCurrentNodes: () => Node<NodeData>[];
+  fitViewNow: () => void;
 }
 
 const nodeTypes: any = {
@@ -70,12 +71,24 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
     loadNodePositionsFromDatabase
   } = useNodePositions(idSecuencia);
 
+  // reactflow instance holder
+  const reactFlowInstanceRef = React.useRef<any>(null);
+
   // Exponer métodos al componente padre a través de ref
   useImperativeHandle(ref, () => ({
     saveCurrentPositions: async () => {
       await saveNodePositionsToDatabase(nodes);
     },
     getCurrentNodes: () => nodes,
+    fitViewNow: () => {
+      try {
+        if (reactFlowInstanceRef.current && typeof reactFlowInstanceRef.current.fitView === 'function') {
+          reactFlowInstanceRef.current.fitView({ padding: 0.1 });
+        }
+      } catch (e) {
+        console.warn('[FlowEditor] fitViewNow error', e);
+      }
+    }
   }), [nodes, saveNodePositionsToDatabase]);
 
   // Función para convertir LearningCard del servicio a LearningCardData del componente
@@ -661,6 +674,7 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
           onEdgesChange={onEdgesChange}
           nodeTypes={nodeTypes}
           fitView
+          onInit={(instance) => { reactFlowInstanceRef.current = instance; }}
           onNodeClick={(_) => {
             // console.log('=== INFORMACIÓN DEL NODO ===');
             // console.log('Tipo:', node.type);

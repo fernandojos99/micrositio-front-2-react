@@ -377,10 +377,10 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
                   </span>
                 </div>*/}
                 
-                <div className="template-secuencia-meta-item">
+                {/*<div className="template-secuencia-meta-item">
                   <Users size={14} />
                   <span>{secuencia.testing_cards_count || 0} testing cards</span>
-                </div>
+                </div>*/}
                 
                 {/*<div className="template-secuencia-meta-item">
                   <CheckCircle 

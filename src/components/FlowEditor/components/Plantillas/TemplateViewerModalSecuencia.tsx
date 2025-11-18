@@ -18,8 +18,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { X, FileText, Users, Calendar } from 'lucide-react';
-import FlowEditor from '../../FlowEditor';
+import { X, FileText } from 'lucide-react';
+import FlowEditor, { FlowEditorRef } from '../../FlowEditor';
 import TemplateSecuenciasList from './TemplateSecuenciasList';
 import { Secuencia } from '../../../../types/secuencia';
 import { PlantillaSecuencia } from '../../../../services/plantillaSecuenciaService';
@@ -81,10 +81,10 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
   // Estados locales para el manejo de datos y UI
   console.log('TemplateViewerModalSecuencia renderizado:', { isOpen, id_secuencia_destino, id_proyecto });
   
-  const [templateData, setTemplateData] = useState<TemplateSecuenciaServiceResponse | null>(null);
+  const [, setTemplateData] = useState<TemplateSecuenciaServiceResponse | null>(null);
   const [loadingState, setLoadingState] = useState<LoadingState>('idle');
   const [error, setError] = useState<string | null>(null);
-  const [showDetails, setShowDetails] = useState(true);
+  const [showDetails,] = useState(true);
   
   // Estados para la Secuencia seleccionada
   const [selectedSecuencia, setSelectedSecuencia] = useState<Secuencia | null>(null);
@@ -92,6 +92,9 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
 
   // Log para confirmar que se recibe el id_secuencia_destino
   console.log('TemplateViewerModalSecuencia recibió id_secuencia_destino:', id_secuencia_destino);
+
+  // Ref al FlowEditor para poder forzar fitView cuando se monte dentro del modal
+  const flowEditorRef = React.useRef<FlowEditorRef | null>(null);
 
   /**
    * Función para cargar datos de plantilla de secuencia
@@ -189,6 +192,24 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
     }
   };
 
+  // Cuando cambia la secuencia seleccionada o se abre el modal, forzar fitView en el FlowEditor
+  useEffect(() => {
+    if (isOpen && selectedSecuencia && flowEditorRef.current) {
+      // Timeout más largo para esperar a que el layout del modal esté completamente listo
+      setTimeout(() => {
+        try {
+          flowEditorRef.current?.fitViewNow();
+          // Segundo fitView para asegurar que las dimensiones son correctas
+          setTimeout(() => {
+            flowEditorRef.current?.fitViewNow();
+          }, 200);
+        } catch (e) {
+          console.warn('[TemplateViewerModalSecuencia] fitViewNow fallo', e);
+        }
+      }, 300);
+    }
+  }, [isOpen, selectedSecuencia]);
+
   /**
    * Maneja la aplicación de una Secuencia como plantilla
    */
@@ -244,8 +265,16 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
         </div>**}
 
         {/* FlowEditor para mostrar el flujo de la secuencia */}
-        <div className="flow-editor-container" style={{ height: '400px', border: '1px solid #e5e7eb', borderRadius: '8px' }}>
+        <div className="flow-editor-container" style={{ 
+          height: '400px', 
+          minHeight: '400px',
+          position: 'relative',
+          border: '1px solid #e5e7eb', 
+          borderRadius: '8px',
+          overflow: 'hidden'
+        }}>
           <FlowEditor 
+            ref={flowEditorRef}
             idSecuencia={selectedSecuencia.id}
             onTestingCardsChange={() => {}}
           />

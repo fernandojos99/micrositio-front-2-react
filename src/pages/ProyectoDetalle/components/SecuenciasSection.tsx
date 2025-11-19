@@ -8,6 +8,8 @@ import ActionDropdown from '../../../components/ui/ActionDropdown/ActionDropdown
 import EditSecuenciaModal from './EditSecuenciaModal';
 import TemplateDropdown from '../../../components/FlowEditor/components/Plantillas/TemplateDropdown';
 import TemplateViewerModalSecuencia from '../../../components/FlowEditor/components/Plantillas/TemplateViewerModalSecuencia';
+import { useAuth } from '../../../contexts/AuthContext';
+import { crearPlantillaSecuencia } from '../../../services/plantillaSecuenciaService';
 
 /**
  * Props para el componente SecuenciasSection
@@ -74,6 +76,9 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
   onEliminarSecuencia,
   onEditarSecuencia
 }) => {
+  // @context: Información del usuario autenticado
+  const { user } = useAuth();
+
   // @state: Control del modal de confirmación de eliminación
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -231,10 +236,63 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
    * @function handleSaveTemplate
    * @param {string} secuenciaId - ID de la secuencia
    */
-  const handleSaveTemplate = (secuenciaId: string) => {
+  const handleSaveTemplate = async (secuenciaId: string) => {
     console.log('Guardar como plantilla para secuencia:', secuenciaId);
-    // TODO: Implementar lógica de guardado como plantilla
-    // Aquí se abrirá un modal para dar nombre a la nueva plantilla
+    
+    try {
+      // Verificar que el usuario esté autenticado y tenga id_empleado
+      if (!user || !user.id_empleado) {
+        console.error('Usuario no autenticado o sin id_empleado:', { user });
+        alert('Error: Usuario no autenticado o sin información de empleado');
+        return;
+      }
+
+      // Buscar la secuencia por ID
+      const secuencia = secuencias.find(s => s.id === secuenciaId);
+      if (!secuencia) {
+        console.error('Secuencia no encontrada:', secuenciaId);
+        alert('Error: Secuencia no encontrada');
+        return;
+      }
+
+      // Validar que el ID de secuencia sea numérico
+      const secuenciaIdNumerico = parseInt(secuencia.id);
+      if (isNaN(secuenciaIdNumerico)) {
+        console.error('ID de secuencia no es válido:', secuencia.id);
+        alert('Error: ID de secuencia no válido');
+        return;
+      }
+
+      // Crear los datos para la plantilla
+      const plantillaData = {
+        id_secuencia: secuenciaIdNumerico,
+        id_empleado: user.id_empleado
+      };
+
+      console.log('Creando plantilla con datos:', plantillaData);
+
+      // Llamar al endpoint para crear la plantilla
+      const nuevaPlantilla = await crearPlantillaSecuencia(plantillaData);
+      
+      console.log('Plantilla creada exitosamente:', nuevaPlantilla);
+      alert(`¡Plantilla guardada exitosamente para la secuencia "${secuencia.nombre}"!`);
+      
+    } catch (error: any) {
+      console.error('Error al guardar plantilla:', error);
+      
+      // Manejar diferentes tipos de errores
+      let mensajeError = 'Error al guardar la plantilla. Por favor, intenta nuevamente.';
+      
+      if (error.response?.status === 400) {
+        mensajeError = 'Error de validación: ' + (error.response.data?.message || 'Datos inválidos');
+      } else if (error.response?.status === 409) {
+        mensajeError = 'Esta secuencia ya tiene una plantilla guardada';
+      } else if (error.response?.status === 500) {
+        mensajeError = 'Error interno del servidor. Contacta al administrador.';
+      }
+      
+      alert(mensajeError);
+    }
   };
 
   /**

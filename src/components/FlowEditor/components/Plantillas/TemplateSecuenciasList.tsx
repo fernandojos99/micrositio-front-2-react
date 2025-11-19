@@ -10,11 +10,10 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Loader2, AlertCircle, FileText, Calendar, Users, CheckCircle } from 'lucide-react';
+import { Loader2, AlertCircle, FileText, CheckCircle } from 'lucide-react';
 import { Secuencia } from '../../../../types/secuencia';
-import { obtenerSecuenciasId } from '../../../../services/secuenciaService';
-import { crearPlantillaSecuencia, obtenerPlantillasSecuencia } from '../../../../services/plantillaSecuenciaService';
-import {aplicarPlantillaSecuencia, } from '../../../../services/plantillaSecuenciaService';
+import { obtenerSecuenciasId, aplicarPlantillaSecuencia } from '../../../../services/secuenciaService';
+import { obtenerPlantillasSecuencia, obtenerPlantillaSecuenciaPorIdSecuencia } from '../../../../services/plantillaSecuenciaService';
 
 /**
  * Props del componente TemplateSecuenciasList
@@ -189,7 +188,7 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
 
   /**
    * Maneja el click en aplicar una Secuencia específica como plantilla
-   * 1. Crea una plantilla de secuencia si no existe
+   * 1. Obtiene la plantilla de secuencia existente
    * 2. Aplica la plantilla a la secuencia destino
    */
   const handleApplySecuencia = async (secuenciaPlantilla: Secuencia) => {
@@ -198,39 +197,47 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
       console.log('Secuencia Plantilla:', secuenciaPlantilla);
       console.log('Secuencia destino ID:', id_secuencia_destino);
 
-      // Paso 1: Verificar si ya existe una plantilla para esta secuencia
-      // TODO: Implementar verificación cuando esté disponible el servicio
+      // Paso 1: Obtener la plantilla de secuencia existente
+      console.log('Obteniendo plantilla para secuencia ID:', parseInt(secuenciaPlantilla.id));
+      const plantilla = await obtenerPlantillaSecuenciaPorIdSecuencia(parseInt(secuenciaPlantilla.id));
+      console.log('Plantilla de secuencia obtenida:', plantilla);
       
-      // Paso 2: Crear plantilla de secuencia si no existe
-      let plantillaId = `plantilla-${secuenciaPlantilla.id}`;
-      
-      try {
-        const nuevaPlantilla = await crearPlantillaSecuencia({
-          id_secuencia: parseInt(secuenciaPlantilla.id),
-          id_empleado: 1 // TODO: Obtener del contexto de usuario
-        });
-        
-        console.log('Plantilla de secuencia creada:', nuevaPlantilla);
-        plantillaId = nuevaPlantilla.id_plantilla_secuencia;
-      } catch (plantillaError) {
-        console.warn('Error al crear plantilla (puede ya existir):', plantillaError);
-        // Continuar con la aplicación aunque no se pueda crear la plantilla
+      // Verificar que la plantilla sea válida
+      if (!plantilla) {
+        throw new Error(`No se encontró plantilla para la secuencia ${secuenciaPlantilla.id}`);
       }
+      
+      if (!plantilla.id_plantilla_secuencia) {
+        throw new Error(`Plantilla obtenida no tiene id_plantilla_secuencia válido: ${JSON.stringify(plantilla)}`);
+      }
+      
+      console.log('ID de plantilla extraído:', plantilla.id_plantilla_secuencia);
 
-      // Paso 3: Aplicar la plantilla a la secuencia destino
-      console.log(`Aplicando plantilla de secuencia ${secuenciaPlantilla.id} a secuencia ${id_secuencia_destino}`);
+      // Paso 2: Aplicar la plantilla a la secuencia destino usando secuenciaService
+      console.log(`Aplicando plantilla de secuencia ${plantilla.id_plantilla_secuencia} a secuencia ${id_secuencia_destino}`);
       
-      try {
-        const aplicacionResponse = await aplicarPlantillaSecuencia(
-          parseInt(id_secuencia_destino), 
-          plantillaId
-        );
-        console.log('Respuesta de aplicación de plantilla:', aplicacionResponse);
-      } catch (aplicacionError) {
-        console.warn('Error al aplicar plantilla (simulando éxito):', aplicacionError);
-        // Simular éxito para demo
-        await new Promise(resolve => setTimeout(resolve, 1000));
+      // Verificar que los parámetros no sean undefined/null antes de enviar
+      const secuenciaDestinoId = parseInt(id_secuencia_destino);
+      const plantillaId = plantilla.id_plantilla_secuencia;
+      
+      console.log('Parámetros para aplicarPlantillaSecuencia:');
+      console.log('- id_secuencia (número):', secuenciaDestinoId, 'tipo:', typeof secuenciaDestinoId);
+      console.log('- id_plantilla_secuencia (string):', plantillaId, 'tipo:', typeof plantillaId);
+      
+      // Validar que los parámetros sean válidos
+      if (!secuenciaDestinoId || isNaN(secuenciaDestinoId)) {
+        throw new Error(`ID de secuencia destino inválido: ${id_secuencia_destino}`);
       }
+      
+      if (!plantillaId || typeof plantillaId !== 'string') {
+        throw new Error(`ID de plantilla secuencia inválido: ${plantillaId}`);
+      }
+      
+      const aplicacionResponse = await aplicarPlantillaSecuencia(
+        secuenciaDestinoId, 
+        plantillaId
+      );
+      console.log('Respuesta de aplicación de plantilla:', aplicacionResponse);
 
       console.log('Plantilla de secuencia aplicada exitosamente');
 
@@ -258,41 +265,6 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
   const handleSelectSecuencia = (secuencia: Secuencia) => {
     if (onSelectSecuencia) {
       onSelectSecuencia(secuencia);
-    }
-  };
-
-  /**
-   * Formatea la fecha para mostrar
-   */
-  const formatearFecha = (fecha: string) => {
-    if (!fecha) return 'Sin fecha';
-    try {
-      const date = new Date(fecha);
-      return date.toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
-    } catch {
-      return 'Fecha inválida';
-    }
-  };
-
-  /**
-   * Obtiene el color del estado
-   */
-  const getEstadoColor = (estado: string) => {
-    switch (estado) {
-      case 'TERMINADO':
-        return '#10B981'; // verde
-      case 'EN PROCESO':
-        return '#F59E0B'; // amarillo
-      case 'EN PLANEACION':
-        return '#3B82F6'; // azul
-      case 'CANCELADO':
-        return '#EF4444'; // rojo
-      default:
-        return '#6B7280'; // gris
     }
   };
 

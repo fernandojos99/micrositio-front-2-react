@@ -28,7 +28,7 @@ export const actualizarSecuencia = async (id: number, data: any) => {
   return response.data;
 };
 
-export const aplicarPlantillaSecuencia = async (id_secuencia: number, id_plantilla_secuencia: number) => {
+export const aplicarPlantillaSecuencia = async (id_secuencia: number, id_plantilla_secuencia: string) => {
   const response = await apiClient.patch('/secuencias/aplicar-plantilla', { id_secuencia, id_plantilla_secuencia });
   return response.data;
 };
@@ -37,3 +37,4 @@ export const aplicarPlantillaSecuencia = async (id_secuencia: number, id_plantil
 export const eliminarSecuencia = async (id: number) => {
   await apiClient.delete('/secuencias', { data: { id_secuencia: id } });
 };
+

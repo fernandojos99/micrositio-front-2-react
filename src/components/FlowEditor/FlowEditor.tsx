@@ -114,6 +114,11 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
 
   const fetchInitialData = async () => {
     if (!idSecuencia) return;
+    
+    // Limpiar estado previo antes de cargar nuevos datos
+    setNodes([]);
+    setEdges([]);
+    
     try {
       // console.log('[FlowEditor] Solicitando Testing Cards con idSecuencia:', idSecuencia);
       const testingCards = await obtenerTestingCardsPorSecuencia(idSecuencia);
@@ -299,9 +304,13 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
   };
 
   useEffect(() => {
-    // Solo intenta cargar datos si no acabas de crear la primera Testing Card
-    if (nodes.length === 0) {
+    // Cargar datos cada vez que cambie idSecuencia
+    if (idSecuencia) {
       fetchInitialData();
+    } else {
+      // Si no hay idSecuencia, limpiar los nodos
+      setNodes([]);
+      setEdges([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idSecuencia]);

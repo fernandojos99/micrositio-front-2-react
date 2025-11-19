@@ -6,6 +6,10 @@ import ConfirmationModal from '../../../components/ui/ConfirmationModal/Confirma
 import styles from './SecuenciasSection.module.css';
 import ActionDropdown from '../../../components/ui/ActionDropdown/ActionDropdown';
 import EditSecuenciaModal from './EditSecuenciaModal';
+import TemplateDropdown from '../../../components/FlowEditor/components/Plantillas/TemplateDropdown';
+import TemplateViewerModalSecuencia from '../../../components/FlowEditor/components/Plantillas/TemplateViewerModalSecuencia';
+import { useAuth } from '../../../contexts/AuthContext';
+import { crearPlantillaSecuencia } from '../../../services/plantillaSecuenciaService';
 
 /**
  * Props para el componente SecuenciasSection
@@ -72,6 +76,9 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
   onEliminarSecuencia,
   onEditarSecuencia
 }) => {
+  // @context: Información del usuario autenticado
+  const { user } = useAuth();
+
   // @state: Control del modal de confirmación de eliminación
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -84,6 +91,10 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
   // @state: Control del modal de edición
   const [showEditModal, setShowEditModal] = useState(false);
   const [secuenciaToEdit, setSecuenciaToEdit] = useState<Secuencia | null>(null);
+
+  // @state: Control del modal de plantillas
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [secuenciaForTemplate, setSecuenciaForTemplate] = useState<Secuencia | null>(null);
 
   /**
    * Formatea fecha de día específico (dia_inicio/dia_fin)
@@ -205,6 +216,109 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
   };
 
   /**
+   * Maneja la aplicación de plantilla para una secuencia específica
+   * @function handleApplyTemplate
+   * @param {string} secuenciaId - ID de la secuencia
+   */
+  const handleApplyTemplate = (secuenciaId: string) => {
+    console.log('Aplicar plantilla para secuencia:', secuenciaId);
+    
+    // Buscar la secuencia por ID
+    const secuencia = secuencias.find(s => s.id === secuenciaId);
+    if (secuencia) {
+      setSecuenciaForTemplate(secuencia);
+      setShowTemplateModal(true);
+    }
+  };
+
+  /**
+   * Maneja el guardado como plantilla de una secuencia específica
+   * @function handleSaveTemplate
+   * @param {string} secuenciaId - ID de la secuencia
+   */
+  const handleSaveTemplate = async (secuenciaId: string) => {
+    console.log('Guardar como plantilla para secuencia:', secuenciaId);
+    
+    try {
+      // Verificar que el usuario esté autenticado y tenga id_empleado
+      if (!user || !user.id_empleado) {
+        console.error('Usuario no autenticado o sin id_empleado:', { user });
+        alert('Error: Usuario no autenticado o sin información de empleado');
+        return;
+      }
+
+      // Buscar la secuencia por ID
+      const secuencia = secuencias.find(s => s.id === secuenciaId);
+      if (!secuencia) {
+        console.error('Secuencia no encontrada:', secuenciaId);
+        alert('Error: Secuencia no encontrada');
+        return;
+      }
+
+      // Validar que el ID de secuencia sea numérico
+      const secuenciaIdNumerico = parseInt(secuencia.id);
+      if (isNaN(secuenciaIdNumerico)) {
+        console.error('ID de secuencia no es válido:', secuencia.id);
+        alert('Error: ID de secuencia no válido');
+        return;
+      }
+
+      // Crear los datos para la plantilla
+      const plantillaData = {
+        id_secuencia: secuenciaIdNumerico,
+        id_empleado: user.id_empleado
+      };
+
+      console.log('Creando plantilla con datos:', plantillaData);
+
+      // Llamar al endpoint para crear la plantilla
+      const nuevaPlantilla = await crearPlantillaSecuencia(plantillaData);
+      
+      console.log('Plantilla creada exitosamente:', nuevaPlantilla);
+      alert(`¡Plantilla guardada exitosamente para la secuencia "${secuencia.nombre}"!`);
+      
+    } catch (error: any) {
+      console.error('Error al guardar plantilla:', error);
+      
+      // Manejar diferentes tipos de errores
+      let mensajeError = 'Error al guardar la plantilla. Por favor, intenta nuevamente.';
+      
+      if (error.response?.status === 400) {
+        mensajeError = 'Error de validación: ' + (error.response.data?.message || 'Datos inválidos');
+      } else if (error.response?.status === 409) {
+        mensajeError = 'Esta secuencia ya tiene una plantilla guardada';
+      } else if (error.response?.status === 500) {
+        mensajeError = 'Error interno del servidor. Contacta al administrador.';
+      }
+      
+      alert(mensajeError);
+    }
+  };
+
+  /**
+   * Maneja el cierre del modal de plantillas
+   */
+  const handleCloseTemplateModal = () => {
+    setShowTemplateModal(false);
+    setSecuenciaForTemplate(null);
+  };
+
+  /**
+   * Maneja cuando se aplica una plantilla exitosamente
+   */
+  const handleTemplateApplied = (secuenciaPlantilla: Secuencia) => {
+    console.log('Plantilla aplicada exitosamente:', secuenciaPlantilla);
+    
+    // Opcional: Refrescar datos si es necesario
+    if (typeof onEditarSecuencia === 'function') {
+      onEditarSecuencia();
+    }
+    
+    // Cerrar el modal
+    handleCloseTemplateModal();
+  };
+
+  /**
    * Convierte el estado a un nombre de clase CSS válido
    * @function getEstadoClassName
    * @param {string} estado - Estado de la secuencia
@@ -322,12 +436,27 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
                       </div>
                     )}
 
-                    {/* @section: Contador de testing cards */}
+                    {/* @section: Contador de testing cards con template dropdown */}
                     <div className={styles['secuencia-testing-counter']}>
-                      <FlaskConical size={14} className={styles['secuencia-testing-counter-icon']} />
-                      <span className={styles['secuencia-testing-counter-text']}>
-                        {secuencia.testing_cards_count || 0} experimentos
-                      </span>
+                      {/* Template dropdown en la misma fila */}
+                      <div 
+                        className={styles['secuencia-template-dropdown']}
+                        onClick={(e) => e.stopPropagation()} // Prevenir selección de secuencia al hacer clic en el dropdown
+                      >
+                        <TemplateDropdown
+                          onApplyTemplate={() => handleApplyTemplate(secuencia.id)}
+                          onSaveTemplate={() => handleSaveTemplate(secuencia.id)}
+                          className="compact"
+                        />
+                      </div>
+                      
+                      {/* Contador de experimentos */}
+                      <div className={styles['secuencia-testing-counter-content']}>
+                        <FlaskConical size={14} className={styles['secuencia-testing-counter-icon']} />
+                        <span className={styles['secuencia-testing-counter-text']}>
+                          {secuencia.testing_cards_count || 0} experimentos
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -368,6 +497,15 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
         onClose={handleCloseEditModal}
         secuencia={secuenciaToEdit}
         onSecuenciaEditada={handleSecuenciaEditada}
+      />
+      
+      {/* @component: Modal de plantillas de secuencia */}
+      <TemplateViewerModalSecuencia
+        isOpen={showTemplateModal}
+        onClose={handleCloseTemplateModal}
+        id_secuencia_destino={secuenciaForTemplate?.id || ''}
+        id_proyecto={secuenciaForTemplate ? parseInt(secuenciaForTemplate.proyectoId) : undefined}
+        onTemplateApplied={handleTemplateApplied}
       />
     </div>
   );

@@ -32,7 +32,7 @@ const Administracion: React.FC = () => {
       <div className={styles.accessDenied}>
         <Shield size={48} />
         <h1>Acceso Denegado</h1>
-        <p>Solo los usuarios administradores (EDITORES) pueden acceder a esta página.</p>
+        <p>Solo los usuarios administradores pueden acceder a esta página.</p>
         <p>Contacta al administrador del sistema si necesitas permisos adicionales.</p>
       </div>
     );

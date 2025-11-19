@@ -226,13 +226,19 @@
 .secuencia-testing-counter {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: var(--spacing-xs);
+  justify-content: space-between;
+  gap: var(--spacing-sm);
   margin-top: var(--spacing-sm);
   padding-top: var(--spacing-xs);
   border-top: 1px solid var(--theme-border);
   font-size: var(--font-size-xs);
   color: var(--theme-text-tertiary);
+}
+
+.secuencia-testing-counter-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
 .secuencia-testing-counter-icon {
@@ -269,6 +275,13 @@
   background-color: var(--color-primary-purple);
   border-radius: 50%;
   border: 2px solid var(--theme-bg-primary);
+}
+
+/* @section: Template dropdown en la misma fila del contador */
+.secuencia-template-dropdown {
+  display: flex;
+  align-items: center;
+  z-index: 10;
 }
 
 /* =================================================================

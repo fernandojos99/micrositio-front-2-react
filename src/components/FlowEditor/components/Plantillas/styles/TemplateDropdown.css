@@ -61,7 +61,7 @@
 .template-dropdown__menu {
   position: absolute;
   top: calc(100% + var(--spacing-xs));
-  right: 0;
+  left: 0;
   min-width: 180px;
   background: var(--theme-bg-primary);
   border: 1px solid var(--color-border-light);
@@ -131,7 +131,6 @@
 @media (max-width: 768px) {
   .template-dropdown__menu {
     min-width: 160px;
-    right: auto;
     left: 0;
   }
   

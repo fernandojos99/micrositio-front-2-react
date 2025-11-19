@@ -48,6 +48,16 @@ export const obtenerPlantillaSecuenciaPorId = async (id: string): Promise<Planti
 };
 
 /**
+ * Obtiene una plantilla secuencia específica por id de la secuencia asociada.
+ * @param {string} id - ID de la plantilla secuencia a buscar
+ * @returns {Promise<PlantillaSecuencia>} Los datos de la plantilla secuencia
+ */
+export const obtenerPlantillaSecuenciaPorIdSecuencia = async (id: number): Promise<PlantillaSecuencia> => {
+  const response = await apiClient.get(`/plantilla_secuencia/secuencia/${id}`);
+  return response.data;
+};
+
+/**
  * Crea una nueva plantilla secuencia
  * @param {CrearPlantillaSecuenciaData} plantillaData - Datos de la nueva plantilla secuencia
  * @returns {Promise<PlantillaSecuencia>} La plantilla secuencia creada
@@ -80,19 +90,4 @@ export const eliminarPlantillaSecuencia = async (id: string): Promise<void> => {
   await apiClient.delete(`/plantilla_secuencia/${id}`);
 };
 
-/**
- * Aplica una plantilla de secuencia a otra secuencia
- * @param {number} idSecuenciaDestino - ID de la secuencia donde se aplicará la plantilla
- * @param {string} idPlantillaSecuencia - ID de la plantilla de secuencia a aplicar
- * @returns {Promise<any>} Resultado de la aplicación
- */
-export const aplicarPlantillaSecuencia = async (
-  idSecuenciaDestino: number, 
-  idPlantillaSecuencia: string
-): Promise<any> => {
-  const response = await apiClient.post('/plantilla_secuencia/aplicar', {
-    id_secuencia_destino: idSecuenciaDestino,
-    id_plantilla_secuencia: idPlantillaSecuencia
-  });
-  return response.data;
-};
+

@@ -241,6 +241,14 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
 
       console.log('Plantilla de secuencia aplicada exitosamente');
 
+      // Disparar evento global para notificar a editores que deben recargar datos
+      try {
+        const detail = { id_secuencia_destino: secuenciaDestinoId, id_plantilla_secuencia: plantillaId };
+        window.dispatchEvent(new CustomEvent('secuenciaTemplateApplied', { detail }));
+      } catch (e) {
+        console.warn('No se pudo despachar evento secuenciaTemplateApplied', e);
+      }
+
       // Notificar al componente padre sobre la aplicación exitosa
       onApplySecuencia(secuenciaPlantilla);
 

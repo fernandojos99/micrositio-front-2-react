@@ -182,6 +182,14 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
       
       console.log('Plantilla aplicada exitosamente:', aplicacionResponse);
 
+      // Disparar evento global para notificar a editores que deben recargar datos
+      try {
+        const detail = { id_testing_card: id_testing_card, id_plantilla_testing_card };
+        window.dispatchEvent(new CustomEvent('testingCardTemplateApplied', { detail }));
+      } catch (e) {
+        console.warn('No se pudo despachar evento testingCardTemplateApplied', e);
+      }
+
       // Notificar al componente padre sobre la aplicación exitosa
       onApplyTestingCard(testingCardTemplate);
 

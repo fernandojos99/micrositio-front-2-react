@@ -315,6 +315,33 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idSecuencia]);
 
+  // Escuchar eventos globales que indiquen que se aplicó una plantilla
+  useEffect(() => {
+    const handleTestingCardTemplate = (e: any) => {
+      console.log('[FlowEditor] evento testingCardTemplateApplied recibido', e?.detail);
+      // Recargar datos para reflejar los cambios aplicados por la plantilla
+      if (idSecuencia) {
+        fetchInitialData();
+      }
+    };
+
+    const handleSecuenciaTemplate = (e: any) => {
+      console.log('[FlowEditor] evento secuenciaTemplateApplied recibido', e?.detail);
+      if (idSecuencia) {
+        fetchInitialData();
+      }
+    };
+
+    window.addEventListener('testingCardTemplateApplied', handleTestingCardTemplate as EventListener);
+    window.addEventListener('secuenciaTemplateApplied', handleSecuenciaTemplate as EventListener);
+
+    return () => {
+      window.removeEventListener('testingCardTemplateApplied', handleTestingCardTemplate as EventListener);
+      window.removeEventListener('secuenciaTemplateApplied', handleSecuenciaTemplate as EventListener);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idSecuencia]);
+
   const crearPrimeraTestingCard = async () => {
     if (!idSecuencia) return;
     try {

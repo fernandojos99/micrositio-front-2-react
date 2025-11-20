@@ -114,6 +114,11 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
 
   const fetchInitialData = async () => {
     if (!idSecuencia) return;
+    
+    // Limpiar estado previo antes de cargar nuevos datos
+    setNodes([]);
+    setEdges([]);
+    
     try {
       // console.log('[FlowEditor] Solicitando Testing Cards con idSecuencia:', idSecuencia);
       const testingCards = await obtenerTestingCardsPorSecuencia(idSecuencia);
@@ -299,10 +304,41 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
   };
 
   useEffect(() => {
-    // Solo intenta cargar datos si no acabas de crear la primera Testing Card
-    if (nodes.length === 0) {
+    // Cargar datos cada vez que cambie idSecuencia
+    if (idSecuencia) {
       fetchInitialData();
+    } else {
+      // Si no hay idSecuencia, limpiar los nodos
+      setNodes([]);
+      setEdges([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idSecuencia]);
+
+  // Escuchar eventos globales que indiquen que se aplicó una plantilla
+  useEffect(() => {
+    const handleTestingCardTemplate = (e: any) => {
+      console.log('[FlowEditor] evento testingCardTemplateApplied recibido', e?.detail);
+      // Recargar datos para reflejar los cambios aplicados por la plantilla
+      if (idSecuencia) {
+        fetchInitialData();
+      }
+    };
+
+    const handleSecuenciaTemplate = (e: any) => {
+      console.log('[FlowEditor] evento secuenciaTemplateApplied recibido', e?.detail);
+      if (idSecuencia) {
+        fetchInitialData();
+      }
+    };
+
+    window.addEventListener('testingCardTemplateApplied', handleTestingCardTemplate as EventListener);
+    window.addEventListener('secuenciaTemplateApplied', handleSecuenciaTemplate as EventListener);
+
+    return () => {
+      window.removeEventListener('testingCardTemplateApplied', handleTestingCardTemplate as EventListener);
+      window.removeEventListener('secuenciaTemplateApplied', handleSecuenciaTemplate as EventListener);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idSecuencia]);
 

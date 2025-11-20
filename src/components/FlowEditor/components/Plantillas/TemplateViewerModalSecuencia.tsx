@@ -157,6 +157,8 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
    */
   useEffect(() => {
     if (isOpen && id_secuencia_destino) {
+      // Resetear la secuencia seleccionada cuando se abre el modal o cambia el destino
+      setSelectedSecuencia(null);
       loadTemplateData();
     }
   }, [isOpen, id_secuencia_destino]);
@@ -176,16 +178,30 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
    * Maneja la selección de una Secuencia para mostrar su flujo
    */
   const handleSelectSecuencia = async (secuenciaData: Secuencia) => {
-    console.log('Secuencia seleccionada:', secuenciaData);
+    console.log('🔄 Seleccionando nueva secuencia:', secuenciaData.id, secuenciaData.nombre);
+    
+    // Si es la misma secuencia, no hacer nada
+    if (selectedSecuencia && selectedSecuencia.id === secuenciaData.id) {
+      console.log('⚠️ Secuencia ya seleccionada, omitiendo cambio');
+      return;
+    }
+    
     setLoadingSelectedSecuencia(true);
     
     try {
-      // Por ahora establecer directamente la secuencia seleccionada
-      // TODO: Cargar detalles adicionales si es necesario
+      // Limpiar secuencia anterior primero
+      console.log('🧹 Limpiando secuencia anterior...');
+      setSelectedSecuencia(null);
+      
+      // Pequeño delay para asegurar que el FlowEditor se desmonte completamente
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Establecer la nueva secuencia
+      console.log('✅ Estableciendo nueva secuencia:', secuenciaData.id);
       setSelectedSecuencia(secuenciaData);
       
     } catch (error) {
-      console.error('Error al cargar detalles de Secuencia:', error);
+      console.error('❌ Error al cargar detalles de Secuencia:', error);
       setSelectedSecuencia(null);
     } finally {
       setLoadingSelectedSecuencia(false);
@@ -195,6 +211,7 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
   // Cuando cambia la secuencia seleccionada o se abre el modal, forzar fitView en el FlowEditor
   useEffect(() => {
     if (isOpen && selectedSecuencia && flowEditorRef.current) {
+      console.log('🎯 Aplicando fitView para secuencia:', selectedSecuencia.id);
       // Timeout más largo para esperar a que el layout del modal esté completamente listo
       setTimeout(() => {
         try {
@@ -202,9 +219,10 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
           // Segundo fitView para asegurar que las dimensiones son correctas
           setTimeout(() => {
             flowEditorRef.current?.fitViewNow();
+            console.log('✅ fitView aplicado completamente');
           }, 200);
         } catch (e) {
-          console.warn('[TemplateViewerModalSecuencia] fitViewNow fallo', e);
+          console.warn('⚠️ [TemplateViewerModalSecuencia] fitViewNow falló:', e);
         }
       }, 300);
     }
@@ -274,6 +292,7 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
           overflow: 'hidden'
         }}>
           <FlowEditor 
+            key={`flow-editor-${selectedSecuencia.id}`}
             ref={flowEditorRef}
             idSecuencia={selectedSecuencia.id}
             onTestingCardsChange={() => {}}

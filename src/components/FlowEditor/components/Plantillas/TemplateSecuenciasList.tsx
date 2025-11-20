@@ -11,6 +11,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Loader2, AlertCircle, FileText, CheckCircle } from 'lucide-react';
+import ConfirmationModal from '../../../../components/ui/ConfirmationModal/ConfirmationModal';
 import { Secuencia } from '../../../../types/secuencia';
 import { obtenerSecuenciasId, aplicarPlantillaSecuencia } from '../../../../services/secuenciaService';
 import { obtenerPlantillasSecuencia, obtenerPlantillaSecuenciaPorIdSecuencia } from '../../../../services/plantillaSecuenciaService';
@@ -44,6 +45,11 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
   const [secuencias, setSecuencias] = useState<Secuencia[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Estados para confirmación de aplicación de plantilla
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedForApply, setSelectedForApply] = useState<Secuencia | null>(null);
+  const [isApplying, setIsApplying] = useState(false);
 
   // Log para confirmar que se reciben los parámetros
   console.log('TemplateSecuenciasList recibió:', { id_secuencia_destino, id_proyecto });
@@ -186,6 +192,24 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
     }
   };
 
+  // Abrir modal de confirmación antes de aplicar la plantilla
+  const requestApplySecuencia = (secuenciaPlantilla: Secuencia) => {
+    setSelectedForApply(secuenciaPlantilla);
+    setShowConfirmModal(true);
+  };
+
+  const confirmApplySecuencia = async () => {
+    if (!selectedForApply) return;
+    setIsApplying(true);
+    try {
+      await handleApplySecuencia(selectedForApply);
+    } finally {
+      setIsApplying(false);
+      setShowConfirmModal(false);
+      setSelectedForApply(null);
+    }
+  };
+
   /**
    * Maneja el click en aplicar una Secuencia específica como plantilla
    * 1. Obtiene la plantilla de secuencia existente
@@ -240,6 +264,14 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
       console.log('Respuesta de aplicación de plantilla:', aplicacionResponse);
 
       console.log('Plantilla de secuencia aplicada exitosamente');
+
+      // Disparar evento global para notificar a editores que deben recargar datos
+      try {
+        const detail = { id_secuencia_destino: secuenciaDestinoId, id_plantilla_secuencia: plantillaId };
+        window.dispatchEvent(new CustomEvent('secuenciaTemplateApplied', { detail }));
+      } catch (e) {
+        console.warn('No se pudo despachar evento secuenciaTemplateApplied', e);
+      }
 
       // Notificar al componente padre sobre la aplicación exitosa
       onApplySecuencia(secuenciaPlantilla);
@@ -369,7 +401,7 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
             <button
               onClick={(e) => {
                 e.stopPropagation(); // Evitar que se dispare el click del contenedor
-                handleApplySecuencia(secuencia);
+                requestApplySecuencia(secuencia);
               }}
               className="template-list-item-apply-btn"
               title={`Aplicar: ${secuencia.nombre}`}
@@ -380,6 +412,19 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
           </div>
         ))}
       </div>
+
+      {/* Modal de confirmación para aplicar plantilla de secuencia */}
+      <ConfirmationModal
+        isOpen={showConfirmModal}
+        onClose={() => { if (!isApplying) { setShowConfirmModal(false); setSelectedForApply(null); } }}
+        onConfirm={confirmApplySecuencia}
+        title="Aplicar plantilla"
+        message="Se va a reemplazar todo el contenido de la secuencia destino. ¿Deseas continuar? Esta acción reemplazará los datos existentes y no se puede deshacer."
+        confirmText="Aplicar"
+        cancelText="Cancelar"
+        type="warning"
+        isLoading={isApplying}
+      />
     </div>
   );
 };

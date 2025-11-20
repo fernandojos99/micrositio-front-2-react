@@ -11,6 +11,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FileText, Play, AlertCircle, Loader2 } from 'lucide-react';
+import ConfirmationModal from '../../../../components/ui/ConfirmationModal/ConfirmationModal';
 
 interface TestingCardData {
   id_testing_card: number;
@@ -43,6 +44,11 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
   const [testingCards, setTestingCards] = useState<TestingCardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Estados para confirmación de aplicación de plantilla
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedForApply, setSelectedForApply] = useState<TestingCardData | null>(null);
+  const [isApplying, setIsApplying] = useState(false);
 
 
   // Log para confirmar que se recibe el id_testing_card
@@ -182,6 +188,14 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
       
       console.log('Plantilla aplicada exitosamente:', aplicacionResponse);
 
+      // Disparar evento global para notificar a editores que deben recargar datos
+      try {
+        const detail = { id_testing_card: id_testing_card, id_plantilla_testing_card };
+        window.dispatchEvent(new CustomEvent('testingCardTemplateApplied', { detail }));
+      } catch (e) {
+        console.warn('No se pudo despachar evento testingCardTemplateApplied', e);
+      }
+
       // Notificar al componente padre sobre la aplicación exitosa
       onApplyTestingCard(testingCardTemplate);
 
@@ -197,6 +211,25 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
       
       // También notificar al componente padre (solo pasamos la testing card original)
       onApplyTestingCard(testingCardTemplate);
+    }
+  };
+
+  // Abre modal de confirmación
+  const requestApplyTestingCard = (testingCardTemplate: TestingCardData) => {
+    setSelectedForApply(testingCardTemplate);
+    setShowConfirmModal(true);
+  };
+
+  // Confirma y aplica la plantilla
+  const confirmApplyTestingCard = async () => {
+    if (!selectedForApply) return;
+    setIsApplying(true);
+    try {
+      await handleApplyTestingCard(selectedForApply);
+    } finally {
+      setIsApplying(false);
+      setShowConfirmModal(false);
+      setSelectedForApply(null);
     }
   };
 
@@ -272,7 +305,7 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
             <button
               onClick={(e) => {
                 e.stopPropagation(); // Evitar que se dispare el click del contenedor
-                handleApplyTestingCard(testingCard);
+                requestApplyTestingCard(testingCard);
               }}
               className="template-list-item-apply-btn"
               title={`Aplicar: ${testingCard.titulo}`}
@@ -283,6 +316,18 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
           </div>
         ))}
       </div>
+      {/* Modal de confirmación para aplicar plantilla */}
+      <ConfirmationModal
+        isOpen={showConfirmModal}
+        onClose={() => { if (!isApplying) { setShowConfirmModal(false); setSelectedForApply(null); } }}
+        onConfirm={confirmApplyTestingCard}
+        title="Aplicar plantilla"
+        message="Se va a reemplazar todo el contenido de la Testing Card destino. ¿Deseas continuar? Esta acción reemplazará los datos existentes y no se puede deshacer."
+        confirmText="Aplicar"
+        cancelText="Cancelar"
+        type="warning"
+        isLoading={isApplying}
+      />
     </div>
   );
 };

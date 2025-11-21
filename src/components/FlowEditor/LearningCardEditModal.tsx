@@ -35,6 +35,8 @@ import {
 } from '../../services/learningCardDocumentService';
 import { MetricaTestingCard, obtenerPorTestingCard, actualizarResultado } from '../../services/metricaTestingCardService';
 import { obtenerEmpleados } from '../../services/empleadosService';
+import { notificacionSiguienteResponsable } from '../../services/notificacionesService';
+import { useAuth } from '../../contexts/AuthContext';
 import EmpleadoSelector from '../../pages/Proyectos/components/EmpleadoSelector';
 import './styles/TestingCardEditModal.css';
 
@@ -85,6 +87,9 @@ interface LearningCardEditModalProps {
  * @returns {JSX.Element} Modal de edición de Learning Card
  */
 const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onSave, onClose, editingIdLC }) => {
+  // Hook de autenticación para obtener el usuario logueado
+  const { user } = useAuth();
+  
   // @state: Datos del formulario
   const [formData, setFormData] = useState<LearningCardData>({
     ...node.data,
@@ -118,6 +123,10 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const [loadingEmpleados, setLoadingEmpleados] = useState(false);
   const [empleadosError, setEmpleadosError] = useState<string | null>(null);
+
+  // Estados para notificación
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [sendingNotification, setSendingNotification] = useState(false);
 
   // Estados para métricas del Testing Card asociado - NUEVO ENFOQUE
   const [metricas, setMetricas] = useState<MetricaTestingCard[]>([]);
@@ -932,6 +941,55 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
   const getAvatarColor = (index: number) => avatarColors[index % avatarColors.length];
 
   /**
+   * Maneja el envío de notificación al siguiente responsable
+   * @function handleEnviarNotificacion
+   */
+  const handleEnviarNotificacion = async () => {
+    if (!formData.id_responsable || !editingIdLC) {
+      setErrorMsg('Debe seleccionar un responsable antes de enviar la notificación');
+      setTimeout(() => setErrorMsg(''), 3000);
+      return;
+    }
+
+    // Obtener el ID del empleado logueado desde el contexto de autenticación
+    if (!user?.id_empleado) {
+      setErrorMsg('No se pudo identificar al usuario actual. Inicie sesión nuevamente.');
+      setTimeout(() => setErrorMsg(''), 3000);
+      return;
+    }
+
+    try {
+      setSendingNotification(true);
+      
+      await notificacionSiguienteResponsable({
+        id_empleado: formData.id_responsable,
+        id_learning_card: editingIdLC,
+        id_empleado_remitente: user.id_empleado
+      });
+
+      setSuccessMsg('Notificación enviada exitosamente');
+      setTimeout(() => setSuccessMsg(''), 3000);
+      setShowNotificationModal(false);
+      
+    } catch (error: any) {
+      console.error('[LearningCardEditModal] Error al enviar notificación:', error);
+      
+      let errorMessage = 'Error al enviar la notificación';
+      if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      setErrorMsg(errorMessage);
+      setTimeout(() => setErrorMsg(''), 5000);
+      setShowNotificationModal(false);
+    } finally {
+      setSendingNotification(false);
+    }
+  };
+
+  /**
    * Maneja el envío del formulario
    * @function handleSubmit
    * @param {React.FormEvent} e - Evento del formulario
@@ -1316,6 +1374,41 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
               getAvatarColor={getAvatarColor}
               hideLabel={true}
             />
+            
+            {/* Botón de notificar */}
+            {formData.id_responsable && (
+              <button
+                type="button"
+                onClick={() => setShowNotificationModal(true)}
+                className="testing-btn testing-btn-secondary"
+                style={{
+                  backgroundColor: '#f3f4f6',
+                  color: '#374151',
+                  border: '1px solid #d1d5db',
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginTop: '8px',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#e5e7eb';
+                  e.currentTarget.style.borderColor = '#9ca3af';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                }}
+              >
+                <Users size={16} />
+                Notificar responsable
+              </button>
+            )}
           </div>
 
           {/* @section: Botones de acción */}
@@ -1411,6 +1504,21 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
             confirmText="Eliminar"
             cancelText="Cancelar"
             type="danger"
+          />
+        )}
+
+        {/* @component: Modal de confirmación para enviar notificación */}
+        {showNotificationModal && (
+          <ConfirmationModal
+            isOpen={showNotificationModal}
+            onClose={() => setShowNotificationModal(false)}
+            onConfirm={handleEnviarNotificacion}
+            title="Enviar Notificación"
+            message={`¿Estás seguro que deseas enviar una notificación por correo electrónico al siguiente responsable?\n\n${empleados.find(e => e.id_empleado === formData.id_responsable)?.correo || 'Responsable seleccionado'}\n\nSe enviará un correo informando sobre la asignación de esta Learning Card.`}
+            confirmText={sendingNotification ? "Enviando..." : "Enviar Notificación"}
+            cancelText="Cancelar"
+            type="info"
+            isLoading={sendingNotification}
           />
         )}
       </div>

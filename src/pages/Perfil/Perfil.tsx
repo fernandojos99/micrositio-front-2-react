@@ -496,7 +496,13 @@ const Perfil: React.FC = () => {
     if (empleado) {
       return empleado.correo;
     }
-    return user?.email || '';
+    // Para usuarios visitantes, usar el email original sin el @sistema.com
+    const userEmail = user?.email || '';
+    if (userEmail.includes('@sistema.com')) {
+      // Remover @sistema.com y retornar el email original
+      return userEmail.replace('@sistema.com', '');
+    }
+    return userEmail;
   };
 
   /**

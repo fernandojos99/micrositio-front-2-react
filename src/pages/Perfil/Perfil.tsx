@@ -282,11 +282,11 @@ const Perfil: React.FC = () => {
     }
 
     // @validation: Validar formato del alias (solo letras, números, guiones y guiones bajos)
-    const aliasRegex = /^[a-zA-Z0-9_-]+$/;
+    /**const aliasRegex = /^[a-zA-Z0-9_-]+$/;
     if (!aliasRegex.test(aliasValue.trim())) {
       setAliasError('El alias solo puede contener letras, números, guiones (-) y guiones bajos (_)');
       return;
-    }
+    }*/
 
     // @debug: Información de depuración del usuario
     //console.log('🔍 Debug - Objeto user completo:', user);
@@ -670,14 +670,16 @@ const Perfil: React.FC = () => {
                     <div className={styles['field-value']}>
                       {getEmail() || 'No disponible'}
                     </div>
-                    <button
-                      onClick={startEmailEdit}
-                      className={styles['field-edit-btn']}
-                      title="Editar correo electrónico"
-                    >
-                      <Edit3 size={14} />
-                      Editar
-                    </button>
+                    {user?.role !== 'VISITANTE' && (
+                      <button
+                        onClick={startEmailEdit}
+                        className={styles['field-edit-btn']}
+                        title="Editar correo electrónico"
+                      >
+                        <Edit3 size={14} />
+                        Editar
+                      </button>
+                    )}
                   </div>
                 )}
               </div>

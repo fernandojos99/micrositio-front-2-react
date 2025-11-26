@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { UserPlus, UserX, FolderPlus } from 'lucide-react';
-import { Usuario, eliminarUsuario } from '../../services/usuarioService';
+import { Usuario, eliminarUsuario, actualizarTipoUsuario } from '../../services/usuarioService';
 import ActionDropdown from '../ui/ActionDropdown/ActionDropdown';
 import ConfirmationModal from '../ui/ConfirmationModal/ConfirmationModal';
 import UserProjectsList from './UserProjectsList';
@@ -81,6 +81,9 @@ const VisitanteUserItem: React.FC<VisitanteUserItemProps> = ({
   // @state: Control del estado de carga durante la eliminación
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // @state: Control del estado de carga durante la promoción a editor
+  const [isPromoting, setIsPromoting] = useState(false);
+
   /**
    * Maneja el clic en el usuario para seleccionarlo
    * Notifica al componente padre sobre la selección
@@ -99,14 +102,28 @@ const VisitanteUserItem: React.FC<VisitanteUserItemProps> = ({
 
   /**
    * Maneja la promoción del usuario a EDITOR
-   * Por ahora muestra un mensaje de funcionalidad en desarrollo
+   * Utiliza el endpoint actualizarTipoUsuario para cambiar el tipo a "EDITOR"
    */
-  const handlePromoteToEditor = () => {
-    alert(
-      '🚧 Funcionalidad en desarrollo\n\n' +
-      'La promoción de usuarios VISITANTE a EDITOR estará disponible próximamente. ' +
-      'Esta funcionalidad permitirá cambiar el tipo de usuario y asignar un empleado asociado.'
-    );
+  const handlePromoteToEditor = async () => {
+    if (isPromoting) return;
+    
+    setIsPromoting(true);
+    
+    try {
+      // Llamar al endpoint para actualizar el tipo de usuario
+      await actualizarTipoUsuario(usuario.id_usuario, 'EDITOR');
+      
+      // Notificar al componente padre que el usuario fue actualizado
+      onUserUpdated?.();
+      
+      console.log('✅ Usuario promovido a EDITOR exitosamente');
+      
+    } catch (error) {
+      console.error('❌ Error al promover usuario a EDITOR:', error);
+      alert('No se pudo promover el usuario a EDITOR. Por favor, intenta nuevamente.');
+    } finally {
+      setIsPromoting(false);
+    }
   };
 
   /**
@@ -162,21 +179,24 @@ const VisitanteUserItem: React.FC<VisitanteUserItemProps> = ({
       label: 'Asignar proyecto',
       icon: <FolderPlus size={16} />,
       onClick: handleAssignProject,
-      type: 'default' as const
+      type: 'default' as const,
+      disabled: isPromoting
     },
     {
       id: 'promote-to-editor',
-      label: 'Promover a Editor',
+      label: isPromoting ? 'Promocionando...' : 'Promover a Editor',
       icon: <UserPlus size={16} />,
       onClick: handlePromoteToEditor,
-      type: 'default' as const
+      type: 'default' as const,
+      disabled: isPromoting
     },
     {
       id: 'delete-user',
       label: 'Eliminar usuario',
       icon: <UserX size={16} />,
       onClick: () => setShowDeleteModal(true),
-      type: 'danger' as const
+      type: 'danger' as const,
+      disabled: isPromoting
     }
   ];
 

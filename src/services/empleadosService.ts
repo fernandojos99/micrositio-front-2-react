@@ -100,3 +100,13 @@ export const desactivarEmpleado = async (id: number): Promise<Empleado> => {
   });
   return response.data;
 };
+
+
+/**
+ * Obtiene todos los empleados que no estan relacionado con un usuario
+ * @returns {Promise<Empleado[]>} Lista de todos los empleados
+ */
+export const obtenerEmpleadosSinUsuario = async (): Promise<Empleado[]> => {
+  const response = await apiClient.get('/empleados/sin-usuario');
+  return response.data;
+};

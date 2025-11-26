@@ -4,12 +4,13 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { UserCheck, UserX, FolderPlus } from 'lucide-react';
+import { UserCheck, UserX, FolderPlus, UserPlus } from 'lucide-react';
 import { Usuario, darBajaUsuario, darAltaUsuario } from '../../services/usuarioService';
 import ActionDropdown from '../ui/ActionDropdown/ActionDropdown';
 import ConfirmationModal from '../ui/ConfirmationModal/ConfirmationModal';
 import UserProjectsList from './UserProjectsList';
 import AssignProjectModal from './AssignProjectModal';
+import AssignEmployeeModal from './AssignEmployeeModal';
 import useEmpleados from '../../hooks/useEmpleados';
 import styles from './EditorUserItem.module.css';
 
@@ -79,6 +80,9 @@ const EditorUserItem: React.FC<EditorUserItemProps> = ({
   // @state: Control del modal para asignar proyectos
   const [showAssignModal, setShowAssignModal] = useState(false);
   
+  // @state: Control del modal para asignar empleado
+  const [showAssignEmployeeModal, setShowAssignEmployeeModal] = useState(false);
+  
   // @state: Control del estado de carga durante cambios de estado
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   
@@ -112,6 +116,14 @@ const EditorUserItem: React.FC<EditorUserItemProps> = ({
    */
   const handleAssignProject = () => {
     setShowAssignModal(true);
+  };
+
+  /**
+   * Maneja la asignación de empleado al usuario
+   * Abre el modal de asignación de empleado
+   */
+  const handleAssignEmployee = () => {
+    setShowAssignEmployeeModal(true);
   };
 
   /**
@@ -171,6 +183,14 @@ const EditorUserItem: React.FC<EditorUserItemProps> = ({
   };
 
   /**
+   * Maneja cuando se asigna exitosamente un empleado
+   * Notifica al componente padre para recargar datos
+   */
+  const handleEmployeeAssigned = () => {
+    onUserUpdated?.();
+  };
+
+  /**
    * Maneja cuando se elimina un proyecto del usuario
    * Notifica al componente padre para recargar datos
    */
@@ -193,6 +213,16 @@ const EditorUserItem: React.FC<EditorUserItemProps> = ({
       onClick: handleAssignProject,
       type: 'default' as const
     },
+    // Mostrar opción de asignar empleado solo si no tiene empleado asignado
+    ...((!usuario.id_empleado) ? [
+      {
+        id: 'assign-employee',
+        label: 'Asignar empleado correspondiente',
+        icon: <UserPlus size={16} />,
+        onClick: handleAssignEmployee,
+        type: 'default' as const
+      }
+    ] : []),
     ...(usuario.activo ? [
       {
         id: 'deactivate-user',
@@ -301,6 +331,14 @@ const EditorUserItem: React.FC<EditorUserItemProps> = ({
         onClose={() => setShowAssignModal(false)}
         userId={usuario.id_usuario}
         onProjectAssigned={handleProjectAssigned}
+      />
+
+      {/* @section: Modal para asignar empleado */}
+      <AssignEmployeeModal
+        isOpen={showAssignEmployeeModal}
+        onClose={() => setShowAssignEmployeeModal(false)}
+        userId={usuario.id_usuario}
+        onEmployeeAssigned={handleEmployeeAssigned}
       />
     </>
   );

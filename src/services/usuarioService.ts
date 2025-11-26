@@ -142,6 +142,27 @@ export const cambiarPasswordUsuario = async (id: string, passwordData: CambiarPa
   return response.data;
 };
 
+/**
+ * Asignar empleado a un usuario
+ * @param {string} id - ID del usuario (UUID)
+ * @param {number} idEmpleado - ID del empleado (int)
+ * @returns {Promise<Usuario>} El usuario actualizado
+ */
+export const asignarEmpleadoUsuario = async (id_usuario: string, id_empleado: number): Promise<Usuario> => {
+  const response = await apiClient.patch(`/usuarios/${id_usuario}/asignar-empleado`, { id_empleado });
+  return response.data;
+};
+
+/**Actualizar tipo de un usuario (VISITANTE o EDITOR)
+ * @param {string} id - ID del usuario (UUID)
+ * @param {string} tipo - Nuevo tipo de usuario (VISITANTE o EDITOR)
+ * @returns {Promise<Usuario>} El usuario actualizado
+ */
+export const actualizarTipoUsuario = async (id: string, tipo: string): Promise<Usuario> => {
+  const response = await apiClient.patch(`/usuarios/${id}/tipo`, { tipo });
+  return response.data;
+};
+
 // Exportar todas las funciones como default para facilitar el uso
 export default {
   obtenerUsuarioPorIdEmpleado,

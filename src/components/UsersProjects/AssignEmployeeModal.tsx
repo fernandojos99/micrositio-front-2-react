@@ -360,7 +360,7 @@ const AssignEmployeeModal: React.FC<AssignEmployeeModalProps> = ({
                       <h3 className={styles.employeeName}>
                         {empleado.nombre_pila} {empleado.apellido_paterno} {empleado.apellido_materno || ''}
                       </h3>
-                      <div className={styles.employeeDetails}>
+                      {/*<div className={styles.employeeDetails}>
                         <span className={styles.employeeEmail}>
                           {empleado.correo}
                         </span>
@@ -372,7 +372,7 @@ const AssignEmployeeModal: React.FC<AssignEmployeeModalProps> = ({
                             📱 {empleado.celular}
                           </span>
                         )}
-                      </div>
+                      </div>*/}
                     </div>
                     <div className={styles.selectionIndicator}>
                       {selectedEmployee && getEmpleadoId(selectedEmployee) === getEmpleadoId(empleado) ? (
@@ -390,7 +390,7 @@ const AssignEmployeeModal: React.FC<AssignEmployeeModalProps> = ({
 
         {/* @section: Footer con botones de acción */}
         <div className={styles.modalFooter}>
-          <div className={styles.footerContent}>
+          {/*<div className={styles.footerContent}>
             {selectedEmployee && (
               <div className={styles.selectedInfo}>
                 <span className={styles.selectedLabel}>Empleado seleccionado:</span>
@@ -400,7 +400,7 @@ const AssignEmployeeModal: React.FC<AssignEmployeeModalProps> = ({
                 <span className={styles.selectedEmail}>({selectedEmployee.correo})</span>
               </div>
             )}
-          </div>
+          </div>*/}
           <div className={styles.footerActions}>
             <button
               onClick={handleClose}

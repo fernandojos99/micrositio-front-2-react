@@ -67,6 +67,10 @@ function App() {
                 <Route path="libro-digital" element={<LibroDigital />} />
                 <Route path="administracion" element={<Administracion />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
+                <Route path="/proyecto/:proyectoId" element={<ProyectoDetalle />} />
+                <Route path="/proyecto/:proyectoId/secuencia/:secuenciaId" element={<ProyectoDetalle />} />
+                <Route path="/proyecto/:proyectoId/secuencia/:secuenciaId/testing-card/:testingCardId" element={<ProyectoDetalle />} />
+                <Route path="/proyecto/:proyectoId/secuencia/:secuenciaId/learning-card/:learningCardId" element={<ProyectoDetalle />} />
               </Route>
             </Routes>
           </Router>

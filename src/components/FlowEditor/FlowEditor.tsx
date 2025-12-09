@@ -38,6 +38,11 @@ import {
 interface FlowEditorProps {
   idSecuencia?: string | number;
   onTestingCardsChange?: () => void;
+  onTestingCardSelect?: (cardId: string) => void;
+  onLearningCardSelect?: (cardId: string) => void;
+  onCardDeselect?: () => void;
+  selectedTestingCardId?: string;
+  selectedLearningCardId?: string;
 }
 
 export interface FlowEditorRef {
@@ -51,7 +56,15 @@ const nodeTypes: any = {
   learning: LearningCardNode,
 };
 
-const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, onTestingCardsChange }, ref) => {
+const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ 
+  idSecuencia, 
+  onTestingCardsChange,
+  onTestingCardSelect,
+  onLearningCardSelect,
+  onCardDeselect,
+  selectedTestingCardId,
+  selectedLearningCardId 
+}, ref) => {
   const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -341,6 +354,20 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idSecuencia]);
+
+  // Efecto para manejar la selección visual de cards basada en la URL
+  useEffect(() => {
+    // Aplicar estilos o efectos visuales a las cards seleccionadas
+    if (selectedTestingCardId) {
+      console.log('[FlowEditor] Testing Card seleccionada desde URL:', selectedTestingCardId);
+      // @todo: Agregar estilo visual para la testing card seleccionada
+    }
+    
+    if (selectedLearningCardId) {
+      console.log('[FlowEditor] Learning Card seleccionada desde URL:', selectedLearningCardId);
+      // @todo: Agregar estilo visual para la learning card seleccionada
+    }
+  }, [selectedTestingCardId, selectedLearningCardId]);
 
   const crearPrimeraTestingCard = async () => {
     if (!idSecuencia) return;
@@ -711,7 +738,22 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({ idSecuencia, on
           nodeTypes={nodeTypes}
           fitView
           onInit={(instance) => { reactFlowInstanceRef.current = instance; }}
-          onNodeClick={(_) => {
+          onNodeClick={(_, node) => {
+            // Manejar selección de cards a través de URL
+            if (node.type === 'testing') {
+              const testingData = node.data as TestingCardData;
+              const cardId = testingData.id_testing_card?.toString();
+              if (cardId && onTestingCardSelect) {
+                onTestingCardSelect(cardId);
+              }
+            } else if (node.type === 'learning') {
+              const learningData = node.data as LearningCardData;
+              const cardId = learningData.id_learning_card?.toString();
+              if (cardId && onLearningCardSelect) {
+                onLearningCardSelect(cardId);
+              }
+            }
+            
             // console.log('=== INFORMACIÓN DEL NODO ===');
             // console.log('Tipo:', node.type);
             // console.log('ID del nodo:', node.id);

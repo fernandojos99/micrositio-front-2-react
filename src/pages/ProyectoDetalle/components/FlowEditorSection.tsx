@@ -10,12 +10,22 @@ interface FlowEditorSectionProps {
   secuenciaSeleccionada: Secuencia | null;
   onGuardarCambios?: () => void;
   onTestingCardsChange?: () => void;
+  onTestingCardSelect?: (cardId: string) => void;
+  onLearningCardSelect?: (cardId: string) => void;
+  onCardDeselect?: () => void;
+  selectedTestingCardId?: string;
+  selectedLearningCardId?: string;
 }
 
 const FlowEditorSection: React.FC<FlowEditorSectionProps> = ({
   secuenciaSeleccionada,
   onGuardarCambios,
   onTestingCardsChange,
+  onTestingCardSelect,
+  onLearningCardSelect,
+  onCardDeselect,
+  selectedTestingCardId,
+  selectedLearningCardId,
 }) => {
   const flowEditorRef = useRef<FlowEditorRef>(null);
 
@@ -41,6 +51,13 @@ const FlowEditorSection: React.FC<FlowEditorSectionProps> = ({
       }
     }
   };
+
+  const handleFitView = () => {
+    if (flowEditorRef.current) {
+      flowEditorRef.current.fitViewNow();
+    }
+  };
+
   if (!secuenciaSeleccionada) {
     return (
       <div className={styles['flow-editor-section']}>
@@ -112,6 +129,11 @@ const FlowEditorSection: React.FC<FlowEditorSectionProps> = ({
           key={`flow-${secuenciaSeleccionada.id}`}
           idSecuencia={secuenciaSeleccionada.id}
           onTestingCardsChange={onTestingCardsChange}
+          onTestingCardSelect={onTestingCardSelect}
+          onLearningCardSelect={onLearningCardSelect}
+          onCardDeselect={onCardDeselect}
+          selectedTestingCardId={selectedTestingCardId}
+          selectedLearningCardId={selectedLearningCardId}
         />
       </div>
     </div>

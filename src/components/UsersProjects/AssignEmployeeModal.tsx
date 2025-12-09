@@ -4,7 +4,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { X, User, Search } from 'lucide-react';
+import { X, User } from 'lucide-react';
+import SearchBar from '../ui/Busqueda/SearchBar'; // 👈 ruta desde UsersProjects a ui
 import { Empleado, obtenerEmpleadosSinUsuario } from '../../services/empleadosService';
 import { asignarEmpleadoUsuario } from '../../services/usuarioService';
 import styles from './AssignEmployeeModal.module.css';
@@ -296,17 +297,12 @@ const AssignEmployeeModal: React.FC<AssignEmployeeModalProps> = ({
         {/* @section: Contenido del modal */}
         <div className={styles.modalBody}>
           {/* Barra de búsqueda */}
-          <div className={styles.searchContainer}>
-            <Search size={20} className={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Buscar empleado por nombre, correo o número..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={styles.searchInput}
-              disabled={isLoading}
-            />
-          </div>
+          <SearchBar
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Buscar empleado por nombre, correo o número..."
+            disabled={isLoading}
+          />
 
           {/* Estados de carga y error */}
           {isLoading && (

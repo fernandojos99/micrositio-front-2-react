@@ -597,14 +597,12 @@ const ProyectoDetalle: React.FC = () => {
           secuenciaSeleccionada={secuenciaSeleccionada}
           onGuardarCambios={handleGuardarCambios}
           onTestingCardsChange={actualizarConteoTestingCards}
-        />
-        {/* @todo: Add props for card selection once FlowEditorSection is updated:
           onTestingCardSelect={handleTestingCardSelect}
           onLearningCardSelect={handleLearningCardSelect}
           onCardDeselect={handleCardDeselect}
           selectedTestingCardId={testingCardId}
           selectedLearningCardId={learningCardId}
-        */}
+        />
 
         {/* @component: Modal de edición de proyecto */}
         <EditarProyectoModal

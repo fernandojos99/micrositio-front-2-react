@@ -17,6 +17,7 @@ import Perfil from './pages/Perfil/Perfil';
 import Assistant from './pages/Assistant';
 import LibroDigital from './pages/LibroDigital/LibroDigital';
 import Administracion from './pages/Administracion/Administracion';
+import Busqueda from './pages/Busqueda/Busqueda';
 
 /**
  * Componente principal de la aplicación
@@ -66,6 +67,7 @@ function App() {
                 <Route path="assistant" element={<Assistant />} />
                 <Route path="libro-digital" element={<LibroDigital />} />
                 <Route path="administracion" element={<Administracion />} />
+                <Route path="buscar" element={<Busqueda />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Route>
             </Routes>

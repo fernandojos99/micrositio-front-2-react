@@ -213,8 +213,9 @@ const Busqueda: React.FC = () => {
                     <Link
                       key={p.id_proyecto}
                       to={`/proyectos/${p.id_proyecto}`}
-                      className="search-card search-card--proyecto"
+                      className="search-card search-card--proyecto search-card--clickable"
                     >
+                      <span className="search-card-type">Proyecto</span>
                       <h3 className="search-card-title">{p.titulo}</h3>
                       {p.descripcion && (
                         <p className="search-card-text">
@@ -226,6 +227,7 @@ const Busqueda: React.FC = () => {
                           {p.estado}
                         </span>
                       )}
+                      <span className="search-card-link-hint">Ver detalle →</span>
                     </Link>
                   ))}
                 </div>
@@ -422,14 +424,16 @@ const Busqueda: React.FC = () => {
                       <Link
                         key={a.id_agente}
                         to={`/agentes/${a.id_agente}`}
-                        className="search-card search-card--agente"
+                        className="search-card search-card--agente search-card--clickable"
                       >
+                        <span className="search-card-type">Agente</span>
                         <h3 className="search-card-title">{a.nombre}</h3>
                         {a.descripcion && (
                           <p className="search-card-text">
                             {a.descripcion}
                           </p>
                         )}
+                        <span className="search-card-link-hint">Abrir agente →</span>
                       </Link>
                     ))}
                   </div>

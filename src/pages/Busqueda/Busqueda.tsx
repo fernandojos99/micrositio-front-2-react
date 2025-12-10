@@ -5,6 +5,15 @@ import SearchBar from '../../components/ui/Busqueda/SearchBar';
 import { search, SearchResults, SearchScope } from '../../services/searchService';
 import './Busqueda.css';
 
+// Clave interna para manejar las secciones colapsables
+type SectionKey =
+  | 'proyectos'
+  | 'secuencias'
+  | 'testing_cards'
+  | 'learning_cards'
+  | 'agentes'
+  | 'prompts';
+
 const Busqueda: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [scope, setScope] = useState<SearchScope>('all');
@@ -12,8 +21,11 @@ const Busqueda: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<
+    Partial<Record<SectionKey, boolean>>
+  >({});
 
-  const [searchParams] = useSearchParams(); // 👈 leemos ?q=&scope=
+  const [searchParams] = useSearchParams(); // leemos ?q=&scope=
 
   // Función reutilizable que hace la llamada al backend
   const runSearch = async (qValue: string, scopeValue: SearchScope) => {
@@ -42,7 +54,6 @@ const Busqueda: React.FC = () => {
   };
 
   const handleSearch = async () => {
-    // usa el estado actual de la página
     await runSearch(searchTerm, scope);
   };
 
@@ -51,9 +62,24 @@ const Busqueda: React.FC = () => {
     if (hasSearched && searchTerm.trim()) {
       runSearch(searchTerm, newScope);
     }
+
+    // Si no es "all", abrimos por defecto esa sección
+    if (newScope !== 'all') {
+      setExpandedSections(prev => ({
+        ...prev,
+        [newScope as SectionKey]: true,
+      }));
+    }
   };
 
-  // 👇 Al cargar la página o cambiar los query params, sincronizamos estado
+  const toggleSection = (section: SectionKey) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
+
+  // Al cargar la página o cambiar los query params, sincronizamos estado
   useEffect(() => {
     const qParam = searchParams.get('q') || '';
     const scopeParam = (searchParams.get('scope') as SearchScope) || 'all';
@@ -64,7 +90,7 @@ const Busqueda: React.FC = () => {
       setScope(scopeParam);
       runSearch(qParam, scopeParam);
     }
-  }, [searchParams]); // se dispara cuando vienes de la barra superior
+  }, [searchParams]);
 
   console.log('👀 Estado actual de results en render:', results);
 
@@ -72,7 +98,8 @@ const Busqueda: React.FC = () => {
     <div className="search-page">
       <h1 className="search-title">Búsqueda general</h1>
       <p className="search-subtitle">
-        Busca en proyectos, secuencias, testing cards, learning cards, agentes y prompts desde un mismo lugar.
+        Busca en proyectos, secuencias, testing cards, learning cards, agentes y prompts desde un
+        mismo lugar.
       </p>
 
       {/* Barra de búsqueda reutilizable */}
@@ -147,123 +174,320 @@ const Busqueda: React.FC = () => {
         </button>
       </div>
 
-      {/* DEBUG: JSON */}
-      <pre className="debug-json">
-        {JSON.stringify(results, null, 2)}
-      </pre>
+      {/* DEBUG JSON (oculto, pero fácil de reactivar) */}
+      {false && (
+        <pre className="debug-json">
+          {JSON.stringify(results, null, 2)}
+        </pre>
+      )}
 
       {error && <div className="search-error">{error}</div>}
 
       {!isLoading && hasSearched && !error && (
         <div className="search-results">
+
+          {/* ================== PROYECTOS ================== */}
           {(scope === 'proyectos' || scope === 'all') && (
-            <section>
-              <h2>Proyectos</h2>
-              {results.proyectos && results.proyectos.length > 0 ? (
-                <ul>
-                  {results.proyectos.map((p) => (
-                    <li key={p.id_proyecto}>
-                      <Link to={`/proyectos/${p.id_proyecto}`}>
-                        {p.titulo /* 👈 la columna real de la BD */}
-                      </Link>
-                    </li>
+            <section className="search-section">
+              <div className="search-section-header">
+                <div>
+                  <h2>Proyectos</h2>
+                  <span className="search-section-count">
+                    {(results.proyectos?.length || 0)} resultados
+                  </span>
+                </div>
+                {results.proyectos && results.proyectos.length > 0 && (
+                  <button
+                    type="button"
+                    className="search-section-toggle"
+                    onClick={() => toggleSection('proyectos')}
+                  >
+                    {expandedSections.proyectos ? 'Ocultar' : 'Ver más'}
+                  </button>
+                )}
+              </div>
+
+              {expandedSections.proyectos && results.proyectos && results.proyectos.length > 0 && (
+                <div className="search-cards-grid">
+                  {results.proyectos.map(p => (
+                    <Link
+                      key={p.id_proyecto}
+                      to={`/proyectos/${p.id_proyecto}`}
+                      className="search-card search-card--proyecto"
+                    >
+                      <h3 className="search-card-title">{p.titulo}</h3>
+                      {p.descripcion && (
+                        <p className="search-card-text">
+                          {p.descripcion}
+                        </p>
+                      )}
+                      {p.estado && (
+                        <span className="search-card-chip">
+                          {p.estado}
+                        </span>
+                      )}
+                    </Link>
                   ))}
-                </ul>
-              ) : (
+                </div>
+              )}
+
+              {(!results.proyectos || results.proyectos.length === 0) && (
                 <p className="search-empty">Sin resultados de proyectos.</p>
               )}
             </section>
           )}
 
+          {/* ================== SECUENCIAS ================== */}
           {(scope === 'secuencias' || scope === 'all') && (
-            <section>
-              <h2>Secuencias</h2>
-              {results.secuencias && results.secuencias.length > 0 ? (
-                <ul>
-                  {results.secuencias.map((s) => (
-                    <li key={s.id_secuencia}>
-                      <span>{s.nombre}</span>{' '}
-                      {s.descripcion && <small>— {s.descripcion}</small>}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
+            <section className="search-section">
+              <div className="search-section-header">
+                <div>
+                  <h2>Secuencias</h2>
+                  <span className="search-section-count">
+                    {(results.secuencias?.length || 0)} resultados
+                  </span>
+                </div>
+                {results.secuencias && results.secuencias.length > 0 && (
+                  <button
+                    type="button"
+                    className="search-section-toggle"
+                    onClick={() => toggleSection('secuencias')}
+                  >
+                    {expandedSections.secuencias ? 'Ocultar' : 'Ver más'}
+                  </button>
+                )}
+              </div>
+
+              {expandedSections.secuencias &&
+                results.secuencias &&
+                results.secuencias.length > 0 && (
+                  <div className="search-cards-grid">
+                    {results.secuencias.map(s => (
+                      <div
+                        key={s.id_secuencia}
+                        className="search-card search-card--secuencia"
+                      >
+                        <h3 className="search-card-title">{s.nombre}</h3>
+                        {s.descripcion && (
+                          <p className="search-card-text">{s.descripcion}</p>
+                        )}
+                        {s.estado && (
+                          <span className="search-card-chip">
+                            {s.estado}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+              )}
+
+              {(!results.secuencias || results.secuencias.length === 0) && (
                 <p className="search-empty">Sin resultados de secuencias.</p>
               )}
             </section>
           )}
 
+          {/* ================== TESTING CARDS ================== */}
           {(scope === 'testing_cards' || scope === 'all') && (
-            <section>
-              <h2>Testing cards</h2>
-              {results.testing_cards && results.testing_cards.length > 0 ? (
-                <ul>
-                  {results.testing_cards.map((tc) => (
-                    <li key={tc.id_testing_card}>
-                      <span>{tc.titulo}</span>
-                      {tc.hipotesis && <small> — {tc.hipotesis}</small>}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
+            <section className="search-section">
+              <div className="search-section-header">
+                <div>
+                  <h2>Testing cards</h2>
+                  <span className="search-section-count">
+                    {(results.testing_cards?.length || 0)} resultados
+                  </span>
+                </div>
+                {results.testing_cards && results.testing_cards.length > 0 && (
+                  <button
+                    type="button"
+                    className="search-section-toggle"
+                    onClick={() => toggleSection('testing_cards')}
+                  >
+                    {expandedSections.testing_cards ? 'Ocultar' : 'Ver más'}
+                  </button>
+                )}
+              </div>
+
+              {expandedSections.testing_cards &&
+                results.testing_cards &&
+                results.testing_cards.length > 0 && (
+                  <div className="search-cards-grid">
+                    {results.testing_cards.map(tc => (
+                      <div
+                        key={tc.id_testing_card}
+                        className="search-card search-card--testing"
+                      >
+                        <h3 className="search-card-title">{tc.titulo}</h3>
+                        {tc.hipotesis && (
+                          <p className="search-card-text">
+                            {tc.hipotesis}
+                          </p>
+                        )}
+                        {tc.status && (
+                          <span className="search-card-chip">
+                            {tc.status}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+              )}
+
+              {(!results.testing_cards || results.testing_cards.length === 0) && (
                 <p className="search-empty">Sin resultados de testing cards.</p>
               )}
             </section>
           )}
 
+          {/* ================== LEARNING CARDS ================== */}
           {(scope === 'learning_cards' || scope === 'all') && (
-            <section>
-              <h2>Learning cards</h2>
-              {results.learning_cards && results.learning_cards.length > 0 ? (
-                <ul>
-                  {results.learning_cards.map((lc) => (
-                    <li key={lc.id_learning_card}>
-                      <span>{lc.resultado || 'Learning card'}</span>
-                      {lc.hallazgo && <small> — {lc.hallazgo}</small>}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
+            <section className="search-section">
+              <div className="search-section-header">
+                <div>
+                  <h2>Learning cards</h2>
+                  <span className="search-section-count">
+                    {(results.learning_cards?.length || 0)} resultados
+                  </span>
+                </div>
+                {results.learning_cards && results.learning_cards.length > 0 && (
+                  <button
+                    type="button"
+                    className="search-section-toggle"
+                    onClick={() => toggleSection('learning_cards')}
+                  >
+                    {expandedSections.learning_cards ? 'Ocultar' : 'Ver más'}
+                  </button>
+                )}
+              </div>
+
+              {expandedSections.learning_cards &&
+                results.learning_cards &&
+                results.learning_cards.length > 0 && (
+                  <div className="search-cards-grid">
+                    {results.learning_cards.map(lc => (
+                      <div
+                        key={lc.id_learning_card}
+                        className="search-card search-card--learning"
+                      >
+                        <h3 className="search-card-title">
+                          {lc.resultado || 'Learning card'}
+                        </h3>
+                        {lc.hallazgo && (
+                          <p className="search-card-text">
+                            {lc.hallazgo}
+                          </p>
+                        )}
+                        {lc.estado && (
+                          <span className="search-card-chip">
+                            {lc.estado}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+              )}
+
+              {(!results.learning_cards || results.learning_cards.length === 0) && (
                 <p className="search-empty">Sin resultados de learning cards.</p>
               )}
             </section>
           )}
 
+          {/* ================== AGENTES ================== */}
           {(scope === 'agentes' || scope === 'all') && (
-            <section>
-              <h2>Agentes</h2>
-              {results.agentes && results.agentes.length > 0 ? (
-                <ul>
-                  {results.agentes.map((a) => (
-                    <li key={a.id_agente}>
-                      <Link to={`/agentes/${a.id_agente}`}>
-                        {a.nombre}
+            <section className="search-section">
+              <div className="search-section-header">
+                <div>
+                  <h2>Agentes</h2>
+                  <span className="search-section-count">
+                    {(results.agentes?.length || 0)} resultados
+                  </span>
+                </div>
+                {results.agentes && results.agentes.length > 0 && (
+                  <button
+                    type="button"
+                    className="search-section-toggle"
+                    onClick={() => toggleSection('agentes')}
+                  >
+                    {expandedSections.agentes ? 'Ocultar' : 'Ver más'}
+                  </button>
+                )}
+              </div>
+
+              {expandedSections.agentes &&
+                results.agentes &&
+                results.agentes.length > 0 && (
+                  <div className="search-cards-grid">
+                    {results.agentes.map(a => (
+                      <Link
+                        key={a.id_agente}
+                        to={`/agentes/${a.id_agente}`}
+                        className="search-card search-card--agente"
+                      >
+                        <h3 className="search-card-title">{a.nombre}</h3>
+                        {a.descripcion && (
+                          <p className="search-card-text">
+                            {a.descripcion}
+                          </p>
+                        )}
                       </Link>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
+                    ))}
+                  </div>
+              )}
+
+              {(!results.agentes || results.agentes.length === 0) && (
                 <p className="search-empty">Sin resultados de agentes.</p>
               )}
             </section>
           )}
 
+          {/* ================== PROMPTS ================== */}
           {(scope === 'prompts' || scope === 'all') && (
-            <section>
-              <h2>Prompts</h2>
-              {results.prompts && results.prompts.length > 0 ? (
-                <ul>
-                  {results.prompts.map((pr) => (
-                    <li key={pr.id_prompt}>
-                      <span>{pr.titulo}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
+            <section className="search-section">
+              <div className="search-section-header">
+                <div>
+                  <h2>Prompts</h2>
+                  <span className="search-section-count">
+                    {(results.prompts?.length || 0)} resultados
+                  </span>
+                </div>
+                {results.prompts && results.prompts.length > 0 && (
+                  <button
+                    type="button"
+                    className="search-section-toggle"
+                    onClick={() => toggleSection('prompts')}
+                  >
+                    {expandedSections.prompts ? 'Ocultar' : 'Ver más'}
+                  </button>
+                )}
+              </div>
+
+              {expandedSections.prompts &&
+                results.prompts &&
+                results.prompts.length > 0 && (
+                  <div className="search-cards-grid">
+                    {results.prompts.map(pr => (
+                      <div
+                        key={pr.id_prompt}
+                        className="search-card search-card--prompt"
+                      >
+                        <h3 className="search-card-title">{pr.titulo}</h3>
+                        {pr.descripcion && (
+                          <p className="search-card-text">
+                            {pr.descripcion}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+              )}
+
+              {(!results.prompts || results.prompts.length === 0) && (
                 <p className="search-empty">Sin resultados de prompts.</p>
               )}
             </section>
           )}
+
         </div>
       )}
     </div>

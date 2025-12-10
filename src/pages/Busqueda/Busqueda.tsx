@@ -103,21 +103,24 @@ const Busqueda: React.FC = () => {
       </p>
 
       {/* Barra de búsqueda reutilizable */}
-      <div className="search-bar">
-        <SearchBar
-          value={searchTerm}
-          onChange={setSearchTerm}
-          onSubmit={handleSearch}
-          placeholder="Buscar por proyecto, secuencia, testing card, learning card, agente o prompt..."
-          disabled={isLoading}
-        />
+      <div className="searchbar-full">
+        <div className="searchbar-full-input">
+          <SearchBar
+            value={searchTerm}
+            onChange={setSearchTerm}
+            onSubmit={handleSearch}
+            placeholder="Buscar por proyecto, secuencia, testing card, learning card, agente o prompt..."
+            disabled={isLoading}
+          />
+        </div>
+
         <button
           type="button"
-          className="search-button"
+          className="searchbar-full-button"
           onClick={handleSearch}
           disabled={isLoading || !searchTerm.trim()}
         >
-          {isLoading ? 'Buscando...' : 'Buscar'}
+          Buscar
         </button>
       </div>
 

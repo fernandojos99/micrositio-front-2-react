@@ -1,9 +1,8 @@
-// src/pages/Busqueda/Busqueda.tsx
 import React, { useState } from 'react';
-import { Search } from 'lucide-react';
-import { search, SearchResults, SearchScope } from '../../services/searchService';
 import { Link } from 'react-router-dom';
-import './Busqueda.css'; // opcional, o usa CSS Modules si prefieres
+import SearchBar from '../../components/ui/Busqueda/SearchBar';
+import { search, SearchResults, SearchScope } from '../../services/searchService';
+import './Busqueda.css';
 
 const Busqueda: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -13,9 +12,13 @@ const Busqueda: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
 
-  const handleSearch = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (!searchTerm.trim()) return;
+  const handleSearch = async () => {
+    if (!searchTerm.trim()) {
+      console.log('⚠️ handleSearch: término vacío, no busco');
+      return;
+    }
+
+    console.log('🚀 handleSearch ejecutado:', { searchTerm, scope });
 
     setIsLoading(true);
     setError(null);
@@ -23,6 +26,7 @@ const Busqueda: React.FC = () => {
 
     try {
       const data = await search(searchTerm.trim(), scope);
+      console.log('✅ handleSearch: resultados recibidos', data);
       setResults(data);
     } catch (err) {
       console.error('❌ Error en búsqueda:', err);
@@ -35,33 +39,38 @@ const Busqueda: React.FC = () => {
 
   const handleScopeChange = (newScope: SearchScope) => {
     setScope(newScope);
-    // opcional: relanzar búsqueda si ya se había buscado
     if (hasSearched && searchTerm.trim()) {
       handleSearch();
     }
   };
 
+  console.log('👀 Estado actual de results en render:', results);
+
   return (
     <div className="search-page">
       <h1 className="search-title">Búsqueda general</h1>
       <p className="search-subtitle">
-        Busca en proyectos, agentes y prompts desde un mismo lugar.
+        Busca en proyectos, secuencias, testing cards, learning cards, agentes y prompts desde un mismo lugar.
       </p>
 
-      {/* Barra de búsqueda (patrón similar a AssignEmployeeModal) */}
-      <form className="search-bar" onSubmit={handleSearch}>
-        <Search size={20} className="search-icon" />
-        <input
-          type="text"
-          placeholder="Buscar por nombre de proyecto, agente o título de prompt..."
+      {/* Barra de búsqueda reutilizable */}
+      <div className="search-bar">
+        <SearchBar
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={setSearchTerm}
+          onSubmit={handleSearch}
+          placeholder="Buscar por proyecto, secuencia, testing card, learning card, agente o prompt..."
           disabled={isLoading}
         />
-        <button type="submit" disabled={isLoading || !searchTerm.trim()}>
+        <button
+          type="button"
+          className="search-button"
+          onClick={handleSearch}
+          disabled={isLoading || !searchTerm.trim()}
+        >
           {isLoading ? 'Buscando...' : 'Buscar'}
         </button>
-      </form>
+      </div>
 
       {/* Filtros de scope */}
       <div className="scope-tabs">
@@ -81,6 +90,27 @@ const Busqueda: React.FC = () => {
         </button>
         <button
           type="button"
+          onClick={() => handleScopeChange('secuencias')}
+          className={scope === 'secuencias' ? 'active' : ''}
+        >
+          Secuencias
+        </button>
+        <button
+          type="button"
+          onClick={() => handleScopeChange('testing_cards')}
+          className={scope === 'testing_cards' ? 'active' : ''}
+        >
+          Testing cards
+        </button>
+        <button
+          type="button"
+          onClick={() => handleScopeChange('learning_cards')}
+          className={scope === 'learning_cards' ? 'active' : ''}
+        >
+          Learning cards
+        </button>
+        <button
+          type="button"
           onClick={() => handleScopeChange('agentes')}
           className={scope === 'agentes' ? 'active' : ''}
         >
@@ -95,13 +125,17 @@ const Busqueda: React.FC = () => {
         </button>
       </div>
 
+      {/* DEBUG: muestra siempre el JSON de resultados */}
+      <pre className="debug-json">
+        {JSON.stringify(results, null, 2)}
+      </pre>
+
       {/* Estado de error */}
       {error && <div className="search-error">{error}</div>}
 
-      {/* Resultados */}
+      {/* Resultados bonitos */}
       {!isLoading && hasSearched && !error && (
         <div className="search-results">
-          {/* Proyectos */}
           {(scope === 'proyectos' || scope === 'all') && (
             <section>
               <h2>Proyectos</h2>
@@ -121,7 +155,62 @@ const Busqueda: React.FC = () => {
             </section>
           )}
 
-          {/* Agentes */}
+          {(scope === 'secuencias' || scope === 'all') && (
+            <section>
+              <h2>Secuencias</h2>
+              {results.secuencias && results.secuencias.length > 0 ? (
+                <ul>
+                  {results.secuencias.map((s) => (
+                    <li key={s.id_secuencia}>
+                      {/* ajusta esta ruta si tienes una página de detalle de secuencia */}
+                      <span>{s.nombre}</span>{' '}
+                      {s.descripcion && <small>— {s.descripcion}</small>}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="search-empty">Sin resultados de secuencias.</p>
+              )}
+            </section>
+          )}
+
+          {(scope === 'testing_cards' || scope === 'all') && (
+            <section>
+              <h2>Testing cards</h2>
+              {results.testing_cards && results.testing_cards.length > 0 ? (
+                <ul>
+                  {results.testing_cards.map((tc) => (
+                    <li key={tc.id_testing_card}>
+                      {/* aquí podrías linkear a la vista de detalle si existe */}
+                      <span>{tc.titulo}</span>
+                      {tc.hipotesis && <small> — {tc.hipotesis}</small>}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="search-empty">Sin resultados de testing cards.</p>
+              )}
+            </section>
+          )}
+
+          {(scope === 'learning_cards' || scope === 'all') && (
+            <section>
+              <h2>Learning cards</h2>
+              {results.learning_cards && results.learning_cards.length > 0 ? (
+                <ul>
+                  {results.learning_cards.map((lc) => (
+                    <li key={lc.id_learning_card}>
+                      <span>{lc.resultado || 'Learning card'}</span>
+                      {lc.hallazgo && <small> — {lc.hallazgo}</small>}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="search-empty">Sin resultados de learning cards.</p>
+              )}
+            </section>
+          )}
+
           {(scope === 'agentes' || scope === 'all') && (
             <section>
               <h2>Agentes</h2>
@@ -130,7 +219,6 @@ const Busqueda: React.FC = () => {
                   {results.agentes.map((a) => (
                     <li key={a.id_agente}>
                       <Link to={`/agentes/${a.id_agente}`}>
-                        {/* ajusta campo nombre completo según tu modelo */}
                         {a.nombre} {a.apellido}
                       </Link>
                     </li>
@@ -142,7 +230,6 @@ const Busqueda: React.FC = () => {
             </section>
           )}
 
-          {/* Prompts */}
           {(scope === 'prompts' || scope === 'all') && (
             <section>
               <h2>Prompts</h2>
@@ -150,7 +237,6 @@ const Busqueda: React.FC = () => {
                 <ul>
                   {results.prompts.map((pr) => (
                     <li key={pr.id_prompt}>
-                      {/* si tienes una página de detalle para prompts, enlázala aquí */}
                       <span>{pr.titulo}</span>
                     </li>
                   ))}

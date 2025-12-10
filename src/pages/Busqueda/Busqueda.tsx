@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+// src/pages/Busqueda/Busqueda.tsx
+import React, { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import SearchBar from '../../components/ui/Busqueda/SearchBar';
 import { search, SearchResults, SearchScope } from '../../services/searchService';
 import './Busqueda.css';
@@ -12,21 +13,24 @@ const Busqueda: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
 
-  const handleSearch = async () => {
-    if (!searchTerm.trim()) {
-      console.log('⚠️ handleSearch: término vacío, no busco');
+  const [searchParams] = useSearchParams(); // 👈 leemos ?q=&scope=
+
+  // Función reutilizable que hace la llamada al backend
+  const runSearch = async (qValue: string, scopeValue: SearchScope) => {
+    if (!qValue.trim()) {
+      console.log('⚠️ runSearch: término vacío, no busco');
       return;
     }
 
-    console.log('🚀 handleSearch ejecutado:', { searchTerm, scope });
+    console.log('🚀 runSearch ejecutado:', { qValue, scopeValue });
 
     setIsLoading(true);
     setError(null);
     setHasSearched(true);
 
     try {
-      const data = await search(searchTerm.trim(), scope);
-      console.log('✅ handleSearch: resultados recibidos', data);
+      const data = await search(qValue.trim(), scopeValue);
+      console.log('✅ runSearch: resultados recibidos', data);
       setResults(data);
     } catch (err) {
       console.error('❌ Error en búsqueda:', err);
@@ -37,12 +41,30 @@ const Busqueda: React.FC = () => {
     }
   };
 
+  const handleSearch = async () => {
+    // usa el estado actual de la página
+    await runSearch(searchTerm, scope);
+  };
+
   const handleScopeChange = (newScope: SearchScope) => {
     setScope(newScope);
     if (hasSearched && searchTerm.trim()) {
-      handleSearch();
+      runSearch(searchTerm, newScope);
     }
   };
+
+  // 👇 Al cargar la página o cambiar los query params, sincronizamos estado
+  useEffect(() => {
+    const qParam = searchParams.get('q') || '';
+    const scopeParam = (searchParams.get('scope') as SearchScope) || 'all';
+
+    if (qParam) {
+      console.log('🌐 Cargando búsqueda desde URL:', { qParam, scopeParam });
+      setSearchTerm(qParam);
+      setScope(scopeParam);
+      runSearch(qParam, scopeParam);
+    }
+  }, [searchParams]); // se dispara cuando vienes de la barra superior
 
   console.log('👀 Estado actual de results en render:', results);
 
@@ -125,15 +147,13 @@ const Busqueda: React.FC = () => {
         </button>
       </div>
 
-      {/* DEBUG: muestra siempre el JSON de resultados */}
+      {/* DEBUG: JSON */}
       <pre className="debug-json">
         {JSON.stringify(results, null, 2)}
       </pre>
 
-      {/* Estado de error */}
       {error && <div className="search-error">{error}</div>}
 
-      {/* Resultados bonitos */}
       {!isLoading && hasSearched && !error && (
         <div className="search-results">
           {(scope === 'proyectos' || scope === 'all') && (
@@ -144,7 +164,7 @@ const Busqueda: React.FC = () => {
                   {results.proyectos.map((p) => (
                     <li key={p.id_proyecto}>
                       <Link to={`/proyectos/${p.id_proyecto}`}>
-                        {p.nombre}
+                        {p.titulo /* 👈 la columna real de la BD */}
                       </Link>
                     </li>
                   ))}
@@ -162,7 +182,6 @@ const Busqueda: React.FC = () => {
                 <ul>
                   {results.secuencias.map((s) => (
                     <li key={s.id_secuencia}>
-                      {/* ajusta esta ruta si tienes una página de detalle de secuencia */}
                       <span>{s.nombre}</span>{' '}
                       {s.descripcion && <small>— {s.descripcion}</small>}
                     </li>
@@ -181,7 +200,6 @@ const Busqueda: React.FC = () => {
                 <ul>
                   {results.testing_cards.map((tc) => (
                     <li key={tc.id_testing_card}>
-                      {/* aquí podrías linkear a la vista de detalle si existe */}
                       <span>{tc.titulo}</span>
                       {tc.hipotesis && <small> — {tc.hipotesis}</small>}
                     </li>
@@ -219,7 +237,7 @@ const Busqueda: React.FC = () => {
                   {results.agentes.map((a) => (
                     <li key={a.id_agente}>
                       <Link to={`/agentes/${a.id_agente}`}>
-                        {a.nombre} {a.apellido}
+                        {a.nombre}
                       </Link>
                     </li>
                   ))}

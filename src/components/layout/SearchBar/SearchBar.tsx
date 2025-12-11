@@ -1,14 +1,23 @@
+// src/components/layout/SearchBar/SearchBar.tsx
 import React, { useState } from 'react';
 import { Search, Bot } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from './SearchBar.module.css';
 
 const SearchBar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Buscando:', searchQuery);
+    if (!searchQuery.trim()) return;
+
+    console.log('🔎 Barra superior, buscando:', searchQuery);
+
+    // Redirige a /buscar con el término y scope=all
+    navigate(
+      `/buscar?q=${encodeURIComponent(searchQuery.trim())}&scope=all`
+    );
   };
 
   return (

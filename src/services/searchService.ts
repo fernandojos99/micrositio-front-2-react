@@ -1,7 +1,6 @@
 // src/services/searchService.ts
-import apiClient from '../apiClient'; // 👈 ajusta la ruta si está en otro folder
+import apiClient from '../apiClient';
 
-// 👇 ahora soporta todos los scopes del backend
 export type SearchScope =
   | 'proyectos'
   | 'agentes'
@@ -9,13 +8,19 @@ export type SearchScope =
   | 'secuencias'
   | 'testing_cards'
   | 'learning_cards'
-  | 'documentos'
   | 'all';
 
 export interface Proyecto {
   id_proyecto: number;
-  nombre: string;
+  titulo: string;
+  descripcion?: string;
   [key: string]: any;
+}
+
+// Proyecto “resumen” anidado dentro de secuencia / testing / learning
+export interface ProyectoResumen {
+  id_proyecto: number;
+  titulo: string;
 }
 
 export interface Agente {
@@ -31,50 +36,57 @@ export interface Prompt {
   [key: string]: any;
 }
 
-export interface Secuencia {
+// Empleado/responsable de una testing card
+export interface EmpleadoResumen {
+  id_empleado: number;
+  nombre_pila: string;
+  apellido_paterno?: string;
+  apellido_materno?: string | null;
+}
+
+// Secuencia, incluida dentro de testing_card y también como resultado directo
+export interface SecuenciaResult {
   id_secuencia: number;
-  id_proyecto: number;
+  id_proyecto?: number | null;
   nombre: string;
-  descripcion?: string;
-  [key: string]: any;
+  descripcion?: string | null;
+  estado?: string | null;
+  proyecto?: ProyectoResumen | null;
 }
 
-export interface TestingCard {
+// Testing card con sus relaciones
+export interface TestingCardResult {
   id_testing_card: number;
-  id_proyecto: number;
+  id_secuencia?: number | null;
   titulo: string;
-  hipotesis?: string;
-  descripcion?: string;
-  [key: string]: any;
+  hipotesis?: string | null;
+  descripcion?: string | null;
+  status?: string | null;
+  // relaciones que vienen del backend
+  secuencia?: SecuenciaResult | null;
+  responsable?: EmpleadoResumen | null;
 }
 
-export interface LearningCard {
-  id_learning_card: number;
-  id_proyecto: number;
-  resultado?: string;
-  hallazgo?: string;
-  [key: string]: any;
-}
-
-// Si luego agregas índice de documentos, lo tipamos mejor
-export interface DocumentoIndexado {
-  id?: number;
-  id_proyecto?: number;
-  source_type?: string;
-  source_id?: number;
-  titulo?: string;
-  resumen?: string;
-  [key: string]: any;
+// Learning card con sus relaciones (testing_card → secuencia → proyecto)
+export interface LearningCardResult {
+  id: number;
+  id_testing_card: number;
+  resultado?: string | null;
+  hallazgo?: string | null;
+  estado?: string | null;
+  testing_card?: TestingCardResult & {
+    secuencia?: SecuenciaResult | null;
+    responsable?: EmpleadoResumen | null;
+  } | null;
 }
 
 export interface SearchResults {
   proyectos?: Proyecto[];
   agentes?: Agente[];
   prompts?: Prompt[];
-  secuencias?: Secuencia[];
-  testing_cards?: TestingCard[];
-  learning_cards?: LearningCard[];
-  documentos?: DocumentoIndexado[];
+  secuencias?: SecuenciaResult[];
+  testing_cards?: TestingCardResult[];
+  learning_cards?: LearningCardResult[];
 }
 
 export async function search(
@@ -98,10 +110,11 @@ export async function search(
     secuencias: data.secuencias ?? [],
     testing_cards: data.testing_cards ?? [],
     learning_cards: data.learning_cards ?? [],
-    documentos: data.documentos ?? [],
   };
 
   console.log('🧩 Resultados parseados:', parsed);
 
   return parsed;
 }
+
+

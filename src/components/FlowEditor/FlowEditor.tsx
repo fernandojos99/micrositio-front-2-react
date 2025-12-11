@@ -627,14 +627,84 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({
         return;
       }
       
-      // console.log('[FlowEditor] Eliminando nodo:', nodeToDelete.id, 'con id_testing_card:', deleteId);
+      // Función recursiva para obtener todos los descendientes
+      const getAllDescendants = (testingCardId: string): string[] => {
+        const descendants: string[] = [];
+        
+        // Buscar todos los hijos directos (testing cards)
+        const children = nodes.filter(n => 
+          n.type === 'testing' && 
+          (n.data as TestingCardData).padre_id?.toString() === testingCardId
+        );
+        
+        children.forEach(child => {
+          const childId = (child.data as TestingCardData).id_testing_card?.toString();
+          if (childId) {
+            descendants.push(childId);
+            // Recursivamente obtener descendientes del hijo
+            descendants.push(...getAllDescendants(childId));
+          }
+        });
+        
+        return descendants;
+      };
       
-      // Eliminar del backend
-      await eliminarTestingCard(parseInt(deleteId, 10));
+      // Obtener todos los descendientes
+      const allDescendantIds = getAllDescendants(deleteId);
+      const allTestingCardIds = [deleteId, ...allDescendantIds];
       
-      // Eliminar del frontend
-      setNodes(nds => nds.filter(node => node.id !== nodeToDelete.id));
-      setEdges(eds => eds.filter(edge => edge.source !== nodeToDelete.id && edge.target !== nodeToDelete.id));
+      // console.log('[FlowEditor] Testing cards a eliminar:', allTestingCardIds);
+      
+      // Encontrar todas las learning cards asociadas a estas testing cards
+      const learningCardsToDelete = nodes.filter(n => 
+        n.type === 'learning' && 
+        allTestingCardIds.includes((n.data as LearningCardData).id_testing_card?.toString() || '')
+      );
+      
+      // console.log('[FlowEditor] Learning cards a eliminar:', learningCardsToDelete.map(lc => (lc.data as LearningCardData).id_learning_card));
+      
+      // Eliminar del backend - empezar por las learning cards
+      for (const learningNode of learningCardsToDelete) {
+        const learningId = (learningNode.data as LearningCardData).id_learning_card;
+        if (learningId) {
+          try {
+            await eliminarLearningCard(learningId);
+          } catch (error) {
+            console.error('[FlowEditor] Error eliminando Learning Card:', learningId, error);
+          }
+        }
+      }
+      
+      // Eliminar testing cards en orden inverso (hijos primero, luego padres)
+      const reversedTestingCardIds = [...allTestingCardIds].reverse();
+      for (const testingId of reversedTestingCardIds) {
+        try {
+          await eliminarTestingCard(parseInt(testingId, 10));
+        } catch (error) {
+          console.error('[FlowEditor] Error eliminando Testing Card:', testingId, error);
+        }
+      }
+      
+      // Eliminar del frontend - todos los nodos relacionados
+      const nodesToDelete = nodes.filter(node => {
+        if (node.type === 'testing') {
+          const testingId = (node.data as TestingCardData).id_testing_card?.toString();
+          return allTestingCardIds.includes(testingId || '');
+        } else if (node.type === 'learning') {
+          const testingCardId = (node.data as LearningCardData).id_testing_card?.toString();
+          return allTestingCardIds.includes(testingCardId || '');
+        }
+        return false;
+      });
+      
+      const nodeIdsToDelete = nodesToDelete.map(node => node.id);
+      
+      // Actualizar nodos y edges
+      setNodes(nds => nds.filter(node => !nodeIdsToDelete.includes(node.id)));
+      setEdges(eds => eds.filter(edge => 
+        !nodeIdsToDelete.includes(edge.source) && 
+        !nodeIdsToDelete.includes(edge.target)
+      ));
       
       // Notificar al componente padre que cambió el conteo
       if (onTestingCardsChange) {

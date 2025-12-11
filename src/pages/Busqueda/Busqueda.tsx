@@ -272,15 +272,42 @@ const Busqueda: React.FC = () => {
                         key={s.id_secuencia}
                         className="search-card search-card--secuencia"
                       >
+                        <span className="search-card-type">
+                          {s.proyecto?.titulo
+                            ? `Secuencia · ${s.proyecto.titulo}`
+                            : 'Secuencia'}
+                        </span>
+
                         <h3 className="search-card-title">{s.nombre}</h3>
+
                         {s.descripcion && (
                           <p className="search-card-text">{s.descripcion}</p>
                         )}
-                        {s.estado && (
-                          <span className="search-card-chip">
-                            {s.estado}
-                          </span>
-                        )}
+
+                        {/* ================== METADATA NUEVO ================== */}
+                        <div className="search-card-meta">
+                          {/* Fila 1: estado */}
+                          <div className="search-card-meta-row">
+                            {s.estado && (
+                              <span className="search-card-chip search-card-chip--status">
+                                {s.estado}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Fila 2: proyecto asociado */}
+                          <div className="search-card-meta-row">
+                            {s.proyecto?.titulo && (
+                              <Link
+                                to={`/proyectos/${s.proyecto.id_proyecto}`}
+                                className="search-card-chip search-card-chip--link"
+                              >
+                                Proyecto: {s.proyecto.titulo}
+                              </Link>
+                            )}
+                          </div>
+                        </div>
+                        {/* ================== FIN METADATA NUEVO ================== */}
                       </div>
                     ))}
                   </div>
@@ -322,17 +349,61 @@ const Busqueda: React.FC = () => {
                         key={tc.id_testing_card}
                         className="search-card search-card--testing"
                       >
+                        <span className="search-card-type">
+                          Testing card
+                        </span>
+
                         <h3 className="search-card-title">{tc.titulo}</h3>
+
                         {tc.hipotesis && (
                           <p className="search-card-text">
                             {tc.hipotesis}
                           </p>
                         )}
-                        {tc.status && (
-                          <span className="search-card-chip">
-                            {tc.status}
-                          </span>
-                        )}
+
+                        {/* ================== METADATA NUEVO ================== */}
+                        <div className="search-card-meta">
+                          {/* Fila 1: estado + secuencia */}
+                          <div className="search-card-meta-row">
+                            {tc.status && (
+                              <span className="search-card-chip search-card-chip--status">
+                                {tc.status}
+                              </span>
+                            )}
+
+                            {tc.secuencia?.nombre && (
+                              <Link
+                                to={`/secuencias/${tc.secuencia.id_secuencia}`}
+                                className="search-card-chip search-card-chip--link"
+                              >
+                                Secuencia: {tc.secuencia.nombre}
+                              </Link>
+                            )}
+                          </div>
+
+                          {/* Fila 2: proyecto de la secuencia */}
+                          <div className="search-card-meta-row">
+                            {tc.secuencia?.proyecto?.titulo && (
+                              <Link
+                                to={`/proyectos/${tc.secuencia.proyecto.id_proyecto}`}
+                                className="search-card-chip search-card-chip--link"
+                              >
+                                Proyecto: {tc.secuencia.proyecto.titulo}
+                              </Link>
+                            )}
+                          </div>
+
+                          {/* Fila 3: responsable */}
+                          <div className="search-card-meta-row">
+                            {tc.responsable && (
+                              <span className="search-card-chip">
+                                Resp.: {tc.responsable.nombre_pila}{' '}
+                                {tc.responsable.apellido_paterno}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {/* ================== FIN METADATA NUEVO ================== */}
                       </div>
                     ))}
                   </div>
@@ -374,19 +445,69 @@ const Busqueda: React.FC = () => {
                         key={lc.id_learning_card}
                         className="search-card search-card--learning"
                       >
+                        <span className="search-card-type">
+                          Learning card
+                        </span>
+
                         <h3 className="search-card-title">
                           {lc.resultado || 'Learning card'}
                         </h3>
+
                         {lc.hallazgo && (
                           <p className="search-card-text">
                             {lc.hallazgo}
                           </p>
                         )}
-                        {lc.estado && (
-                          <span className="search-card-chip">
-                            {lc.estado}
-                          </span>
-                        )}
+
+                        {/* ================== METADATA NUEVO ================== */}
+                        <div className="search-card-meta">
+                          {/* Fila 1: estado */}
+                          <div className="search-card-meta-row">
+                            {lc.estado && (
+                              <span className="search-card-chip search-card-chip--status">
+                                {lc.estado}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Fila 2: proyecto + secuencia */}
+                          <div className="search-card-meta-row">
+                            {lc.testing_card?.secuencia?.proyecto?.titulo && (
+                              <Link
+                                to={`/proyectos/${lc.testing_card.secuencia.proyecto.id_proyecto}`}
+                                className="search-card-chip search-card-chip--link"
+                              >
+                                Proyecto: {lc.testing_card.secuencia.proyecto.titulo}
+                              </Link>
+                            )}
+
+                            {lc.testing_card?.secuencia?.nombre && (
+                              <Link
+                                to={`/secuencias/${lc.testing_card.secuencia.id_secuencia}`}
+                                className="search-card-chip search-card-chip--link"
+                              >
+                                Secuencia: {lc.testing_card.secuencia.nombre}
+                              </Link>
+                            )}
+                          </div>
+
+                          {/* Fila 3: testing card origen + responsable */}
+                          <div className="search-card-meta-row">
+                            {lc.testing_card?.titulo && (
+                              <span className="search-card-chip">
+                                TC: {lc.testing_card.titulo}
+                              </span>
+                            )}
+
+                            {lc.testing_card?.responsable && (
+                              <span className="search-card-chip">
+                                Resp.: {lc.testing_card.responsable.nombre_pila}{' '}
+                                {lc.testing_card.responsable.apellido_paterno}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {/* ================== FIN METADATA NUEVO ================== */}
                       </div>
                     ))}
                   </div>

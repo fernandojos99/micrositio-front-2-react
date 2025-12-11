@@ -428,3 +428,51 @@
     border: 1.5px solid #e2e8f0 !important;
   }
 }
+
+
+/* Meta de las cards: agrupa chips en filas ordenadas */
+.search-card-meta {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.search-card-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* Chip destacado para estado */
+.search-card-chip--status {
+  font-weight: 600;
+}
+
+/* Variante clicable (link) para proyecto / secuencia */
+.search-card-chip--link {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.search-card-chip--link:hover {
+  box-shadow: 0 0 0 1px rgba(121, 58, 115, 0.18);
+  transform: translateY(-1px);
+}
+
+/* Ajustes responsive para móviles y tablets */
+@media (max-width: 1024px) {
+  .search-card-meta {
+    gap: 0.3rem;
+  }
+
+  .search-card-meta-row {
+    flex-direction: row;
+  }
+}
+
+@media (max-width: 640px) {
+  .search-card-meta-row {
+    gap: 0.25rem;
+  }
+}

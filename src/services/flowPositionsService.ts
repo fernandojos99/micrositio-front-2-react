@@ -3,12 +3,20 @@ import apiClient from '../apiClient';
 /**
  * Servicio para manejar las posiciones de los nodos en el flujo
  */
-
 // Obtener todas las posiciones de nodos para una secuencia
 export const obtenerPosicionesSecuencia = async (id_secuencia: string | number) => {
   const response = await apiClient.get(`/flow-positions/${id_secuencia}`);
   return response.data;
 };
+
+/**
+ * Servicio para obtener las posiciones de un nodo dado su id 
+ */
+export const obtenerPosicionesPorId = async (id_nodo: string | number, node_type: 'testing' | 'learning', id_secuencia: number) => {
+  const response = await apiClient.get(`/flow-positions/${id_nodo}/${node_type}/${id_secuencia}`);
+  return response.data;
+};
+
 
 // Guardar/actualizar posición de un nodo
 export const guardarPosicionNodo = async (posicionData: {

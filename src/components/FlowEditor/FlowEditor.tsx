@@ -35,6 +35,8 @@ import {
   LearningCard
 } from '../../services/learningCardService';
 
+import { guardarPosicionNodo, obtenerPosicionesPorId } from '../../services/flowPositionsService';
+
 interface FlowEditorProps {
   idSecuencia?: string | number;
   onTestingCardsChange?: () => void;
@@ -431,6 +433,49 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({
     try {
       // console.log('[FlowEditor] Creando Testing Card hija con padre_id:', padreId);
       
+      // Obtener la posición del nodo padre desde la base de datos
+      let parentPosition = { x: 100, y: 100 }; // Posición por defecto
+      
+      try {
+        const posicionPadre = await obtenerPosicionesPorId(
+          parseInt(padreId, 10), 
+          'testing', 
+          Number(idSecuencia)
+        );
+        
+        if (posicionPadre && posicionPadre.position_x !== undefined && posicionPadre.position_y !== undefined) {
+          parentPosition = {
+            x: posicionPadre.position_x,
+            y: posicionPadre.position_y
+          };
+          console.log('[FlowEditor] Posición del padre obtenida desde BD:', parentPosition);
+        } else {
+          // Fallback: buscar en el estado actual de los nodos
+          const parentNode = nodes.find(n => 
+            n.type === 'testing' && 
+            (n.data as TestingCardData).id_testing_card?.toString() === padreId
+          );
+          
+          if (parentNode) {
+            parentPosition = parentNode.position;
+            console.log('[FlowEditor] Posición del padre obtenida desde nodos actuales:', parentPosition);
+          }
+        }
+      } catch (error) {
+        console.warn('[FlowEditor] Error obteniendo posición desde BD, usando fallback:', error);
+        
+        // Fallback: buscar en el estado actual de los nodos
+        const parentNode = nodes.find(n => 
+          n.type === 'testing' && 
+          (n.data as TestingCardData).id_testing_card?.toString() === padreId
+        );
+        
+        if (parentNode) {
+          parentPosition = parentNode.position;
+          console.log('[FlowEditor] Posición del padre obtenida desde nodos actuales (fallback):', parentPosition);
+        }
+      }
+      
       const payload = {
         padre_id: parseInt(padreId, 10),
         id_secuencia: Number(idSecuencia), // Mismo id_secuencia que el padre
@@ -448,10 +493,18 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({
       const nuevaCard = await crearTestingCard(payload);
       // console.log('[FlowEditor] Nueva Testing Card hija creada:', nuevaCard);
 
+      // Calcular posición a la derecha del nodo padre (desplazamiento de 400px en X)
+      const nuevaPosicion = {
+        x: parentPosition.x + 400,
+        y: parentPosition.y
+      };
+
+      console.log('[FlowEditor] Nueva posición calculada para hijo:', nuevaPosicion);
+
       const nuevoNodo = {
         id: `testing-${nuevaCard.id_testing_card}`,
         type: 'testing',
-        position: calculateDefaultPosition('testing', padreId, nodes),
+        position: nuevaPosicion,
         data: {
           ...nuevaCard,
           onAddTesting: () => handleAddTestingChild(nuevaCard.id_testing_card.toString()),
@@ -476,6 +529,20 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({
           onStatusChange: () => handleStatusChange(nuevaCard.id_testing_card.toString()),
         },
       };
+
+      // Guardar la posición en la base de datos
+      try {
+        await guardarPosicionNodo({
+          id_secuencia: Number(idSecuencia),
+          node_type: 'testing',
+          node_id: nuevaCard.id_testing_card,
+          position_x: nuevaPosicion.x,
+          position_y: nuevaPosicion.y
+        });
+        console.log('[FlowEditor] Posición guardada para nueva Testing Card:', nuevaCard.id_testing_card, nuevaPosicion);
+      } catch (error) {
+        console.error('[FlowEditor] Error guardando posición de nueva Testing Card:', error);
+      }
 
       setNodes(nds => [...nds, nuevoNodo]);
       

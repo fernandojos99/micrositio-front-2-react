@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Edit, Trash2 } from 'lucide-react';
 import { Proyecto } from '../../types/proyecto';
 import { Secuencia, CreateSecuenciaData } from '../../types/secuencia';
@@ -33,6 +33,13 @@ import { obtenerTestingCardsPorSecuencia } from '../../services/testingCardServi
  * - Editor de flujo integrado
  * - Modales de confirmación para acciones destructivas
  * - Estados de carga y manejo de errores
+ * - URLs dinámicas que reflejan secuencia y cards seleccionadas
+ * 
+ * Funcionalidades de URL:
+ * - /proyecto/:proyectoId - Vista base del proyecto
+ * - /proyecto/:proyectoId/secuencia/:secuenciaId - Proyecto con secuencia específica
+ * - /proyecto/:proyectoId/secuencia/:secuenciaId/testing-card/:testingCardId - Con testing card
+ * - /proyecto/:proyectoId/secuencia/:secuenciaId/learning-card/:learningCardId - Con learning card
  * 
  * Funcionalidades de seguridad:
  * - Confirmación modal para eliminación de proyecto
@@ -43,7 +50,20 @@ import { obtenerTestingCardsPorSecuencia } from '../../services/testingCardServi
  * @returns {JSX.Element} Página de detalle del proyecto
  */
 const ProyectoDetalle: React.FC = () => {
-  const { proyectoId } = useParams<{ proyectoId: string }>();
+  const { 
+    proyectoId, 
+    secuenciaId, 
+    testingCardId, 
+    learningCardId 
+  } = useParams<{ 
+    proyectoId: string;
+    secuenciaId?: string;
+    testingCardId?: string;
+    learningCardId?: string;
+  }>();
+  
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // @state: Datos principales
   const [proyecto, setProyecto] = useState<Proyecto | null>(null);
@@ -58,6 +78,62 @@ const ProyectoDetalle: React.FC = () => {
   // @state: Estados de carga
   const [loading, setLoading] = useState(true);
   const [isDeletingProject, setIsDeletingProject] = useState(false);
+
+  /**
+   * Actualiza la URL basada en la selección actual
+   * @function updateURL
+   * @param {string} newSecuenciaId - ID de la secuencia
+   * @param {string} [cardId] - ID de la card (testing o learning)
+   * @param {'testing' | 'learning'} [cardType] - Tipo de card
+   */
+  const updateURL = (
+    newSecuenciaId: string, 
+    cardId?: string, 
+    cardType?: 'testing' | 'learning'
+  ) => {
+    let newPath = `/proyecto/${proyectoId}/secuencia/${newSecuenciaId}`;
+    
+    if (cardId && cardType) {
+      newPath += `/${cardType}-card/${cardId}`;
+    }
+    
+    // Solo navegar si la URL ha cambiado
+    if (location.pathname !== newPath) {
+      navigate(newPath, { replace: true });
+    }
+  };
+
+  /**
+   * Maneja la selección de una testing card y actualiza la URL
+   * @function handleTestingCardSelect
+   * @param {string} cardId - ID de la testing card
+   */
+  const handleTestingCardSelect = (cardId: string) => {
+    if (secuenciaSeleccionada) {
+      updateURL(secuenciaSeleccionada.id, cardId, 'testing');
+    }
+  };
+
+  /**
+   * Maneja la selección de una learning card y actualiza la URL
+   * @function handleLearningCardSelect
+   * @param {string} cardId - ID de la learning card
+   */
+  const handleLearningCardSelect = (cardId: string) => {
+    if (secuenciaSeleccionada) {
+      updateURL(secuenciaSeleccionada.id, cardId, 'learning');
+    }
+  };
+
+  /**
+   * Maneja cuando se deselecciona una card
+   * @function handleCardDeselect
+   */
+  const handleCardDeselect = () => {
+    if (secuenciaSeleccionada) {
+      updateURL(secuenciaSeleccionada.id);
+    }
+  };
 
   /**
    * Helper para recalcular conteos de testing cards
@@ -132,8 +208,20 @@ const ProyectoDetalle: React.FC = () => {
           const secuenciasMapeadas = await recalcularTestingCardsCount(secuenciasArray);
           setSecuencias(secuenciasMapeadas);
 
-          if (secuenciasMapeadas.length > 0) {
+          // 3. Sincronizar secuencia seleccionada con URL
+          if (secuenciaId) {
+            const secuenciaFromURL = secuenciasMapeadas.find(s => s.id === secuenciaId);
+            if (secuenciaFromURL) {
+              setSecuenciaSeleccionada(secuenciaFromURL);
+            } else if (secuenciasMapeadas.length > 0) {
+              // Si la secuencia de la URL no existe, seleccionar la primera y actualizar URL
+              setSecuenciaSeleccionada(secuenciasMapeadas[0]);
+              updateURL(secuenciasMapeadas[0].id);
+            }
+          } else if (secuenciasMapeadas.length > 0) {
+            // Si no hay secuencia en URL, seleccionar la primera y actualizar URL
             setSecuenciaSeleccionada(secuenciasMapeadas[0]);
+            updateURL(secuenciasMapeadas[0].id);
           }
         }
       } catch (err) {
@@ -146,7 +234,24 @@ const ProyectoDetalle: React.FC = () => {
     };
 
     fetchData();
-  }, [proyectoId]);
+  }, [proyectoId, secuenciaId]);
+
+  /**
+   * Efecto para manejar cambios en los parámetros de cards
+   * @function useEffect
+   */
+  useEffect(() => {
+    // Este efecto se ejecuta cuando cambian los parámetros de las cards
+    if (testingCardId) {
+      console.log('Testing card seleccionada desde URL:', testingCardId);
+      // @todo: Implementar lógica para seleccionar la testing card específica
+    }
+    
+    if (learningCardId) {
+      console.log('Learning card seleccionada desde URL:', learningCardId);
+      // @todo: Implementar lógica para seleccionar la learning card específica
+    }
+  }, [testingCardId, learningCardId]);
 
   /**
    * Formatea una fecha para mostrar en formato localizado
@@ -179,6 +284,7 @@ const ProyectoDetalle: React.FC = () => {
    */
   const handleSecuenciaSelect = (secuencia: Secuencia) => {
     setSecuenciaSeleccionada(secuencia);
+    updateURL(secuencia.id);
   };
 
   /**
@@ -223,9 +329,11 @@ const ProyectoDetalle: React.FC = () => {
         // Usar helper para calcular conteos
         const secuenciasMapeadas = await recalcularTestingCardsCount(secuenciasArray);
         setSecuencias(secuenciasMapeadas);
-        // Seleccionar la última secuencia creada
+        // Seleccionar la última secuencia creada y navegar a ella
         if (secuenciasMapeadas.length > 0) {
-          setSecuenciaSeleccionada(secuenciasMapeadas[secuenciasMapeadas.length - 1]);
+          const nuevaSecuencia = secuenciasMapeadas[secuenciasMapeadas.length - 1];
+          setSecuenciaSeleccionada(nuevaSecuencia);
+          updateURL(nuevaSecuencia.id);
         }
       }
       setIsNuevaSecuenciaModalOpen(false);
@@ -264,11 +372,15 @@ const ProyectoDetalle: React.FC = () => {
         // Usar helper para calcular conteos
         const secuenciasMapeadas = await recalcularTestingCardsCount(secuenciasArray);
         setSecuencias(secuenciasMapeadas);
-        // Seleccionar la primera secuencia si existe
+        
+        // Seleccionar la primera secuencia si existe y actualizar URL
         if (secuenciasMapeadas.length > 0) {
           setSecuenciaSeleccionada(secuenciasMapeadas[0]);
+          updateURL(secuenciasMapeadas[0].id);
         } else {
           setSecuenciaSeleccionada(null);
+          // Si no hay secuencias, navegar solo al proyecto
+          navigate(`/proyecto/${proyectoId}`, { replace: true });
         }
       }
     } catch (error) {
@@ -466,8 +578,15 @@ const ProyectoDetalle: React.FC = () => {
               if (secuenciaSeleccionada) {
                 const actualizada = secuenciasMapeadas.find(s => s.id === secuenciaSeleccionada.id);
                 setSecuenciaSeleccionada(actualizada || (secuenciasMapeadas[0] ?? null));
+                // Actualizar URL con la secuencia actualizada o la primera disponible
+                if (actualizada) {
+                  updateURL(actualizada.id);
+                } else if (secuenciasMapeadas.length > 0) {
+                  updateURL(secuenciasMapeadas[0].id);
+                }
               } else if (secuenciasMapeadas.length > 0) {
                 setSecuenciaSeleccionada(secuenciasMapeadas[0]);
+                updateURL(secuenciasMapeadas[0].id);
               }
             }
           }}
@@ -478,6 +597,11 @@ const ProyectoDetalle: React.FC = () => {
           secuenciaSeleccionada={secuenciaSeleccionada}
           onGuardarCambios={handleGuardarCambios}
           onTestingCardsChange={actualizarConteoTestingCards}
+          onTestingCardSelect={handleTestingCardSelect}
+          onLearningCardSelect={handleLearningCardSelect}
+          onCardDeselect={handleCardDeselect}
+          selectedTestingCardId={testingCardId}
+          selectedLearningCardId={learningCardId}
         />
 
         {/* @component: Modal de edición de proyecto */}

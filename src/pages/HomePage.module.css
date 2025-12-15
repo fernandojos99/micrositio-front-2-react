@@ -259,12 +259,13 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--spacing-lg);
-  background: var(--theme-bg-primary);
+  background-color: rgba(255, 255, 255, 0.6) !important;
   border: 1px solid var(--theme-border);
   border-radius: var(--border-radius-2xl);
   padding: var(--spacing-xl);
   box-shadow: var(--shadow-xl);
   backdrop-filter: blur(10px);
+  background-blend-mode: lighten;
 }
 
 @media (min-width: 640px) {

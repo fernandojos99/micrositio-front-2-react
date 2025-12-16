@@ -43,7 +43,7 @@
 }
 
 .add-formato-btn {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary-purple);
   color: white;
   border: none;
   border-radius: var(--border-radius-md);
@@ -58,7 +58,7 @@
 }
 
 .add-formato-btn:hover {
-  background-color: var(--color-primary-dark);
+  background-color: color-mix(in srgb, var(--color-primary-purple) 90%, black);
 }
 
 .formatos-grid {

@@ -129,11 +129,27 @@ const Formatos: React.FC = () => {
           Gestión de formatos de documentos y archivos. Aquí podrás administrar los diferentes tipos de formato soportados en el sistema.
         </p>
         
-        <div className={styles['formatos-actions']}>
+        <div className={styles['formatos-actions']} style={{ marginBottom: '20px' }}>
           <button 
             className={styles['add-formato-btn']}
             onClick={() => setIsModalOpen(true)}
             disabled={loading}
+            style={{
+              backgroundColor: 'var(--color-primary-purple)',
+              color: 'white',
+              border: 'none',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseOver={(e) => (e.target as HTMLButtonElement).style.backgroundColor = 'color-mix(in srgb, var(--color-primary-purple) 90%, black)'}
+            onMouseOut={(e) => (e.target as HTMLButtonElement).style.backgroundColor = 'var(--color-primary-purple)'}
           >
             <i className="fas fa-plus"></i>
             {loading ? 'Cargando...' : 'Agregar Formato'}

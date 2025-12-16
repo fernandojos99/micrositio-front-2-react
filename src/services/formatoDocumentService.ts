@@ -131,7 +131,7 @@ export const uploadFormatoDocument = async (file: File): Promise<FormatoDocument
   const formData = new FormData();
   formData.append('document', file);
 
-  const endpoint = '/uploads/formatos/upload';
+  const endpoint = '/formato/upload';
   console.log('[formatoDocumentService] Subiendo documento a:', endpoint);
   console.log('[formatoDocumentService] Archivo:', file.name);
 
@@ -158,9 +158,9 @@ export const uploadFormatoDocument = async (file: File): Promise<FormatoDocument
  */
 export const getFormatoDocuments = async (): Promise<FormatoDocument[]> => {
   try {
-    const endpoint = '/uploads/formatos/';
+    const endpoint = '/formato/';
     console.log('[formatoDocumentService] Llamando endpoint:', endpoint);
-    console.log('[formatoDocumentService] URL completa:', `http://localhost:3000${endpoint}`);
+    //console.log('[formatoDocumentService] URL completa:', `http://localhost:3000${endpoint}`);
     
     const response = await apiClient.get<FormatoListResponse>(endpoint);
 
@@ -223,7 +223,7 @@ export const getFormatoDocuments = async (): Promise<FormatoDocument[]> => {
  * @returns {Promise<FormatoDocument>} Documento encontrado.
  */
 export const getFormatoDocumentById = async (documentId: string): Promise<FormatoDocument> => {
-  const endpoint = `/uploads/formatos/${documentId}`;
+  const endpoint = `/formato/${documentId}`;
   console.log('[formatoDocumentService] Obteniendo documento:', endpoint);
   
   const response = await apiClient.get<{ success: boolean; data: FormatoDocument }>(endpoint);
@@ -251,7 +251,7 @@ export const updateFormatoDocument = async (
       throw new Error('ID de documento inválido o vacío');
     }
 
-    const endpoint = `/uploads/formatos/${documentId}`;
+    const endpoint = `/formato/${documentId}`;
     console.log('[formatoDocumentService] Actualizando documento:', endpoint);
     console.log('[formatoDocumentService] Document ID:', documentId);
     console.log('[formatoDocumentService] Update data:', updateData);
@@ -299,7 +299,7 @@ export const deleteFormatoDocument = async (documentId: string): Promise<void> =
       throw new Error('ID de documento inválido o vacío');
     }
 
-    const endpoint = `/uploads/formatos/${documentId}`;
+    const endpoint = `/formato/${documentId}`;
     console.log('[formatoDocumentService] Eliminando documento:', endpoint);
     console.log('[formatoDocumentService] Document ID:', documentId);
     

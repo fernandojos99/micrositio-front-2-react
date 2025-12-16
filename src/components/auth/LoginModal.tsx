@@ -211,17 +211,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   };
 
   /**
-   * Maneja el clic en el backdrop para cerrar el modal
-   * @function handleBackdropClick
-   * @param {React.MouseEvent} e - Evento de clic
-   */
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget && !isLoading) {
-      onClose();
-    }
-  };
-
-  /**
    * Verifica si el formulario es válido para habilitar el botón
    * @function isFormValid
    * @returns {boolean} true si el formulario es válido
@@ -237,7 +226,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className={styles['modal-backdrop']} onClick={handleBackdropClick}>
+    <div className={styles['modal-backdrop']}>
       <div className={styles['modal-container']}>
         {/* @section: Header del modal */}
         <div className={styles['modal-header']}>
@@ -331,12 +320,12 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
               )}
             </div>
 
-            {/* @section: Información de credenciales de prueba */}
+            {/* @section: Información de credenciales de prueba 
             <div className={styles['demo-credentials']}>
               <h4>Credenciales de prueba:</h4>
               <p><strong>Alias:</strong> admin</p>
               <p><strong>Contraseña:</strong> Admin123</p>
-            </div>
+            </div> */}
 
             {/* @section: Botón de envío */}
             <Button

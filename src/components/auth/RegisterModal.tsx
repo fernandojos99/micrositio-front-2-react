@@ -181,12 +181,6 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget && !isLoading) {
-      onClose();
-    }
-  };
-
   const isFormValid = (): boolean => {
     return formData.alias.trim() !== '' && 
            formData.password.length >= 8 && 
@@ -246,7 +240,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className={styles['modal-backdrop']} onClick={handleBackdropClick}>
+    <div className={styles['modal-backdrop']}>
       <div className={styles['modal-container']}>
         <div className={styles['modal-header']}>
           <div className={styles['modal-icon']}>

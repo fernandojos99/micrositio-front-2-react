@@ -29,8 +29,8 @@ const menuItems: MenuItem[] = [
     icon: <Bot size={20} /> 
   },
   { 
-    path: '/licencias', 
-    name: 'Licencias', 
+    path: '/formatos', 
+    name: 'Formatos', 
     icon: <FileText size={20} /> 
   },
   { 

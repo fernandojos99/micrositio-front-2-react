@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styles from './Licencias.module.css';
+import styles from './Formatos.module.css';
 import DocumentationModal from '../../components/FlowEditor/components/DocumentationModal';
 import { 
   uploadFormatoDocument, 

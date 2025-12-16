@@ -11,7 +11,7 @@ import Proyectos from './pages/Proyectos/Proyectos';
 import ProyectoDetalle from './pages/ProyectoDetalle/ProyectoDetalle';
 import Agentes from './pages/Agentes/Agentes';
 import AgenteDetalle from './pages/Agentes/AgenteDetalle';
-import Licencias from './pages/Licencias/Licencias';
+import Formatos from './pages/Formatos/Formatos';
 import Equipo from './pages/Equipo/Equipo';
 import Perfil from './pages/Perfil/Perfil';
 import Assistant from './pages/Assistant';
@@ -41,7 +41,7 @@ import Busqueda from './pages/Busqueda/Busqueda';
  * - /perfil : Página de perfil de usuario
  * - /equipo : Página del equipo
  * - /agentes : Página de agentes
- * - /licencias : Página de licencias
+ * - /formatos : Página de formatos
  * - /assistant : Asistente interactivo
  * - /libro-digital : Página del libro digital
  * - /administracion : Panel de administración (solo EDITORES)
@@ -63,7 +63,7 @@ function App() {
                 <Route path="equipo" element={<Equipo />} />
                 <Route path="agentes" element={<Agentes />} />
                 <Route path="agentes/:agenteId" element={<AgenteDetalle />} />
-                <Route path="licencias" element={<Licencias />} />
+                <Route path="formatos" element={<Formatos />} />
                 <Route path="assistant" element={<Assistant />} />
                 <Route path="libro-digital" element={<LibroDigital />} />
                 <Route path="administracion" element={<Administracion />} />

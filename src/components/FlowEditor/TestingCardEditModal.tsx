@@ -1015,7 +1015,7 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
   }, [editingId]);
 
   return (
-    <div className="testing-modal-backdrop">
+    <div className="testing-modal-backdrop" onClick={(e) => e.stopPropagation()}>
       <div className="testing-modal-container">
         {/* @section: Header del modal */}
         <div className="testing-modal-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

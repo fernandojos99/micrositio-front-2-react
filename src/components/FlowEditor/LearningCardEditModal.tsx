@@ -337,6 +337,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       },
       claveUnica,
       nuevoResultado,
+      tipoResultado: typeof nuevoResultado,
       index
     });
     
@@ -353,9 +354,17 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       return;
     }
     
-    if (nuevoResultado === undefined || nuevoResultado === null) {
-      console.error('[guardarResultadoMetricaNuevo] ❌ Resultado no válido:', nuevoResultado);
-      setErrorMsg('Error: resultado no válido');
+    // Validar que el resultado sea una cadena y no esté vacío
+    if (nuevoResultado === undefined || nuevoResultado === null || nuevoResultado.trim() === '') {
+      console.error('[guardarResultadoMetricaNuevo] ❌ Resultado no válido o vacío:', nuevoResultado);
+      setErrorMsg('Error: el resultado no puede estar vacío');
+      return;
+    }
+    
+    // Validar longitud máxima (varchar(30) en la BD)
+    if (nuevoResultado.length > 30) {
+      console.error('[guardarResultadoMetricaNuevo] ❌ Resultado excede longitud máxima:', nuevoResultado.length);
+      setErrorMsg('Error: el resultado no puede exceder 30 caracteres');
       return;
     }
     
@@ -363,19 +372,19 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       setSavingMetrica(metrica.id);
       console.log('[guardarResultadoMetricaNuevo] 📡 Llamando API con:', {
         id: metrica.id,
-        resultado: nuevoResultado
+        resultado: nuevoResultado,
+        tipoResultado: typeof nuevoResultado
       });
       
-      // Llamada a la API con el endpoint que funciona en Postman
-      // CLAVE: Usar metrica.id (no metrica.id_metrica) porque ese es el campo correcto
-      const metricaActualizada = await actualizarResultado(metrica.id, nuevoResultado);
+      // Llamada a la API - El resultado ahora es varchar(30) en la BD
+      const metricaActualizada = await actualizarResultado(metrica.id, String(nuevoResultado));
       console.log('[guardarResultadoMetricaNuevo] ✅ Respuesta de API:', metricaActualizada);
       
-      // Actualizar el estado local con la métrica actualizada
+      // Actualizar el estado local con la métrica actualizada (como string)
       setMetricas(prevMetricas => 
         prevMetricas.map(m => 
           m.id === metrica.id 
-            ? { ...m, resultado: nuevoResultado }
+            ? { ...m, resultado: String(nuevoResultado) }
             : m
         )
       );

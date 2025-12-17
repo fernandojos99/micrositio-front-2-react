@@ -8,6 +8,7 @@ export interface UrlFormato {
   url: string;
   created_at?: string;
   updated_at?: string;
+  categoria : string;
 }
 
 /**
@@ -15,7 +16,7 @@ export interface UrlFormato {
  * @returns {Promise<UrlFormato[]>} Lista de URLs de Formato.
  */
 export const obtenerTodas = async (): Promise<UrlFormato[]> => {
-  const response = await apiClient.get('/url_formato/obtener-todas');
+  const response = await apiClient.get('/url_formato');
   return response.data;
 };
 
@@ -25,7 +26,7 @@ export const obtenerTodas = async (): Promise<UrlFormato[]> => {
  * @returns {Promise<UrlFormato>} URL de Formato encontrada.
  */
 export const obtenerPorId = async (id_url_formato: string | number): Promise<UrlFormato> => {
-  const response = await apiClient.get('/url_formato/obtener-por-id', { params: { id_url_formato } });
+  const response = await apiClient.get('/url_formato', { params: { id_url_formato } });
   return response.data;
 };
 
@@ -46,7 +47,7 @@ export const crear = async (data: Partial<UrlFormato>): Promise<UrlFormato> => {
  * @returns {Promise<UrlFormato>} URL de Formato actualizada.
  */
 export const actualizar = async (id_url_formato: string | number, data: Partial<UrlFormato>): Promise<UrlFormato> => {
-  const response = await apiClient.put('/url_formato/actualizar', { id_url_formato, ...data });
+  const response = await apiClient.put('/url_formato/', { id_url_formato, ...data });
   return response.data;
 };
 
@@ -56,6 +57,6 @@ export const actualizar = async (id_url_formato: string | number, data: Partial<
  * @returns {Promise<void>}
  */
 export const eliminar = async (id_url_formato: string | number): Promise<void> => {
-  const response = await apiClient.delete('/url_formato/eliminar', { data: { id_url_formato } });
+  const response = await apiClient.delete('/url_formato/', { data: { id_url_formato } });
   return response.data;
 };

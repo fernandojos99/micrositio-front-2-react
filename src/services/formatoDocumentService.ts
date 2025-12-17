@@ -10,6 +10,7 @@ export interface FormatoDocument {
   document_type: string;
   created_at: string;
   updated_at: string;
+  categoria: string;
 }
 
 /**
@@ -177,26 +178,35 @@ export const getFormatoDocuments = async (): Promise<FormatoDocument[]> => {
 
     // Asegurar que data contenga la estructura esperada
     const responseData = response.data.data;
-    if (!responseData || typeof responseData !== 'object') {
+    if (!responseData) {
+      console.warn('[formatoDocumentService] API no devolvió data, devolviendo array vacío');
+      return [];
+    }
+
+    // La API puede devolver directamente un array o un objeto con propiedad documents
+    let documents: FormatoDocument[];
+    
+    if (Array.isArray(responseData)) {
+      // Caso 1: La API devuelve directamente un array
+      console.log('[formatoDocumentService] API devolvió un array directo');
+      documents = responseData;
+    } else if (typeof responseData === 'object' && responseData.hasOwnProperty('documents')) {
+      // Caso 2: La API devuelve un objeto con propiedad documents
+      console.log('[formatoDocumentService] API devolvió objeto con propiedad documents');
+      documents = responseData.documents;
+    } else {
       console.warn('[formatoDocumentService] API no devolvió la estructura esperada:', responseData);
       return [];
     }
 
-    // Verificar que tenga la propiedad documents
-    if (!responseData.hasOwnProperty('documents')) {
-      console.warn('[formatoDocumentService] API no devolvió la propiedad documents:', responseData);
-      return [];
-    }
-
-    const documents = responseData.documents;
     console.log('[formatoDocumentService] Estructura de respuesta completa:', JSON.stringify(response.data, null, 2));
     console.log('[formatoDocumentService] Tipo de documents:', typeof documents);
     console.log('[formatoDocumentService] Es array?:', Array.isArray(documents));
     console.log('[formatoDocumentService] Contenido de documents:', documents);
-    console.log('[formatoDocumentService] Count:', responseData.count);
+    console.log('[formatoDocumentService] Total documentos:', documents.length);
     
     if (!Array.isArray(documents)) {
-      console.warn('[formatoDocumentService] API no devolvió un array en documents, devolviendo array vacío');
+      console.warn('[formatoDocumentService] documents no es un array, devolviendo array vacío');
       console.warn('[formatoDocumentService] Valor recibido:', documents);
       return [];
     }

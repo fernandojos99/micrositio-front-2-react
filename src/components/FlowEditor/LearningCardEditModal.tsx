@@ -173,7 +173,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
         try {
           // Cargar URLs asociadas
           const urlsData = await obtenerPorLearningCard(editingIdLC);
-          console.log('[LearningCardEditModal] URLs cargadas:', urlsData);
+          //console.log('[LearningCardEditModal] URLs cargadas:', urlsData);
           setDocumentationUrls(urlsData || []);
           
           // Expandir automáticamente la sección de documentación si hay URLs
@@ -193,9 +193,9 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       if (editingIdLC) {
         setLoadingDocumentos(true);
         try {
-          console.log('[LearningCardEditModal] Cargando documentos para ID:', editingIdLC);
+          //console.log('[LearningCardEditModal] Cargando documentos para ID:', editingIdLC);
           const documentosData = await getDocumentsByLearningCard(editingIdLC);
-          console.log('[LearningCardEditModal] Documentos cargados:', documentosData);
+          //console.log('[LearningCardEditModal] Documentos cargados:', documentosData);
           
           // Validación defensiva: asegurar que documentosData sea un array
           const documentosArray = Array.isArray(documentosData) ? documentosData : [];
@@ -329,7 +329,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
     const claveUnica = generarClaveUnicaMetrica(metrica, index);
     const nuevoResultado = resultadosEditables[claveUnica];
     
-    console.log('[guardarResultadoMetricaNuevo] 🚀 Iniciando guardado con:', {
+    /**console.log('[guardarResultadoMetricaNuevo] 🚀 Iniciando guardado con:', {
       metrica: {
         id: metrica.id,
         nombre: metrica.nombre,
@@ -339,7 +339,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       nuevoResultado,
       tipoResultado: typeof nuevoResultado,
       index
-    });
+    });*/
     
     // Validaciones iniciales
     if (!metrica) {
@@ -370,15 +370,15 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
     
     try {
       setSavingMetrica(metrica.id);
-      console.log('[guardarResultadoMetricaNuevo] 📡 Llamando API con:', {
+      /**console.log('[guardarResultadoMetricaNuevo] 📡 Llamando API con:', {
         id: metrica.id,
         resultado: nuevoResultado,
         tipoResultado: typeof nuevoResultado
-      });
+      });*/
       
       // Llamada a la API - El resultado ahora es varchar(30) en la BD
       const metricaActualizada = await actualizarResultado(metrica.id, String(nuevoResultado));
-      console.log('[guardarResultadoMetricaNuevo] ✅ Respuesta de API:', metricaActualizada);
+      //console.log('[guardarResultadoMetricaNuevo] ✅ Respuesta de API:', metricaActualizada);
       
       // Actualizar el estado local con la métrica actualizada (como string)
       setMetricas(prevMetricas => 
@@ -392,7 +392,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       setSuccessMsg(`Resultado de métrica "${metrica.nombre}" actualizado exitosamente`);
       setTimeout(() => setSuccessMsg(''), 3000);
       
-      console.log('[guardarResultadoMetricaNuevo] ✅ Guardado exitoso para métrica:', metrica.nombre);
+      //console.log('[guardarResultadoMetricaNuevo] ✅ Guardado exitoso para métrica:', metrica.nombre);
       
     } catch (error: any) {
       console.error('[guardarResultadoMetricaNuevo] ❌ Error al actualizar métrica:', error);
@@ -448,14 +448,14 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
           const valorActual = resultadosEditables[claveUnica] || '';
           const estaGuardando = savingMetrica === metrica.id;
           
-          console.log('[renderSeccionMetricas] Renderizando métrica:', {
+          /**console.log('[renderSeccionMetricas] Renderizando métrica:', {
             index,
             nombre: metrica.nombre,
             id: metrica.id,
             claveUnica,
             valorActual,
             metricaCompleta: metrica
-          });
+          });*/
           
           return (
           <div 
@@ -569,12 +569,12 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
   // Funciones para manejar URLs
   const addDocumentationUrl = async (url: string) => {
     try {
-      console.log('[LearningCardEditModal] Agregando URL:', url, 'para LC:', editingIdLC);
+      //console.log('[LearningCardEditModal] Agregando URL:', url, 'para LC:', editingIdLC);
       const nuevaUrl = await crearUrl({
         id_learning_card: editingIdLC,
         url: url
       });
-      console.log('[LearningCardEditModal] URL creada:', nuevaUrl);
+      //console.log('[LearningCardEditModal] URL creada:', nuevaUrl);
       setDocumentationUrls(prev => [...prev, nuevaUrl]);
       setSuccessMsg('URL agregada exitosamente');
       setTimeout(() => setSuccessMsg(''), 3000);
@@ -593,7 +593,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
   const confirmDeleteUrl = async () => {
     if (urlToDelete) {
       try {
-        console.log('[LearningCardEditModal] Eliminando URL:', urlToDelete.id_url_lc);
+        //console.log('[LearningCardEditModal] Eliminando URL:', urlToDelete.id_url_lc);
         await eliminarUrl(urlToDelete.id_url_lc);
         setDocumentationUrls(prev => prev.filter(url => url.id_url_lc !== urlToDelete.id_url_lc));
         setSuccessMsg('URL eliminada exitosamente');
@@ -650,7 +650,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
    * Maneja la visualización de un documento
    */
   const handleViewDocument = (documento: LearningCardDocument) => {
-    console.log('[LearningCardEditModal] Abriendo documento:', documento.document_name);
+    //console.log('[LearningCardEditModal] Abriendo documento:', documento.document_name);
     
     // Validación defensiva del document_type
     const documentType = documento.document_type || '';
@@ -668,7 +668,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
    * Maneja la descarga de un documento
    */
   const handleDownloadDocument = (documento: LearningCardDocument) => {
-    console.log('[LearningCardEditModal] Descargando documento:', documento.document_name);
+    //console.log('[LearningCardEditModal] Descargando documento:', documento.document_name);
     
     const link = document.createElement('a');
     link.href = documento.document_url;
@@ -690,8 +690,8 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
   const confirmDeleteDocument = async () => {
     if (documentoAEliminar) {
       try {
-        console.log('[LearningCardEditModal] Eliminando documento:', documentoAEliminar.id);
-        console.log('[LearningCardEditModal] Datos del documento:', documentoAEliminar);
+        //console.log('[LearningCardEditModal] Eliminando documento:', documentoAEliminar.id);
+        //console.log('[LearningCardEditModal] Datos del documento:', documentoAEliminar);
         
         await deleteDocument(documentoAEliminar.id);
         
@@ -700,7 +700,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
         
         setSuccessMsg('Documento eliminado exitosamente');
         setTimeout(() => setSuccessMsg(''), 3000);
-        console.log('[LearningCardEditModal] ✅ Documento eliminado exitosamente');
+        //console.log('[LearningCardEditModal] ✅ Documento eliminado exitosamente');
       } catch (error: any) {
         console.error('[LearningCardEditModal] Error al eliminar documento:', error);
         
@@ -860,10 +860,10 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       
       // Subir cada archivo individualmente
       const uploadPromises = files.map(async (file) => {
-        console.log('[LearningCardEditModal] Subiendo archivo:', file.name);
+        //console.log('[LearningCardEditModal] Subiendo archivo:', file.name);
         try {
           const documentoSubido = await uploadDocument(editingIdLC, file);
-          console.log('[LearningCardEditModal] ✅ Archivo subido exitosamente:', documentoSubido);
+          //console.log('[LearningCardEditModal] ✅ Archivo subido exitosamente:', documentoSubido);
           return documentoSubido;
         } catch (error) {
           console.error('[LearningCardEditModal] ❌ Error al subir archivo:', file.name, error);
@@ -880,7 +880,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       setSuccessMsg(`${documentosSubidos.length} archivo(s) subido(s) exitosamente`);
       setTimeout(() => setSuccessMsg(''), 3000);
       
-      console.log('[LearningCardEditModal] ✅ Todos los archivos subidos exitosamente');
+      //console.log('[LearningCardEditModal] ✅ Todos los archivos subidos exitosamente');
       
     } catch (error) {
       console.error('[LearningCardEditModal] ❌ Error al subir archivos:', error);
@@ -1031,7 +1031,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       };
       
       // Log para depuración
-      console.log('[LearningCardEditModal] Payload enviado:', payload, 'editingIdLC:', editingIdLC);
+      //console.log('[LearningCardEditModal] Payload enviado:', payload, 'editingIdLC:', editingIdLC);
       
       try {
         await actualizarLearningCard(editingIdLC, payload);
@@ -1071,12 +1071,12 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
    * @function useEffect
    */
   useEffect(() => {
-    console.log('[LearningCardEditModal] Estado actual:', {
+    /**console.log('[LearningCardEditModal] Estado actual:', {
       editingIdLC,
       documentationUrlsCount: documentationUrls.length,
       loadingUrls,
       showDocumentation
-    });
+    });*/
   }, [editingIdLC, documentationUrls, loadingUrls, showDocumentation]);
 
   return (

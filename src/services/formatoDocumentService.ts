@@ -248,12 +248,12 @@ export const getFormatoDocumentById = async (documentId: string): Promise<Format
 /**
  * Actualiza un documento de formato por su ID.
  * @param {string} documentId - ID del documento a actualizar.
- * @param {Partial<FormatoDocument>} updateData - Datos a actualizar.
+ * @param {Partial<FormatoDocument>} updateData - Datos a actualizar (puede incluir categoria).
  * @returns {Promise<FormatoDocument>} Documento actualizado.
  */
 export const updateFormatoDocument = async (
   documentId: string, 
-  updateData: Partial<Pick<FormatoDocument, 'document_name' | 'document_type'>>
+  updateData: Partial<Pick<FormatoDocument, 'document_name' | 'document_type' | 'categoria'>>
 ): Promise<FormatoDocument> => {
   try {
     // Validar que el documentId sea válido

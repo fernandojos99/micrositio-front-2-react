@@ -8,7 +8,8 @@ import {
   uploadFormatoDocument, 
   getFormatoDocuments,
   FormatoDocument,
-  deleteFormatoDocument
+  deleteFormatoDocument,
+  updateFormatoDocument
 } from '../../services/formatoDocumentService';
 import { 
   obtenerTodas, 
@@ -127,8 +128,14 @@ const Formatos: React.FC = () => {
           });
           console.log('[Formatos] ✅ URL actualizada');
           await loadUrlFormatos();
+        } else if (pendingItem.type === 'file' && pendingItem.id) {
+          console.log('[Formatos] Actualizando categoría del documento:', pendingItem.id);
+          await updateFormatoDocument(pendingItem.id as string, {
+            categoria: categoria
+          });
+          console.log('[Formatos] ✅ Categoría del documento actualizada');
+          await loadDocumentos();
         }
-        // Nota: Los documentos de archivo no se pueden editar, solo eliminar y volver a subir
       } else {
         // Modo creación
         if (pendingItem.type === 'file') {
@@ -161,9 +168,15 @@ const Formatos: React.FC = () => {
    * Maneja la edición de un documento
    */
   const handleEditDocument = (documento: FormatoDocument) => {
-    // Los archivos no se pueden editar directamente, solo la categoría si el backend lo soportara
-    console.log('[Formatos] Edición de archivos no soportada aún');
-    setError('La edición de archivos no está soportada. Por favor, elimina y vuelve a subir el archivo.');
+    setPendingItem({
+      type: 'file',
+      data: '' as any, // No necesitamos el archivo para editar solo la categoría
+      name: documento.document_name,
+      id: documento.id,
+      categoria: documento.categoria
+    });
+    setIsEditMode(true);
+    setIsSaveModalOpen(true);
   };
 
   /**
@@ -554,7 +567,7 @@ const Formatos: React.FC = () => {
         itemType={pendingItem?.type || 'file'}
         itemName={pendingItem?.name || ''}
         initialCategoria={pendingItem?.categoria || 'FORMATO'}
-        initialDescripcion={pendingItem?.descripcion || 'URL'}
+        initialDescripcion={isEditMode && pendingItem?.type === 'file' ? undefined : (pendingItem?.descripcion || '')}
       />
     </div>
   );

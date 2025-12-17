@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './SaveDocumentationModal.module.css';
 
 interface SaveDocumentationModalProps {
@@ -7,6 +7,8 @@ interface SaveDocumentationModalProps {
   onSave: (categoria: string, descripcion?: string) => void;
   itemType: 'file' | 'url';
   itemName: string;
+  initialCategoria?: string;
+  initialDescripcion?: string;
 }
 
 const SaveDocumentationModal: React.FC<SaveDocumentationModalProps> = ({
@@ -14,10 +16,20 @@ const SaveDocumentationModal: React.FC<SaveDocumentationModalProps> = ({
   onClose,
   onSave,
   itemType,
-  itemName
+  itemName,
+  initialCategoria = 'FORMATO',
+  initialDescripcion = ''
 }) => {
-  const [categoria, setCategoria] = useState<string>('FORMATO');
-  const [descripcion, setDescripcion] = useState<string>('');
+  const [categoria, setCategoria] = useState<string>(initialCategoria);
+  const [descripcion, setDescripcion] = useState<string>(initialDescripcion);
+
+  // Actualizar estados cuando cambien los valores iniciales
+  useEffect(() => {
+    if (isOpen) {
+      setCategoria(initialCategoria);
+      setDescripcion(initialDescripcion);
+    }
+  }, [isOpen, initialCategoria, initialDescripcion]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

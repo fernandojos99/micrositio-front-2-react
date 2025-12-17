@@ -18,11 +18,20 @@ import {
   actualizar
 } from '../../services/urlFormatoService';
 
+interface PendingItemType {
+  type: 'file' | 'url';
+  data: File | string;
+  name: string;
+  id?: string | number;
+  categoria?: string;
+  descripcion?: string;
+}
+
 const Formatos: React.FC = () => {
   // Estados para gestionar documentos y modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-  const [pendingItem, setPendingItem] = useState<{ type: 'file' | 'url', data: File | string, name: string, id?: string | number } | null>(null);
+  const [pendingItem, setPendingItem] = useState<PendingItemType | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [documentos, setDocumentos] = useState<FormatoDocument[]>([]);
   const [urlFormatos, setUrlFormatos] = useState<UrlFormato[]>([]);
@@ -165,8 +174,10 @@ const Formatos: React.FC = () => {
       type: 'url',
       data: urlFormato.url,
       name: urlFormato.url,
-      id: urlFormato.id_url_formato
-    });
+      id: urlFormato.id_url_formato,
+      categoria: urlFormato.categoria,
+      descripcion: urlFormato.descripcion
+    } as any);
     setIsEditMode(true);
     setIsSaveModalOpen(true);
   };
@@ -542,6 +553,8 @@ const Formatos: React.FC = () => {
         onSave={handleSaveDocumentation}
         itemType={pendingItem?.type || 'file'}
         itemName={pendingItem?.name || ''}
+        initialCategoria={pendingItem?.categoria || 'FORMATO'}
+        initialDescripcion={pendingItem?.descripcion || ''}
       />
     </div>
   );

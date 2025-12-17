@@ -116,16 +116,25 @@ const Formatos: React.FC = () => {
   const handleSaveDocumentation = async (categoria: string, descripcion?: string) => {
     if (!pendingItem) return;
 
+    console.log('[Formatos] ===== DEBUG SAVE =====');
+    console.log('[Formatos] pendingItem:', pendingItem);
+    console.log('[Formatos] categoria recibida:', categoria);
+    console.log('[Formatos] descripcion recibida:', descripcion);
+    console.log('[Formatos] isEditMode:', isEditMode);
+    console.log('[Formatos] =======================');
+
     try {
       if (isEditMode) {
         // Modo edición
         if (pendingItem.type === 'url' && pendingItem.id) {
-          console.log('[Formatos] Actualizando URL:', pendingItem.id);
-          await actualizar(pendingItem.id, {
+          const dataToUpdate = {
             url: pendingItem.data as string,
             categoria: categoria,
             descripcion: descripcion
-          });
+          };
+          console.log('[Formatos] Actualizando URL:', pendingItem.id);
+          console.log('[Formatos] Data a enviar:', dataToUpdate);
+          await actualizar(pendingItem.id, dataToUpdate);
           console.log('[Formatos] ✅ URL actualizada');
           await loadUrlFormatos();
         } else if (pendingItem.type === 'file' && pendingItem.id) {
@@ -144,12 +153,21 @@ const Formatos: React.FC = () => {
           console.log('[Formatos] ✅ Archivo subido');
           await loadDocumentos();
         } else {
-          console.log('[Formatos] Guardando URL:', pendingItem.data);
-          await crear({ 
+          const dataToCreate = { 
             url: pendingItem.data as string, 
             categoria: categoria,
             descripcion: descripcion 
-          });
+          };
+          console.log('[Formatos] Guardando URL:', pendingItem.data);
+          console.log('[Formatos] Data a enviar:', dataToCreate);
+          const resultado = await crear(dataToCreate);
+          
+          // Verificar si la descripción se guardó correctamente
+          if (descripcion && !resultado.descripcion) {
+            console.warn('[Formatos] ⚠️ ADVERTENCIA: La descripción se envió pero el backend la devolvió como null');
+            console.warn('[Formatos] ⚠️ Verifica el endpoint del backend: /url_formato/crear');
+          }
+          
           console.log('[Formatos] ✅ URL guardada');
           await loadUrlFormatos();
         }
@@ -567,7 +585,7 @@ const Formatos: React.FC = () => {
         itemType={pendingItem?.type || 'file'}
         itemName={pendingItem?.name || ''}
         initialCategoria={pendingItem?.categoria || 'FORMATO'}
-        initialDescripcion={isEditMode && pendingItem?.type === 'file' ? undefined : (pendingItem?.descripcion || '')}
+        initialDescripcion={pendingItem?.descripcion || ''}
       />
     </div>
   );

@@ -266,7 +266,7 @@ export const updateFormatoDocument = async (
     console.log('[formatoDocumentService] Document ID:', documentId);
     console.log('[formatoDocumentService] Update data:', updateData);
     
-    const response = await apiClient.put<FormatoUpdateResponse>(endpoint, updateData);
+    const response = await apiClient.patch<FormatoUpdateResponse>(endpoint, updateData);
     console.log('[formatoDocumentService] Respuesta del servidor:', response.data);
 
     if (!response.data.success) {

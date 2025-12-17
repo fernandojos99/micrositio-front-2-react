@@ -22,6 +22,7 @@ const Formatos: React.FC = () => {
   const [urlFormatos, setUrlFormatos] = useState<UrlFormato[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [categoriaFiltro, setCategoriaFiltro] = useState<string>('TODAS');
 
   // Cargar documentos y URLs al montar el componente
   useEffect(() => {
@@ -126,6 +127,34 @@ const Formatos: React.FC = () => {
     }
   };
 
+  /**
+   * Filtra los documentos y URLs según la categoría seleccionada
+   */
+  const getItemsFiltrados = () => {
+    let docsFiltrados = documentos;
+    let urlsFiltradas = urlFormatos;
+
+    if (categoriaFiltro !== 'TODAS') {
+      docsFiltrados = documentos.filter(doc => doc.categoria === categoriaFiltro);
+      urlsFiltradas = urlFormatos.filter(url => url.categoria === categoriaFiltro);
+    }
+
+    return { documentos: docsFiltrados, urls: urlsFiltradas };
+  };
+
+  /**
+   * Obtiene el color del badge según la categoría
+   */
+  const getCategoriaColor = (categoria: string) => {
+    const colores: { [key: string]: string } = {
+      'HERRAMIENTA': '#3b82f6',
+      'CURSO': '#10b981',
+      'LIBROS': '#f59e0b',
+      'FORMATO': '#8b5cf6'
+    };
+    return colores[categoria] || '#6b7280';
+  };
+
   return (
     <div className={styles['formatos-container']}>
       <div className={styles['formatos-content']}>
@@ -161,6 +190,47 @@ const Formatos: React.FC = () => {
           </button>
         </div>
 
+        {/* Filtros por categoría */}
+        <div style={{ 
+          display: 'flex', 
+          gap: '12px', 
+          marginBottom: '24px',
+          flexWrap: 'wrap'
+        }}>
+          {['TODAS', 'HERRAMIENTA', 'CURSO', 'LIBROS', 'FORMATO'].map((categoria) => (
+            <button
+              key={categoria}
+              onClick={() => setCategoriaFiltro(categoria)}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '20px',
+                border: categoriaFiltro === categoria ? 'none' : '1px solid #d1d5db',
+                backgroundColor: categoriaFiltro === categoria ? getCategoriaColor(categoria) : 'white',
+                color: categoriaFiltro === categoria ? 'white' : '#374151',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                boxShadow: categoriaFiltro === categoria ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'
+              }}
+              onMouseOver={(e) => {
+                if (categoriaFiltro !== categoria) {
+                  e.currentTarget.style.borderColor = '#9ca3af';
+                  e.currentTarget.style.backgroundColor = '#f9fafb';
+                }
+              }}
+              onMouseOut={(e) => {
+                if (categoriaFiltro !== categoria) {
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                  e.currentTarget.style.backgroundColor = 'white';
+                }
+              }}
+            >
+              {categoria}
+            </button>
+          ))}
+        </div>
+
         {/* Mostrar errores */}
         {error && (
           <div className={styles['error-message']}>
@@ -179,16 +249,21 @@ const Formatos: React.FC = () => {
               <i className="fas fa-spinner fa-spin"></i>
               Cargando formatos...
             </div>
-          ) : documentos.length === 0 && urlFormatos.length === 0 ? (
-            <div className={styles['empty-message']}>
-              <i className="fas fa-file"></i>
-              <h3>No hay formatos disponibles</h3>
-              <p>Haz clic en "Agregar Formato" para subir tu primer documento o URL.</p>
-            </div>
-          ) : (
-            <>
-              {/* Renderizar documentos */}
-              {documentos.map((documento) => (
+          ) : (() => {
+            const { documentos: docsFiltrados, urls: urlsFiltradas } = getItemsFiltrados();
+            return docsFiltrados.length === 0 && urlsFiltradas.length === 0 ? (
+              <div className={styles['empty-message']}>
+                <i className="fas fa-file"></i>
+                <h3>No hay formatos disponibles</h3>
+                <p>{categoriaFiltro === 'TODAS' 
+                  ? 'Haz clic en "Agregar Formato" para subir tu primer documento o URL.'
+                  : `No hay elementos en la categoría ${categoriaFiltro}.`}
+                </p>
+              </div>
+            ) : (
+              <>
+                {/* Renderizar documentos */}
+                {docsFiltrados.map((documento) => (
                 <div 
                   key={`doc-${documento.id}`} 
                   className={styles['formato-card']}
@@ -207,16 +282,30 @@ const Formatos: React.FC = () => {
                   }}
                 >
                   <div className={styles['formato-info']}>
-                    <h4 className={styles['formato-name']} title={documento.document_name}>
-                      <i className="fas fa-file-alt" style={{ marginRight: '8px' }}></i>
-                      {documento.document_name}
-                    </h4>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                      <h4 className={styles['formato-name']} title={documento.document_name} style={{ margin: 0, flex: 1 }}>
+                        <i className="fas fa-file-alt" style={{ marginRight: '8px' }}></i>
+                        {documento.document_name}
+                      </h4>
+                      <span style={{
+                        fontSize: '10px',
+                        fontWeight: '600',
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        backgroundColor: getCategoriaColor(documento.categoria || 'FORMATO'),
+                        color: 'white',
+                        whiteSpace: 'nowrap',
+                        marginLeft: '8px'
+                      }}>
+                        {documento.categoria || 'FORMATO'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
 
               {/* Renderizar URLs */}
-              {urlFormatos.map((urlFormato) => (
+              {urlsFiltradas.map((urlFormato) => (
                 <div 
                   key={`url-${urlFormato.id_url_formato}`} 
                   className={styles['formato-card']}
@@ -235,10 +324,24 @@ const Formatos: React.FC = () => {
                   }}
                 >
                   <div className={styles['formato-info']}>
-                    <h4 className={styles['formato-name']} title={urlFormato.descripcion || urlFormato.url}>
-                      <i className="fas fa-link" style={{ marginRight: '8px' }}></i>
-                      {urlFormato.descripcion || 'Enlace sin descripción'}
-                    </h4>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                      <h4 className={styles['formato-name']} title={urlFormato.descripcion || urlFormato.url} style={{ margin: 0, flex: 1 }}>
+                        <i className="fas fa-link" style={{ marginRight: '8px' }}></i>
+                        {urlFormato.descripcion || 'Enlace sin descripción'}
+                      </h4>
+                      <span style={{
+                        fontSize: '10px',
+                        fontWeight: '600',
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        backgroundColor: getCategoriaColor(urlFormato.categoria),
+                        color: 'white',
+                        whiteSpace: 'nowrap',
+                        marginLeft: '8px'
+                      }}>
+                        {urlFormato.categoria}
+                      </span>
+                    </div>
                     <p style={{ 
                       fontSize: '12px', 
                       color: '#9ca3af', 
@@ -253,7 +356,8 @@ const Formatos: React.FC = () => {
                 </div>
               ))}
             </>
-          )}
+            );
+          })()}
         </div>
       </div>
 

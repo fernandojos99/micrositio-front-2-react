@@ -352,7 +352,9 @@ const Formatos: React.FC = () => {
                   style={{
                     cursor: 'pointer',
                     transition: 'transform 0.2s, box-shadow 0.2s',
-                    position: 'relative'
+                    position: 'relative',
+                    padding: '16px',
+                    minHeight: '100px'
                   }}
                   onMouseOver={(e) => {
                     e.currentTarget.style.transform = 'translateY(-4px)';
@@ -363,31 +365,9 @@ const Formatos: React.FC = () => {
                     e.currentTarget.style.boxShadow = '';
                   }}
                 >
+                  {/* Dropdown en la esquina superior derecha */}
                   <div 
-                    className={styles['formato-info']}
-                    onClick={() => window.open(documento.document_url, '_blank')}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                      <h4 className={styles['formato-name']} title={documento.document_name} style={{ margin: 0, flex: 1 }}>
-                        <i className="fas fa-file-alt" style={{ marginRight: '8px' }}></i>
-                        {documento.document_name}
-                      </h4>
-                      <span style={{
-                        fontSize: '10px',
-                        fontWeight: '600',
-                        padding: '4px 8px',
-                        borderRadius: '12px',
-                        backgroundColor: getCategoriaColor(documento.categoria || 'FORMATO'),
-                        color: 'white',
-                        whiteSpace: 'nowrap',
-                        marginLeft: '8px'
-                      }}>
-                        {documento.categoria || 'FORMATO'}
-                      </span>
-                    </div>
-                  </div>
-                  <div 
-                    style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 10 }}
+                    style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 1000 }}
                     onClick={(e) => e.stopPropagation()}
                   >
                     <ActionDropdown
@@ -410,6 +390,34 @@ const Formatos: React.FC = () => {
                       position="bottom-left"
                     />
                   </div>
+
+                  {/* Contenido del documento */}
+                  <div 
+                    className={styles['formato-info']}
+                    onClick={() => window.open(documento.document_url, '_blank')}
+                    style={{ paddingRight: '40px' }}
+                  >
+                    <h4 className={styles['formato-name']} title={documento.document_name} style={{ margin: 0, marginBottom: '12px' }}>
+                      <i className="fas fa-file-alt" style={{ marginRight: '8px' }}></i>
+                      {documento.document_name}
+                    </h4>
+                    
+                    {/* Badge de categoría en la parte inferior */}
+                    <div style={{ display: 'flex', alignItems: 'center', marginTop: 'auto' }}>
+                      <span style={{
+                        fontSize: '10px',
+                        fontWeight: '600',
+                        padding: '4px 10px',
+                        borderRadius: '12px',
+                        backgroundColor: getCategoriaColor(documento.categoria || 'FORMATO'),
+                        color: 'white',
+                        whiteSpace: 'nowrap',
+                        display: 'inline-block'
+                      }}>
+                        {documento.categoria || 'FORMATO'}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               ))}
 
@@ -421,7 +429,11 @@ const Formatos: React.FC = () => {
                   style={{
                     cursor: 'pointer',
                     transition: 'transform 0.2s, box-shadow 0.2s',
-                    position: 'relative'
+                    position: 'relative',
+                    padding: '16px',
+                    minHeight: '100px',
+                    display: 'flex',
+                    flexDirection: 'column'
                   }}
                   onMouseOver={(e) => {
                     e.currentTarget.style.transform = 'translateY(-4px)';
@@ -432,41 +444,9 @@ const Formatos: React.FC = () => {
                     e.currentTarget.style.boxShadow = '';
                   }}
                 >
+                  {/* Dropdown en la esquina superior derecha */}
                   <div 
-                    className={styles['formato-info']}
-                    onClick={() => window.open(urlFormato.url, '_blank')}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                      <h4 className={styles['formato-name']} title={urlFormato.descripcion || urlFormato.url} style={{ margin: 0, flex: 1 }}>
-                        <i className="fas fa-link" style={{ marginRight: '8px' }}></i>
-                        {urlFormato.descripcion || 'Enlace sin descripción'}
-                      </h4>
-                      <span style={{
-                        fontSize: '10px',
-                        fontWeight: '600',
-                        padding: '4px 8px',
-                        borderRadius: '12px',
-                        backgroundColor: getCategoriaColor(urlFormato.categoria),
-                        color: 'white',
-                        whiteSpace: 'nowrap',
-                        marginLeft: '8px'
-                      }}>
-                        {urlFormato.categoria}
-                      </span>
-                    </div>
-                    <p style={{ 
-                      fontSize: '12px', 
-                      color: '#9ca3af', 
-                      margin: '4px 0 0 0',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}>
-                      {urlFormato.url}
-                    </p>
-                  </div>
-                  <div 
-                    style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 10 }}
+                    style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 1000 }}
                     onClick={(e) => e.stopPropagation()}
                   >
                     <ActionDropdown
@@ -488,6 +468,52 @@ const Formatos: React.FC = () => {
                       ]}
                       position="bottom-left"
                     />
+                  </div>
+
+                  {/* Contenido de la URL */}
+                  <div 
+                    className={styles['formato-info']}
+                    onClick={() => window.open(urlFormato.url, '_blank')}
+                    style={{ 
+                      paddingRight: '40px',
+                      flex: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between'
+                    }}
+                  >
+                    <div>
+                      <h4 className={styles['formato-name']} title={urlFormato.descripcion || urlFormato.url} style={{ margin: 0, marginBottom: '8px' }}>
+                        <i className="fas fa-link" style={{ marginRight: '8px' }}></i>
+                        {urlFormato.descripcion || 'Enlace sin descripción'}
+                      </h4>
+                      <p style={{ 
+                        fontSize: '12px', 
+                        color: '#9ca3af', 
+                        margin: '0 0 12px 0',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {urlFormato.url}
+                      </p>
+                    </div>
+                    
+                    {/* Badge de categoría en la parte inferior */}
+                    <div style={{ display: 'flex', alignItems: 'center', marginTop: 'auto' }}>
+                      <span style={{
+                        fontSize: '10px',
+                        fontWeight: '600',
+                        padding: '4px 10px',
+                        borderRadius: '12px',
+                        backgroundColor: getCategoriaColor(urlFormato.categoria),
+                        color: 'white',
+                        whiteSpace: 'nowrap',
+                        display: 'inline-block'
+                      }}>
+                        {urlFormato.categoria}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}

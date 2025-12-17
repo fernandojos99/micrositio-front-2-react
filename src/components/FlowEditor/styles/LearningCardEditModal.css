@@ -283,3 +283,328 @@
 .learning-btn-icon {
   margin-right: 8px;
 }
+
+/* Sección de métricas */
+.metricas-loading,
+.metricas-empty {
+  font-size: 12px;
+  color: var(--theme-text-secondary);
+  font-style: italic;
+  padding: 8px 0;
+}
+
+.metricas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.metrica-item {
+  padding: 12px;
+  background-color: var(--theme-bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--theme-border);
+  font-size: 13px;
+}
+
+.metrica-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.metrica-nombre {
+  font-weight: 600;
+  flex: 1;
+}
+
+.metrica-criterio {
+  color: var(--theme-text-secondary);
+  font-size: 12px;
+}
+
+.metrica-resultado {
+  margin-top: 8px;
+}
+
+.metrica-resultado label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--theme-text-primary);
+}
+
+.metrica-resultado-input-container {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.metrica-resultado input {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid var(--theme-border);
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.metrica-resultado input:disabled {
+  opacity: 0.7;
+}
+
+.metrica-guardar-btn {
+  padding: 6px 12px;
+  background-color: #3b82f6;
+  color: #ffffff;
+  border: 1px solid #3b82f6;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  min-width: 70px;
+  transition: background-color 0.2s ease;
+}
+
+.metrica-guardar-btn:disabled {
+  background-color: #6b7280;
+  border-color: #6b7280;
+  cursor: not-allowed;
+}
+
+.metrica-guardar-btn:not(:disabled):hover {
+  background-color: #2563eb;
+}
+
+.metrica-resultado-actual {
+  margin-top: 8px;
+  padding: 6px 8px;
+  background-color: rgba(34, 197, 94, 0.1);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--theme-text-secondary);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+/* Sección de documentos */
+.documentos-loading,
+.documentos-empty {
+  font-size: 12px;
+  color: var(--theme-text-secondary);
+  font-style: italic;
+  padding: 8px 0;
+}
+
+.documento-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--theme-bg-secondary);
+  border: 1px solid var(--theme-border-primary);
+  border-radius: 6px;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.documento-item-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.documento-item-info svg {
+  color: var(--theme-text-secondary);
+  flex-shrink: 0;
+}
+
+.documento-item-name {
+  color: var(--theme-text-primary);
+  cursor: pointer;
+  text-decoration: underline;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.documento-item-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.documento-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+}
+
+.documento-action-btn.view,
+.documento-action-btn.download {
+  color: var(--theme-text-secondary);
+}
+
+.documento-action-btn.delete {
+  color: var(--theme-danger);
+}
+
+/* URLs de documentación */
+.loading-urls,
+.no-urls {
+  font-size: 12px;
+  color: var(--theme-text-secondary);
+  font-style: italic;
+  padding: 8px 0;
+}
+
+.url-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--theme-bg-secondary);
+  border: 1px solid var(--theme-border-primary);
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.url-link {
+  flex: 1;
+  color: #3182ce;
+  text-decoration: none;
+  font-size: 0.875rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.url-link:hover {
+  text-decoration: underline;
+}
+
+/* Badges y contadores */
+.badge-counter {
+  margin-left: 8px;
+  font-size: 11px;
+  background: var(--theme-primary);
+  color: white;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-weight: 600;
+}
+
+.badge-counter-small {
+  margin-left: 8px;
+  font-size: 10px;
+  background: var(--theme-primary);
+  color: white;
+  border-radius: 10px;
+  padding: 2px 6px;
+}
+
+/* Sección de documentación */
+.subsection-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.subsection-description {
+  font-size: 12px;
+  color: var(--theme-text-secondary);
+  margin-bottom: 12px;
+  font-style: italic;
+}
+
+/* Modal header personalizado */
+.learning-modal-header-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Responsable section */
+.responsable-selected-label {
+  margin-left: 8px;
+  font-weight: 500;
+  color: #6C63FF;
+}
+
+.notificar-btn {
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  transition: all 0.2s ease;
+}
+
+.notificar-btn:hover {
+  background-color: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+/* Botones de acción del formulario */
+.learning-btn-cancel {
+  background-color: #ffffff;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.learning-btn-cancel:hover {
+  background-color: #f8fafc;
+  color: #1e293b;
+}
+
+.learning-btn-submit {
+  background-color: #864080;
+  color: #ffffff;
+  border: 1px solid #864080;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.learning-btn-submit:hover {
+  background-color: #753970;
+}
+
+/* Toggle icon */
+.toggle-icon {
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.toggle-icon.open {
+  transform: rotate(180deg);
+}

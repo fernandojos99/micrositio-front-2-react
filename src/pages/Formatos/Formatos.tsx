@@ -3,24 +3,27 @@ import styles from './Formatos.module.css';
 import DocumentationModal from '../../components/FlowEditor/components/DocumentationModal';
 import { 
   uploadFormatoDocument, 
-  getFormatoDocuments, 
-  deleteFormatoDocument,
-  FormatoDocument,
-  getDocumentIcon,
-  getFileExtension,
-  isImage
+  getFormatoDocuments,
+  FormatoDocument
 } from '../../services/formatoDocumentService';
+import { 
+  obtenerTodas, 
+  crear, 
+  UrlFormato 
+} from '../../services/urlFormatoService';
 
 const Formatos: React.FC = () => {
   // Estados para gestionar documentos y modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [documentos, setDocumentos] = useState<FormatoDocument[]>([]);
+  const [urlFormatos, setUrlFormatos] = useState<UrlFormato[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Cargar documentos al montar el componente
+  // Cargar documentos y URLs al montar el componente
   useEffect(() => {
     loadDocumentos();
+    loadUrlFormatos();
   }, []);
 
   /**
@@ -33,6 +36,8 @@ const Formatos: React.FC = () => {
       console.log('[Formatos] Cargando documentos...');
       
       const docs = await getFormatoDocuments();
+      console.log('[Formatos] Datos recibidos:', docs);
+      console.log('[Formatos] Tipo de datos:', typeof docs, Array.isArray(docs));
       setDocumentos(docs);
       
       console.log('[Formatos] ✅ Documentos cargados:', docs.length);
@@ -41,6 +46,23 @@ const Formatos: React.FC = () => {
       setError('Error al cargar los documentos');
     } finally {
       setLoading(false);
+    }
+  };
+
+  /**
+   * Carga todas las URLs de formato
+   */
+  const loadUrlFormatos = async () => {
+    try {
+      console.log('[Formatos] Cargando URLs...');
+      
+      const urls = await obtenerTodas();
+      console.log('[Formatos] URLs recibidas:', urls);
+      setUrlFormatos(urls);
+      
+      console.log('[Formatos] ✅ URLs cargadas:', urls.length);
+    } catch (err: any) {
+      console.error('[Formatos] ❌ Error al cargar URLs:', err);
     }
   };
 
@@ -69,56 +91,21 @@ const Formatos: React.FC = () => {
   };
 
   /**
-   * Maneja la adición de URLs (no implementado para formatos)
+   * Maneja la adición de URLs
    */
-  const handleAddUrl = (url: string) => {
-    console.log('[Formatos] URLs no soportadas en formatos:', url);
-  };
-
-  /**
-   * Elimina un documento de formato
-   */
-  const handleDeleteDocument = async (documentId: string) => {
-    if (!window.confirm('¿Estás seguro de que quieres eliminar este documento?')) {
-      return;
-    }
-
+  const handleAddUrl = async (url: string) => {
     try {
-      console.log('[Formatos] Eliminando documento:', documentId);
-      await deleteFormatoDocument(documentId);
-      console.log('[Formatos] ✅ Documento eliminado');
+      console.log('[Formatos] Guardando URL:', url);
       
-      // Recargar la lista
-      await loadDocumentos();
+      await crear({ url, categoria: 'formato' });
+      console.log('[Formatos] ✅ URL guardada');
+      
+      // Recargar la lista de URLs
+      await loadUrlFormatos();
     } catch (err: any) {
-      console.error('[Formatos] ❌ Error al eliminar documento:', err);
-      setError(`Error al eliminar documento: ${err.message}`);
+      console.error('[Formatos] ❌ Error al guardar URL:', err);
+      throw new Error(`Error al guardar URL: ${err.message}`);
     }
-  };
-
-  /**
-   * Obtiene la vista previa de un documento
-   */
-  const renderDocumentPreview = (documento: FormatoDocument) => {
-    const mimeType = documento.document_type;
-    
-    if (isImage(mimeType)) {
-      return (
-        <div className={styles['documento-preview']}>
-          <img 
-            src={documento.document_url} 
-            alt={documento.document_name}
-            className={styles['preview-image']}
-          />
-        </div>
-      );
-    }
-    
-    return (
-      <div className={styles['documento-icon']}>
-        <i className={getDocumentIcon(mimeType)}></i>
-      </div>
-    );
   };
 
   return (
@@ -167,56 +154,77 @@ const Formatos: React.FC = () => {
           </div>
         )}
 
-        {/* Grid de documentos */}
+        {/* Grid de documentos y URLs */}
         <div className={styles['formatos-grid']}>
           {loading ? (
             <div className={styles['loading-message']}>
               <i className="fas fa-spinner fa-spin"></i>
-              Cargando documentos...
+              Cargando formatos...
             </div>
-          ) : documentos.length === 0 ? (
+          ) : documentos.length === 0 && urlFormatos.length === 0 ? (
             <div className={styles['empty-message']}>
               <i className="fas fa-file"></i>
               <h3>No hay formatos disponibles</h3>
-              <p>Haz clic en "Agregar Formato" para subir tu primer documento.</p>
+              <p>Haz clic en "Agregar Formato" para subir tu primer documento o URL.</p>
             </div>
           ) : (
-            documentos.map((documento) => (
-              <div key={documento.id} className={styles['formato-card']}>
-                {renderDocumentPreview(documento)}
-                
-                <div className={styles['formato-info']}>
-                  <h4 className={styles['formato-name']} title={documento.document_name}>
-                    {documento.document_name}
-                  </h4>
-                  <p className={styles['formato-type']}>
-                    {getFileExtension(documento.document_name).toUpperCase()}
-                  </p>
-                  <p className={styles['formato-date']}>
-                    {new Date(documento.created_at).toLocaleDateString('es-ES')}
-                  </p>
+            <>
+              {/* Renderizar documentos */}
+              {documentos.map((documento) => (
+                <div 
+                  key={`doc-${documento.id}`} 
+                  className={styles['formato-card']}
+                  onClick={() => window.open(documento.document_url, '_blank')}
+                  style={{
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s, box-shadow 0.2s'
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-4px)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '';
+                  }}
+                >
+                  <div className={styles['formato-info']}>
+                    <h4 className={styles['formato-name']} title={documento.document_name}>
+                      <i className="fas fa-file-alt" style={{ marginRight: '8px' }}></i>
+                      {documento.document_name}
+                    </h4>
+                  </div>
                 </div>
+              ))}
 
-                <div className={styles['formato-actions']}>
-                  <a
-                    href={documento.document_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles['action-btn']}
-                    title="Descargar"
-                  >
-                    <i className="fas fa-download"></i>
-                  </a>
-                  <button
-                    onClick={() => handleDeleteDocument(documento.id)}
-                    className={styles['action-btn'] + ' ' + styles['delete-btn']}
-                    title="Eliminar"
-                  >
-                    <i className="fas fa-trash"></i>
-                  </button>
+              {/* Renderizar URLs */}
+              {urlFormatos.map((urlFormato) => (
+                <div 
+                  key={`url-${urlFormato.id_url_formato}`} 
+                  className={styles['formato-card']}
+                  onClick={() => window.open(urlFormato.url, '_blank')}
+                  style={{
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s, box-shadow 0.2s'
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-4px)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '';
+                  }}
+                >
+                  <div className={styles['formato-info']}>
+                    <h4 className={styles['formato-name']} title={urlFormato.url}>
+                      <i className="fas fa-link" style={{ marginRight: '8px' }}></i>
+                      {urlFormato.url}
+                    </h4>
+                  </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </>
           )}
         </div>
       </div>

@@ -2,22 +2,28 @@ import React, { useState, useEffect } from 'react';
 import styles from './Formatos.module.css';
 import DocumentationModal from '../../components/FlowEditor/components/DocumentationModal';
 import SaveDocumentationModal from '../../components/SaveDocumentationModal/SaveDocumentationModal';
+import ActionDropdown from '../../components/ui/ActionDropdown/ActionDropdown';
+import { Edit, Trash2 } from 'lucide-react';
 import { 
   uploadFormatoDocument, 
   getFormatoDocuments,
-  FormatoDocument
+  FormatoDocument,
+  deleteFormatoDocument
 } from '../../services/formatoDocumentService';
 import { 
   obtenerTodas, 
   crear, 
-  UrlFormato 
+  UrlFormato,
+  eliminar,
+  actualizar
 } from '../../services/urlFormatoService';
 
 const Formatos: React.FC = () => {
   // Estados para gestionar documentos y modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-  const [pendingItem, setPendingItem] = useState<{ type: 'file' | 'url', data: File | string, name: string } | null>(null);
+  const [pendingItem, setPendingItem] = useState<{ type: 'file' | 'url', data: File | string, name: string, id?: string | number } | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [documentos, setDocumentos] = useState<FormatoDocument[]>([]);
   const [urlFormatos, setUrlFormatos] = useState<UrlFormato[]>([]);
   const [loading, setLoading] = useState(false);
@@ -101,29 +107,105 @@ const Formatos: React.FC = () => {
     if (!pendingItem) return;
 
     try {
-      if (pendingItem.type === 'file') {
-        console.log('[Formatos] Subiendo archivo:', pendingItem.name);
-        // Nota: Aquí necesitarías modificar uploadFormatoDocument para aceptar categoría
-        // Por ahora, subiremos el archivo como está
-        await uploadFormatoDocument(pendingItem.data as File);
-        console.log('[Formatos] ✅ Archivo subido');
-        await loadDocumentos();
+      if (isEditMode) {
+        // Modo edición
+        if (pendingItem.type === 'url' && pendingItem.id) {
+          console.log('[Formatos] Actualizando URL:', pendingItem.id);
+          await actualizar(pendingItem.id, {
+            url: pendingItem.data as string,
+            categoria: categoria,
+            descripcion: descripcion
+          });
+          console.log('[Formatos] ✅ URL actualizada');
+          await loadUrlFormatos();
+        }
+        // Nota: Los documentos de archivo no se pueden editar, solo eliminar y volver a subir
       } else {
-        console.log('[Formatos] Guardando URL:', pendingItem.data);
-        await crear({ 
-          url: pendingItem.data as string, 
-          categoria: categoria,
-          descripcion: descripcion 
-        });
-        console.log('[Formatos] ✅ URL guardada');
-        await loadUrlFormatos();
+        // Modo creación
+        if (pendingItem.type === 'file') {
+          console.log('[Formatos] Subiendo archivo:', pendingItem.name);
+          await uploadFormatoDocument(pendingItem.data as File);
+          console.log('[Formatos] ✅ Archivo subido');
+          await loadDocumentos();
+        } else {
+          console.log('[Formatos] Guardando URL:', pendingItem.data);
+          await crear({ 
+            url: pendingItem.data as string, 
+            categoria: categoria,
+            descripcion: descripcion 
+          });
+          console.log('[Formatos] ✅ URL guardada');
+          await loadUrlFormatos();
+        }
       }
       
       setPendingItem(null);
+      setIsEditMode(false);
     } catch (err: any) {
       console.error('[Formatos] ❌ Error al guardar:', err);
       setError(`Error al guardar: ${err.message}`);
       throw err;
+    }
+  };
+
+  /**
+   * Maneja la edición de un documento
+   */
+  const handleEditDocument = (documento: FormatoDocument) => {
+    // Los archivos no se pueden editar directamente, solo la categoría si el backend lo soportara
+    console.log('[Formatos] Edición de archivos no soportada aún');
+    setError('La edición de archivos no está soportada. Por favor, elimina y vuelve a subir el archivo.');
+  };
+
+  /**
+   * Maneja la edición de una URL
+   */
+  const handleEditUrl = (urlFormato: UrlFormato) => {
+    setPendingItem({
+      type: 'url',
+      data: urlFormato.url,
+      name: urlFormato.url,
+      id: urlFormato.id_url_formato
+    });
+    setIsEditMode(true);
+    setIsSaveModalOpen(true);
+  };
+
+  /**
+   * Maneja la eliminación de un documento
+   */
+  const handleDeleteDocument = async (documento: FormatoDocument) => {
+    if (!window.confirm(`¿Estás seguro de que quieres eliminar "${documento.document_name}"?`)) {
+      return;
+    }
+
+    try {
+      console.log('[Formatos] Eliminando documento:', documento.id);
+      await deleteFormatoDocument(documento.id);
+      console.log('[Formatos] ✅ Documento eliminado');
+      await loadDocumentos();
+    } catch (err: any) {
+      console.error('[Formatos] ❌ Error al eliminar documento:', err);
+      setError(`Error al eliminar documento: ${err.message}`);
+    }
+  };
+
+  /**
+   * Maneja la eliminación de una URL
+   */
+  const handleDeleteUrl = async (urlFormato: UrlFormato) => {
+    if (!window.confirm(`¿Estás seguro de que quieres eliminar "${urlFormato.descripcion || urlFormato.url}"?`)) {
+      return;
+    }
+
+    try {
+      console.log('[Formatos] Eliminando URL:', urlFormato.id_url_formato);
+      await eliminar(urlFormato.id_url_formato);
+      console.log('[Formatos] ✅ URL eliminada');
+      await loadUrlFormatos();
+    } catch (err: any) {
+      console.error('[Formatos] ❌ Error al eliminar URL:', err);
+      setError(`Error al eliminar URL: ${err.message}`);
     }
   };
 
@@ -267,10 +349,10 @@ const Formatos: React.FC = () => {
                 <div 
                   key={`doc-${documento.id}`} 
                   className={styles['formato-card']}
-                  onClick={() => window.open(documento.document_url, '_blank')}
                   style={{
                     cursor: 'pointer',
-                    transition: 'transform 0.2s, box-shadow 0.2s'
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                    position: 'relative'
                   }}
                   onMouseOver={(e) => {
                     e.currentTarget.style.transform = 'translateY(-4px)';
@@ -281,7 +363,10 @@ const Formatos: React.FC = () => {
                     e.currentTarget.style.boxShadow = '';
                   }}
                 >
-                  <div className={styles['formato-info']}>
+                  <div 
+                    className={styles['formato-info']}
+                    onClick={() => window.open(documento.document_url, '_blank')}
+                  >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                       <h4 className={styles['formato-name']} title={documento.document_name} style={{ margin: 0, flex: 1 }}>
                         <i className="fas fa-file-alt" style={{ marginRight: '8px' }}></i>
@@ -301,6 +386,30 @@ const Formatos: React.FC = () => {
                       </span>
                     </div>
                   </div>
+                  <div 
+                    style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 10 }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <ActionDropdown
+                      actions={[
+                        {
+                          id: 'edit',
+                          label: 'Editar',
+                          icon: <Edit size={16} />,
+                          onClick: () => handleEditDocument(documento),
+                          type: 'default'
+                        },
+                        {
+                          id: 'delete',
+                          label: 'Borrar',
+                          icon: <Trash2 size={16} />,
+                          onClick: () => handleDeleteDocument(documento),
+                          type: 'danger'
+                        }
+                      ]}
+                      position="bottom-left"
+                    />
+                  </div>
                 </div>
               ))}
 
@@ -309,10 +418,10 @@ const Formatos: React.FC = () => {
                 <div 
                   key={`url-${urlFormato.id_url_formato}`} 
                   className={styles['formato-card']}
-                  onClick={() => window.open(urlFormato.url, '_blank')}
                   style={{
                     cursor: 'pointer',
-                    transition: 'transform 0.2s, box-shadow 0.2s'
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                    position: 'relative'
                   }}
                   onMouseOver={(e) => {
                     e.currentTarget.style.transform = 'translateY(-4px)';
@@ -323,7 +432,10 @@ const Formatos: React.FC = () => {
                     e.currentTarget.style.boxShadow = '';
                   }}
                 >
-                  <div className={styles['formato-info']}>
+                  <div 
+                    className={styles['formato-info']}
+                    onClick={() => window.open(urlFormato.url, '_blank')}
+                  >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                       <h4 className={styles['formato-name']} title={urlFormato.descripcion || urlFormato.url} style={{ margin: 0, flex: 1 }}>
                         <i className="fas fa-link" style={{ marginRight: '8px' }}></i>
@@ -353,6 +465,30 @@ const Formatos: React.FC = () => {
                       {urlFormato.url}
                     </p>
                   </div>
+                  <div 
+                    style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 10 }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <ActionDropdown
+                      actions={[
+                        {
+                          id: 'edit',
+                          label: 'Editar',
+                          icon: <Edit size={16} />,
+                          onClick: () => handleEditUrl(urlFormato),
+                          type: 'default'
+                        },
+                        {
+                          id: 'delete',
+                          label: 'Borrar',
+                          icon: <Trash2 size={16} />,
+                          onClick: () => handleDeleteUrl(urlFormato),
+                          type: 'danger'
+                        }
+                      ]}
+                      position="bottom-left"
+                    />
+                  </div>
                 </div>
               ))}
             </>
@@ -375,6 +511,7 @@ const Formatos: React.FC = () => {
         onClose={() => {
           setIsSaveModalOpen(false);
           setPendingItem(null);
+          setIsEditMode(false);
         }}
         onSave={handleSaveDocumentation}
         itemType={pendingItem?.type || 'file'}

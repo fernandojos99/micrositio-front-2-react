@@ -9,7 +9,7 @@ export interface MetricaTestingCard {
   nombre: string;
   operador: string;
   criterio: string;
-  resultado?: string | number;   // ← Puede ser string o number
+  resultado?: string ;   // ← Puede ser string 
   creado: string;               // ← Campo correcto del backend
   actualizado: string;          // ← Campo correcto del backend
 }
@@ -95,22 +95,20 @@ export const actualizarResultado = async (
   id_metrica: number,
   resultado: string
 ): Promise<MetricaTestingCard> => {
-  // Convertir el resultado a número ya que el backend lo espera así
-  const resultadoNumerico = parseFloat(resultado) || 0;
   
   const requestData = {
     id_metrica_testing_card: id_metrica,
-    resultado: resultadoNumerico  // ← Enviar como número
+    resultado: resultado 
   };
   
-  console.log('[actualizarResultado] Datos de la petición:', requestData);
-  console.log('[actualizarResultado] Resultado convertido:', `"${resultado}" → ${resultadoNumerico}`);
-  console.log('[actualizarResultado] Endpoint:', '/metrica_testing_card/resultado');
-  console.log('[actualizarResultado] Método: PATCH');
+  //console.log('[actualizarResultado] Datos de la petición:', requestData);
+  //console.log('[actualizarResultado] Resultado convertido:', `"${resultado}" `);
+  //console.log('[actualizarResultado] Endpoint:', '/metrica_testing_card/resultado');
+  //console.log('[actualizarResultado] Método: PATCH');
   
   try {
     const response = await apiClient.patch('/metrica_testing_card/resultado', requestData);
-    console.log('[actualizarResultado] Respuesta exitosa:', response.data);
+    //console.log('[actualizarResultado] Respuesta exitosa:', response.data);
     return response.data;
   } catch (error) {
     console.error('[actualizarResultado] Error en la petición:', error);

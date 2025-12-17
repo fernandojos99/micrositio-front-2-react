@@ -26,6 +26,7 @@ import ConfirmationModal from '../ui/ConfirmationModal/ConfirmationModal';
 import { obtenerPorId as obtenerLearningCardPorId, actualizar as actualizarLearningCard } from '../../services/learningCardService';
 import { UrlLearningCard, obtenerPorLearningCard, crear as crearUrl, eliminar as eliminarUrl } from '../../services/urlLearningCardService';
 import './styles/TestingCardEditModal.css';
+import './styles/LearningCardEditModal.css';
 import { 
   LearningCardDocument, 
   getDocumentsByLearningCard, 
@@ -173,7 +174,6 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
         try {
           // Cargar URLs asociadas
           const urlsData = await obtenerPorLearningCard(editingIdLC);
-          console.log('[LearningCardEditModal] URLs cargadas:', urlsData);
           setDocumentationUrls(urlsData || []);
           
           // Expandir automáticamente la sección de documentación si hay URLs
@@ -193,9 +193,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       if (editingIdLC) {
         setLoadingDocumentos(true);
         try {
-          console.log('[LearningCardEditModal] Cargando documentos para ID:', editingIdLC);
           const documentosData = await getDocumentsByLearningCard(editingIdLC);
-          console.log('[LearningCardEditModal] Documentos cargados:', documentosData);
           
           // Validación defensiva: asegurar que documentosData sea un array
           const documentosArray = Array.isArray(documentosData) ? documentosData : [];
@@ -248,16 +246,13 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
     
     try {
       setLoadingMetricas(true);
-      console.log('[cargarMetricas] Cargando métricas para Testing Card ID:', formData.id_testing_card);
       
       const metricasData = await obtenerPorTestingCard(formData.id_testing_card);
-      console.log('[cargarMetricas] Métricas recibidas del backend:', metricasData);
       
       // Validación defensiva
       const metricasArray = Array.isArray(metricasData) ? metricasData : [];
       
       if (metricasArray.length === 0) {
-        console.info('[cargarMetricas] No se encontraron métricas para este Testing Card');
         setMetricas([]);
         setResultadosEditables({});
         return;
@@ -266,30 +261,15 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       // Procesar métricas y crear claves únicas
       const resultadosIniciales: {[uniqueKey: string]: string} = {};
       metricasArray.forEach((metrica, index) => {
-        console.log(`[cargarMetricas] Procesando métrica ${index + 1}:`, {
-          completa: metrica,
-          id: metrica.id,
-          nombre: metrica.nombre,
-          resultado: metrica.resultado
-        });
-        
         // Crear clave única usando múltiples campos para garantizar unicidad
         const uniqueKey = `${metrica.id || index}_${metrica.nombre || 'sin_nombre'}_${metrica.id_testing_card}`;
         resultadosIniciales[uniqueKey] = metrica.resultado ? String(metrica.resultado) : '';
-        
-        console.log(`[cargarMetricas] Clave única generada: "${uniqueKey}" con resultado: "${metrica.resultado || ''}"`);
       });
       
       setMetricas(metricasArray);
       setResultadosEditables(resultadosIniciales);
       
-      console.log('[cargarMetricas] ✅ Métricas cargadas exitosamente:', {
-        cantidad: metricasArray.length,
-        resultadosIniciales
-      });
-      
     } catch (error) {
-      console.error('[cargarMetricas] ❌ Error al cargar métricas:', error);
       setMetricas([]);
       setResultadosEditables({});
     } finally {
@@ -309,12 +289,6 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
    */
   const handleCambioResultadoMetrica = (metrica: MetricaTestingCard, index: number, nuevoValor: string) => {
     const claveUnica = generarClaveUnicaMetrica(metrica, index);
-    console.log('[handleCambioResultadoMetrica]', {
-      metrica: metrica.nombre,
-      claveUnica,
-      nuevoValor,
-      id: metrica.id
-    });
     
     setResultadosEditables(prev => ({
       ...prev,
@@ -329,17 +303,6 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
     const claveUnica = generarClaveUnicaMetrica(metrica, index);
     const nuevoResultado = resultadosEditables[claveUnica];
     
-    console.log('[guardarResultadoMetricaNuevo] 🚀 Iniciando guardado con:', {
-      metrica: {
-        id: metrica.id,
-        nombre: metrica.nombre,
-        id_testing_card: metrica.id_testing_card
-      },
-      claveUnica,
-      nuevoResultado,
-      index
-    });
-    
     // Validaciones iniciales
     if (!metrica) {
       console.error('[guardarResultadoMetricaNuevo] ❌ Métrica no válida');
@@ -353,29 +316,31 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       return;
     }
     
-    if (nuevoResultado === undefined || nuevoResultado === null) {
-      console.error('[guardarResultadoMetricaNuevo] ❌ Resultado no válido:', nuevoResultado);
-      setErrorMsg('Error: resultado no válido');
+    // Validar que el resultado sea una cadena y no esté vacío
+    if (nuevoResultado === undefined || nuevoResultado === null || nuevoResultado.trim() === '') {
+      console.error('[guardarResultadoMetricaNuevo] ❌ Resultado no válido o vacío:', nuevoResultado);
+      setErrorMsg('Error: el resultado no puede estar vacío');
+      return;
+    }
+    
+    // Validar longitud máxima (varchar(30) en la BD)
+    if (nuevoResultado.length > 30) {
+      console.error('[guardarResultadoMetricaNuevo] ❌ Resultado excede longitud máxima:', nuevoResultado.length);
+      setErrorMsg('Error: el resultado no puede exceder 30 caracteres');
       return;
     }
     
     try {
       setSavingMetrica(metrica.id);
-      console.log('[guardarResultadoMetricaNuevo] 📡 Llamando API con:', {
-        id: metrica.id,
-        resultado: nuevoResultado
-      });
       
-      // Llamada a la API con el endpoint que funciona en Postman
-      // CLAVE: Usar metrica.id (no metrica.id_metrica) porque ese es el campo correcto
-      const metricaActualizada = await actualizarResultado(metrica.id, nuevoResultado);
-      console.log('[guardarResultadoMetricaNuevo] ✅ Respuesta de API:', metricaActualizada);
+      // Llamada a la API - El resultado ahora es varchar(30) en la BD
+      await actualizarResultado(metrica.id, String(nuevoResultado));
       
-      // Actualizar el estado local con la métrica actualizada
+      // Actualizar el estado local con la métrica actualizada (como string)
       setMetricas(prevMetricas => 
         prevMetricas.map(m => 
           m.id === metrica.id 
-            ? { ...m, resultado: nuevoResultado }
+            ? { ...m, resultado: String(nuevoResultado) }
             : m
         )
       );
@@ -383,10 +348,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       setSuccessMsg(`Resultado de métrica "${metrica.nombre}" actualizado exitosamente`);
       setTimeout(() => setSuccessMsg(''), 3000);
       
-      console.log('[guardarResultadoMetricaNuevo] ✅ Guardado exitoso para métrica:', metrica.nombre);
-      
     } catch (error: any) {
-      console.error('[guardarResultadoMetricaNuevo] ❌ Error al actualizar métrica:', error);
       
       let mensajeError = 'Error al actualizar el resultado de la métrica';
       if (error?.response?.data?.message) {
@@ -408,12 +370,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
   const renderSeccionMetricas = () => {
     if (loadingMetricas) {
       return (
-        <div className="metricas-loading" style={{
-          fontSize: '12px',
-          color: 'var(--theme-text-secondary)',
-          fontStyle: 'italic',
-          padding: '8px 0'
-        }}>
+        <div className="metricas-loading">
           Cargando métricas...
         </div>
       );
@@ -421,132 +378,56 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
 
     if (metricas.length === 0) {
       return (
-        <div className="metricas-empty" style={{
-          fontSize: '12px',
-          color: 'var(--theme-text-secondary)',
-          fontStyle: 'italic',
-          padding: '8px 0'
-        }}>
+        <div className="metricas-empty">
           No hay métricas definidas para el Testing Card asociado
         </div>
       );
     }
 
     return (
-      <div className="metricas-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div className="metricas-list">
         {metricas.map((metrica, index) => {
           const claveUnica = generarClaveUnicaMetrica(metrica, index);
           const valorActual = resultadosEditables[claveUnica] || '';
           const estaGuardando = savingMetrica === metrica.id;
           
-          console.log('[renderSeccionMetricas] Renderizando métrica:', {
-            index,
-            nombre: metrica.nombre,
-            id: metrica.id,
-            claveUnica,
-            valorActual,
-            metricaCompleta: metrica
-          });
-          
           return (
-          <div 
-            key={claveUnica}
-            className="metrica-item"
-            style={{
-              padding: '12px',
-              backgroundColor: 'var(--theme-bg-secondary)',
-              borderRadius: '8px',
-              border: '1px solid var(--theme-border)',
-              fontSize: '13px'
-            }}
-          >
-            <div className="metrica-header" style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              marginBottom: '8px'
-            }}>
+          <div key={claveUnica} className="metrica-item">
+            <div className="metrica-header">
               <BarChart3 size={16} />
-              <span className="metrica-nombre" style={{ fontWeight: '600', flex: 1 }}>
+              <span className="metrica-nombre">
                 {metrica.nombre}
               </span>
-              <span className="metrica-criterio" style={{
-                color: 'var(--theme-text-secondary)',
-                fontSize: '12px'
-              }}>
+              <span className="metrica-criterio">
                 {metrica.operador} {metrica.criterio}
               </span>
             </div>
             
-            <div className="metrica-resultado" style={{ marginTop: '8px' }}>
-              <label style={{
-                display: 'block',
-                marginBottom: '4px',
-                fontSize: '12px',
-                fontWeight: '600',
-                color: 'var(--theme-text-primary)'
-              }}>
+            <div className="metrica-resultado">
+              <label>
                 Resultado obtenido:
               </label>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <div className="metrica-resultado-input-container">
                 <input
                   type="text"
                   value={valorActual}
                   onChange={(e) => handleCambioResultadoMetrica(metrica, index, e.target.value)}
                   placeholder="Ingresa el resultado obtenido..."
                   disabled={estaGuardando}
-                  style={{
-                    flex: 1,
-                    padding: '6px 8px',
-                    border: '1px solid var(--theme-border)',
-                    borderRadius: '4px',
-                    fontSize: '12px',
-                    opacity: estaGuardando ? 0.7 : 1
-                  }}
                 />
                 <button
                   type="button"
                   onClick={() => guardarResultadoMetricaNuevo(metrica, index)}
                   disabled={estaGuardando}
-                  style={{
-                    padding: '6px 12px',
-                    backgroundColor: estaGuardando ? '#6b7280' : '#3b82f6',
-                    color: '#ffffff',
-                    border: '1px solid ' + (estaGuardando ? '#6b7280' : '#3b82f6'),
-                    borderRadius: '4px',
-                    fontSize: '11px',
-                    fontWeight: '600',
-                    cursor: estaGuardando ? 'not-allowed' : 'pointer',
-                    minWidth: '70px',
-                    transition: 'background-color 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!estaGuardando) {
-                      e.currentTarget.style.backgroundColor = '#2563eb';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!estaGuardando) {
-                      e.currentTarget.style.backgroundColor = '#3b82f6';
-                    }
-                  }}
+                  className="metrica-guardar-btn"
                 >
                   {estaGuardando ? 'Guardando...' : 'Guardar'}
                 </button>
               </div>
             </div>
             
-            {/* Mostrar resultado actual si existe */}
             {metrica.resultado && (
-              <div style={{
-                marginTop: '8px',
-                padding: '6px 8px',
-                backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                borderRadius: '4px',
-                fontSize: '11px',
-                color: 'var(--theme-text-secondary)',
-                border: '1px solid rgba(34, 197, 94, 0.2)'
-              }}>
+              <div className="metrica-resultado-actual">
                 <strong>Resultado actual:</strong> {metrica.resultado}
               </div>
             )}
@@ -560,12 +441,10 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
   // Funciones para manejar URLs
   const addDocumentationUrl = async (url: string) => {
     try {
-      console.log('[LearningCardEditModal] Agregando URL:', url, 'para LC:', editingIdLC);
       const nuevaUrl = await crearUrl({
         id_learning_card: editingIdLC,
         url: url
       });
-      console.log('[LearningCardEditModal] URL creada:', nuevaUrl);
       setDocumentationUrls(prev => [...prev, nuevaUrl]);
       setSuccessMsg('URL agregada exitosamente');
       setTimeout(() => setSuccessMsg(''), 3000);
@@ -584,7 +463,6 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
   const confirmDeleteUrl = async () => {
     if (urlToDelete) {
       try {
-        console.log('[LearningCardEditModal] Eliminando URL:', urlToDelete.id_url_lc);
         await eliminarUrl(urlToDelete.id_url_lc);
         setDocumentationUrls(prev => prev.filter(url => url.id_url_lc !== urlToDelete.id_url_lc));
         setSuccessMsg('URL eliminada exitosamente');
@@ -641,8 +519,6 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
    * Maneja la visualización de un documento
    */
   const handleViewDocument = (documento: LearningCardDocument) => {
-    console.log('[LearningCardEditModal] Abriendo documento:', documento.document_name);
-    
     // Validación defensiva del document_type
     const documentType = documento.document_type || '';
     
@@ -659,8 +535,6 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
    * Maneja la descarga de un documento
    */
   const handleDownloadDocument = (documento: LearningCardDocument) => {
-    console.log('[LearningCardEditModal] Descargando documento:', documento.document_name);
-    
     const link = document.createElement('a');
     link.href = documento.document_url;
     link.download = documento.document_name;
@@ -681,9 +555,6 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
   const confirmDeleteDocument = async () => {
     if (documentoAEliminar) {
       try {
-        console.log('[LearningCardEditModal] Eliminando documento:', documentoAEliminar.id);
-        console.log('[LearningCardEditModal] Datos del documento:', documentoAEliminar);
-        
         await deleteDocument(documentoAEliminar.id);
         
         // Actualizar la lista eliminando el documento
@@ -691,9 +562,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
         
         setSuccessMsg('Documento eliminado exitosamente');
         setTimeout(() => setSuccessMsg(''), 3000);
-        console.log('[LearningCardEditModal] ✅ Documento eliminado exitosamente');
       } catch (error: any) {
-        console.error('[LearningCardEditModal] Error al eliminar documento:', error);
         
         // Mostrar mensaje de error más específico
         let errorMessage = 'Error al eliminar documento';
@@ -719,12 +588,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
   const renderDocumentos = () => {
     if (loadingDocumentos) {
       return (
-        <div className="documentos-loading" style={{ 
-          fontSize: '12px', 
-          color: 'var(--theme-text-secondary)',
-          fontStyle: 'italic',
-          padding: '8px 0'
-        }}>
+        <div className="documentos-loading">
           Cargando documentos...
         </div>
       );
@@ -733,12 +597,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
     // Validación defensiva: asegurar que documentos sea un array
     if (!Array.isArray(documentos) || documentos.length === 0) {
       return (
-        <div className="documentos-empty" style={{ 
-          fontSize: '12px', 
-          color: 'var(--theme-text-secondary)',
-          fontStyle: 'italic',
-          padding: '8px 0'
-        }}>
+        <div className="documentos-empty">
           No hay documentos registrados para esta Learning Card
         </div>
       );
@@ -756,49 +615,22 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
           const IconComponent = getDocumentIconComponent(documento.document_type);
           
           return (
-            <div key={documento.id} className="documento-item" style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '8px 12px',
-              background: 'var(--theme-bg-secondary)',
-              border: '1px solid var(--theme-border-primary)',
-              borderRadius: '6px',
-              marginBottom: '6px',
-              fontSize: '12px'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
-                <IconComponent size={16} style={{ color: 'var(--theme-text-secondary)', flexShrink: 0 }} />
+            <div key={documento.id} className="documento-item">
+              <div className="documento-item-info">
+                <IconComponent size={16} />
                 <span 
-                  style={{ 
-                    color: 'var(--theme-text-primary)',
-                    cursor: 'pointer',
-                    textDecoration: 'underline',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    flex: 1
-                  }}
+                  className="documento-item-name"
                   onClick={() => handleViewDocument(documento)}
                   title={documento.document_name}
                 >
                   {truncateDocumentName(documento.document_name)}
                 </span>
               </div>
-              <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
+              <div className="documento-item-actions">
                 <button
                   type="button"
                   onClick={() => handleViewDocument(documento)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '4px',
-                    color: 'var(--theme-text-secondary)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    borderRadius: '4px'
-                  }}
+                  className="documento-action-btn view"
                   title="Ver documento"
                 >
                   <Eye size={14} />
@@ -806,16 +638,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
                 <button
                   type="button"
                   onClick={() => handleDownloadDocument(documento)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '4px',
-                    color: 'var(--theme-text-secondary)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    borderRadius: '4px'
-                  }}
+                  className="documento-action-btn download"
                   title="Descargar documento"
                 >
                   <Download size={14} />
@@ -823,16 +646,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
                 <button
                   type="button"
                   onClick={() => handleDeleteDocument(documento)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '4px',
-                    color: 'var(--theme-danger)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    borderRadius: '4px'
-                  }}
+                  className="documento-action-btn delete"
                   title="Eliminar documento"
                 >
                   <Trash2 size={14} />
@@ -851,13 +665,10 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       
       // Subir cada archivo individualmente
       const uploadPromises = files.map(async (file) => {
-        console.log('[LearningCardEditModal] Subiendo archivo:', file.name);
         try {
           const documentoSubido = await uploadDocument(editingIdLC, file);
-          console.log('[LearningCardEditModal] ✅ Archivo subido exitosamente:', documentoSubido);
           return documentoSubido;
         } catch (error) {
-          console.error('[LearningCardEditModal] ❌ Error al subir archivo:', file.name, error);
           throw error;
         }
       });
@@ -871,10 +682,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       setSuccessMsg(`${documentosSubidos.length} archivo(s) subido(s) exitosamente`);
       setTimeout(() => setSuccessMsg(''), 3000);
       
-      console.log('[LearningCardEditModal] ✅ Todos los archivos subidos exitosamente');
-      
     } catch (error) {
-      console.error('[LearningCardEditModal] ❌ Error al subir archivos:', error);
       setErrorMsg('Error al subir los archivos');
       setTimeout(() => setErrorMsg(''), 3000);
     } finally {
@@ -1021,9 +829,6 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
         id_responsable: id_responsable || 0,
       };
       
-      // Log para depuración
-      console.log('[LearningCardEditModal] Payload enviado:', payload, 'editingIdLC:', editingIdLC);
-      
       try {
         await actualizarLearningCard(editingIdLC, payload);
         setSuccessMsg('¡Learning Card guardada exitosamente!');
@@ -1037,8 +842,6 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
           backendMsg = err.message;
         }
         setErrorMsg(backendMsg);
-        // Log para depuración
-        console.error('[LearningCardEditModal] Error al actualizar:', err);
       } finally {
         setLoading(false);
       }
@@ -1057,25 +860,12 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
     return () => document.removeEventListener('keydown', handleEsc);
   }, [onClose]);
 
-  /**
-   * Efecto para loguear el editingIdLC y el estado de las URLs
-   * @function useEffect
-   */
-  useEffect(() => {
-    console.log('[LearningCardEditModal] Estado actual:', {
-      editingIdLC,
-      documentationUrlsCount: documentationUrls.length,
-      loadingUrls,
-      showDocumentation
-    });
-  }, [editingIdLC, documentationUrls, loadingUrls, showDocumentation]);
-
   return (
     <div className="testing-modal-backdrop" onClick={(e) => e.stopPropagation()}>
       <div className="testing-modal-container">
         {/* @section: Header del modal */}
-        <div className="testing-modal-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div className="testing-modal-header">
+          <div className="learning-modal-header-content">
             <div className="testing-modal-icon">
               <BookOpen size={20} />
             </div>
@@ -1100,18 +890,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
               id="estado"
               value={formData.estado ?? ''}
               onChange={e => setFormData({ ...formData, estado: e.target.value as any })}
-              className="testing-status-badge"
-              style={{
-                borderRadius: 8,
-                fontSize: 12,
-                fontWeight: 600,
-                padding: '2px 10px',
-                minWidth: 80,
-                textAlign: 'center',
-                textTransform: 'capitalize',
-                letterSpacing: 0.5,
-                boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
-              }}
+              className="learning-status-select"
             >
               <option value="">Selecciona estado</option>
               {statusOptions.map(opt => (
@@ -1164,15 +943,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
               <span className={`toggle-icon${showMetrics ? ' open' : ''}`}>▼</span>
               <span>Métricas del Testing Card</span>
               {metricas.length > 0 && (
-                <span style={{ 
-                  marginLeft: '8px', 
-                  fontSize: '11px', 
-                  background: 'var(--theme-primary)', 
-                  color: 'white', 
-                  borderRadius: '12px', 
-                  padding: '2px 8px',
-                  fontWeight: '600'
-                }}>
+                <span className="badge-counter">
                   {metricas.length} métrica{metricas.length !== 1 ? 's' : ''}
                 </span>
               )}
@@ -1185,24 +956,12 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
                     <BarChart3 size={14} />
                     Resultados de Métricas
                     {metricas.length > 0 && (
-                      <span style={{ 
-                        marginLeft: '8px', 
-                        fontSize: '10px', 
-                        background: 'var(--theme-primary)', 
-                        color: 'white', 
-                        borderRadius: '10px', 
-                        padding: '2px 6px' 
-                      }}>
+                      <span className="badge-counter-small">
                         {metricas.length}
                       </span>
                     )}
                   </h4>
-                  <p style={{
-                    fontSize: '12px',
-                    color: 'var(--theme-text-secondary)',
-                    marginBottom: '12px',
-                    fontStyle: 'italic'
-                  }}>
+                  <p className="subsection-description">
                     Actualiza los resultados obtenidos para cada métrica del Testing Card asociado:
                   </p>
                   {renderSeccionMetricas()}
@@ -1221,15 +980,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
               <span className={`toggle-icon${showDocumentation ? ' open' : ''}`}>▼</span>
               <span>Documentación</span>
               {(documentationUrls.length > 0 || documentos.length > 0) && (
-                <span style={{ 
-                  marginLeft: '8px', 
-                  fontSize: '11px', 
-                  background: 'var(--theme-primary)', 
-                  color: 'white', 
-                  borderRadius: '12px', 
-                  padding: '2px 8px',
-                  fontWeight: '600'
-                }}>
+                <span className="badge-counter">
                   {documentationUrls.length + documentos.length} elemento{(documentationUrls.length + documentos.length) !== 1 ? 's' : ''}
                 </span>
               )}
@@ -1243,37 +994,20 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
                     <LinkIcon size={14} />
                     URLs de Referencia
                     {documentationUrls.length > 0 && (
-                      <span style={{ 
-                        marginLeft: '8px', 
-                        fontSize: '10px', 
-                        background: 'var(--theme-primary)', 
-                        color: 'white', 
-                        borderRadius: '10px', 
-                        padding: '2px 6px' 
-                      }}>
+                      <span className="badge-counter-small">
                         {documentationUrls.length}
                       </span>
                     )}
                   </h4>
 
                   {loadingUrls && (
-                    <div className="loading-urls" style={{ 
-                      fontSize: '12px', 
-                      color: 'var(--theme-text-secondary)',
-                      fontStyle: 'italic',
-                      padding: '8px 0'
-                    }}>
+                    <div className="loading-urls">
                       Cargando URLs...
                     </div>
                   )}
 
                   {!loadingUrls && documentationUrls.length === 0 && (
-                    <div className="no-urls" style={{ 
-                      fontSize: '12px', 
-                      color: 'var(--theme-text-secondary)',
-                      fontStyle: 'italic',
-                      padding: '8px 0'
-                    }}>
+                    <div className="no-urls">
                       No hay URLs registradas para esta Learning Card
                     </div>
                   )}
@@ -1314,14 +1048,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
                     <Upload size={14} />
                     Archivos Adjuntos
                     {documentos.length > 0 && (
-                      <span style={{ 
-                        marginLeft: '8px', 
-                        fontSize: '10px', 
-                        background: 'var(--theme-primary)', 
-                        color: 'white', 
-                        borderRadius: '10px', 
-                        padding: '2px 6px' 
-                      }}>
+                      <span className="badge-counter-small">
                         {documentos.length}
                       </span>
                     )}
@@ -1353,7 +1080,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
                 (() => {
                   const emp = empleados.find(e => e.id_empleado === formData.id_responsable);
                   return emp ? (
-                    <span style={{ marginLeft: 8, fontWeight: 500, color: '#6C63FF' }}>
+                    <span className="responsable-selected-label">
                       (Seleccionado: {getNombreCompleto(emp)})
                     </span>
                   ) : null;
@@ -1380,30 +1107,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
               <button
                 type="button"
                 onClick={() => setShowNotificationModal(true)}
-                className="testing-btn testing-btn-secondary"
-                style={{
-                  backgroundColor: '#f3f4f6',
-                  color: '#374151',
-                  border: '1px solid #d1d5db',
-                  padding: '8px 16px',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  marginTop: '8px',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#e5e7eb';
-                  e.currentTarget.style.borderColor = '#9ca3af';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f3f4f6';
-                  e.currentTarget.style.borderColor = '#d1d5db';
-                }}
+                className="notificar-btn"
               >
                 <Users size={16} />
                 Notificar responsable
@@ -1416,52 +1120,13 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
             <button 
               type="button" 
               onClick={onClose} 
-              className="testing-btn testing-btn-secondary"
-              style={{
-                backgroundColor: '#ffffff',
-                color: '#475569',
-                border: '1px solid #e2e8f0',
-                padding: '8px 16px',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'background-color 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#f8fafc';
-                e.currentTarget.style.color = '#1e293b';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#ffffff';
-                e.currentTarget.style.color = '#475569';
-              }}
+              className="learning-btn-cancel"
             >
               Cancelar
             </button>
             <button 
               type="submit" 
-              className="testing-btn testing-btn-primary"
-              style={{
-                backgroundColor: '#864080',
-                color: '#ffffff',
-                border: '1px solid #864080',
-                padding: '8px 16px',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                transition: 'background-color 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#753970';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#864080';
-              }}
+              className="learning-btn-submit"
             >
               <Save className="testing-btn-icon" />
               Guardar Cambios

@@ -235,10 +235,20 @@ const Formatos: React.FC = () => {
                   }}
                 >
                   <div className={styles['formato-info']}>
-                    <h4 className={styles['formato-name']} title={urlFormato.url}>
+                    <h4 className={styles['formato-name']} title={urlFormato.descripcion || urlFormato.url}>
                       <i className="fas fa-link" style={{ marginRight: '8px' }}></i>
-                      {urlFormato.url}
+                      {urlFormato.descripcion || 'Enlace sin descripción'}
                     </h4>
+                    <p style={{ 
+                      fontSize: '12px', 
+                      color: '#9ca3af', 
+                      margin: '4px 0 0 0',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {urlFormato.url}
+                    </p>
                   </div>
                 </div>
               ))}

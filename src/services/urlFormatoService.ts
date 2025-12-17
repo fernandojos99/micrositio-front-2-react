@@ -9,7 +9,7 @@ export interface UrlFormato {
   created_at?: string;
   updated_at?: string;
   categoria : string;
-  descripcion?: string;
+  descripcion: string;
 }
 
 /**

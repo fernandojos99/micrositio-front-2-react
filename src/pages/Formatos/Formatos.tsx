@@ -554,7 +554,7 @@ const Formatos: React.FC = () => {
         itemType={pendingItem?.type || 'file'}
         itemName={pendingItem?.name || ''}
         initialCategoria={pendingItem?.categoria || 'FORMATO'}
-        initialDescripcion={pendingItem?.descripcion || ''}
+        initialDescripcion={pendingItem?.descripcion || 'URL'}
       />
     </div>
   );

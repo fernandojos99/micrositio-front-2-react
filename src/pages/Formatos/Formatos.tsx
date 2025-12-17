@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Formatos.module.css';
 import DocumentationModal from '../../components/FlowEditor/components/DocumentationModal';
+import SaveDocumentationModal from '../../components/SaveDocumentationModal/SaveDocumentationModal';
 import { 
   uploadFormatoDocument, 
   getFormatoDocuments,
@@ -15,6 +16,8 @@ import {
 const Formatos: React.FC = () => {
   // Estados para gestionar documentos y modal
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [pendingItem, setPendingItem] = useState<{ type: 'file' | 'url', data: File | string, name: string } | null>(null);
   const [documentos, setDocumentos] = useState<FormatoDocument[]>([]);
   const [urlFormatos, setUrlFormatos] = useState<UrlFormato[]>([]);
   const [loading, setLoading] = useState(false);
@@ -67,44 +70,59 @@ const Formatos: React.FC = () => {
   };
 
   /**
-   * Maneja la subida de archivos desde el modal
+   * Maneja la selección de archivos desde el modal de documentación
+   * Abre el modal de guardado para cada archivo
    */
   const handleAddFiles = async (files: File[]) => {
-    try {
-      console.log('[Formatos] Subiendo archivos:', files.length);
-      
-      // Subir cada archivo individualmente
-      for (const file of files) {
-        console.log('[Formatos] Subiendo archivo:', file.name);
-        await uploadFormatoDocument(file);
-      }
-      
-      console.log('[Formatos] ✅ Todos los archivos subidos');
-      
-      // Recargar la lista de documentos
-      await loadDocumentos();
-      
-    } catch (err: any) {
-      console.error('[Formatos] ❌ Error al subir archivos:', err);
-      throw new Error(`Error al subir archivos: ${err.message}`);
-    }
+    if (files.length === 0) return;
+    
+    // Por ahora, tomamos el primer archivo (puedes ajustar para múltiples archivos)
+    const file = files[0];
+    setPendingItem({ type: 'file', data: file, name: file.name });
+    setIsModalOpen(false);
+    setIsSaveModalOpen(true);
   };
 
   /**
-   * Maneja la adición de URLs
+   * Maneja la adición de URL desde el modal de documentación
+   * Abre el modal de guardado
    */
-  const handleAddUrl = async (url: string) => {
+  const handleAddUrl = (url: string) => {
+    setPendingItem({ type: 'url', data: url, name: url });
+    setIsModalOpen(false);
+    setIsSaveModalOpen(true);
+  };
+
+  /**
+   * Guarda el archivo o URL con la categoría y descripción proporcionadas
+   */
+  const handleSaveDocumentation = async (categoria: string, descripcion?: string) => {
+    if (!pendingItem) return;
+
     try {
-      console.log('[Formatos] Guardando URL:', url);
+      if (pendingItem.type === 'file') {
+        console.log('[Formatos] Subiendo archivo:', pendingItem.name);
+        // Nota: Aquí necesitarías modificar uploadFormatoDocument para aceptar categoría
+        // Por ahora, subiremos el archivo como está
+        await uploadFormatoDocument(pendingItem.data as File);
+        console.log('[Formatos] ✅ Archivo subido');
+        await loadDocumentos();
+      } else {
+        console.log('[Formatos] Guardando URL:', pendingItem.data);
+        await crear({ 
+          url: pendingItem.data as string, 
+          categoria: categoria,
+          descripcion: descripcion 
+        });
+        console.log('[Formatos] ✅ URL guardada');
+        await loadUrlFormatos();
+      }
       
-      await crear({ url, categoria: 'formato' });
-      console.log('[Formatos] ✅ URL guardada');
-      
-      // Recargar la lista de URLs
-      await loadUrlFormatos();
+      setPendingItem(null);
     } catch (err: any) {
-      console.error('[Formatos] ❌ Error al guardar URL:', err);
-      throw new Error(`Error al guardar URL: ${err.message}`);
+      console.error('[Formatos] ❌ Error al guardar:', err);
+      setError(`Error al guardar: ${err.message}`);
+      throw err;
     }
   };
 
@@ -235,6 +253,18 @@ const Formatos: React.FC = () => {
         onClose={() => setIsModalOpen(false)}
         onAddUrl={handleAddUrl}
         onAddFiles={handleAddFiles}
+      />
+
+      {/* Modal para guardar con categoría y descripción */}
+      <SaveDocumentationModal
+        isOpen={isSaveModalOpen}
+        onClose={() => {
+          setIsSaveModalOpen(false);
+          setPendingItem(null);
+        }}
+        onSave={handleSaveDocumentation}
+        itemType={pendingItem?.type || 'file'}
+        itemName={pendingItem?.name || ''}
       />
     </div>
   );

@@ -22,7 +22,7 @@ import {
   Layers
 } from 'lucide-react';
 import styles from './FeatureCard.module.css';
-import chatgptIcon from '../../icons8-chatgpt-50.png';
+import chatgptIcon from '../../COPILOT-removebg-preview.png';
 
 // Mapeo de strings a iconos
 const iconMap: Record<string, LucideIcon> = {

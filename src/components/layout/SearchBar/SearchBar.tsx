@@ -49,7 +49,7 @@ const SearchBar: React.FC = () => {
         </form>
         
         <Link
-          to="/assistant"
+          to="/agentes"
           className={styles['assistant-button']}
         >
           <Bot className={styles['assistant-icon']} />

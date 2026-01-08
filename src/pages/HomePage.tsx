@@ -180,9 +180,9 @@ const HomePage: React.FC = () => {
                 <ArrowRight size={16} />
               </button>
               
-              <Link to="/assistant" className={styles['cta-secondary']}>
+              <Link to="/agentes" className={styles['cta-secondary']}>
                 <Brain size={20} />
-                Explorar Asistente
+                Explorar Agente
               </Link>
             </div>
           </div>

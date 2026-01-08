@@ -160,9 +160,9 @@ const HomePage: React.FC = () => {
         <div className={styles['hero-content']}>
           <div className={styles['hero-text']}>
             <h1 className={styles['hero-title']}>
-              Impulsa la <span className={styles['hero-highlight']}>Innovación</span>
+              Impulsa tu <span className={styles['hero-highlight']}>Proceso de Innovación</span>
               <br />
-              en tu Organización
+              {/*en tu Organización*/}
             </h1>
             <p className={styles['hero-description']}>
               Plataforma integral para gestionar proyectos innovadores, experimentar con nuevas tecnologías 
@@ -257,7 +257,7 @@ const HomePage: React.FC = () => {
         </section>
       )}
 
-      {/* @section: Feature Cards */}
+      {/* @section: Feature Cards 
       <section className={styles['features-section']}>
         <div className={styles['section-container']}>
           <div className={styles['section-header']}>
@@ -286,7 +286,8 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </section>
-
+      */}
+      
       {/* @section: Innovation Resources */}
       <section className={styles['innovation-section']}>
         <div className={styles['section-container']}>

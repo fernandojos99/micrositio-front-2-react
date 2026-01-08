@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './Footer.module.css';
+import irisLogo from '../../../logoIRIS.png';
 
 const Footer: React.FC = () => {
   return (
@@ -7,13 +8,11 @@ const Footer: React.FC = () => {
       <div className={styles['footer-content']}>
         <div className={styles['footer-main']}>
           <div className={styles['footer-logo']}>
-            <div className={styles['logo-icon']}>
-              <span className={styles['logo-text']}>IR</span>
-            </div>
-            <h2 className={styles['logo-title']}>
-              <span className={styles['logo-innovative']}>Iris</span>
-              <span className={styles['logo-repository']}>Start Up Lab</span>
-            </h2>
+            <img 
+              src={irisLogo} 
+              alt="Iris StartUp Lab Logo" 
+              className={styles['logo-image']}
+            />
           </div>
           
           <div className={styles['footer-sections']}>

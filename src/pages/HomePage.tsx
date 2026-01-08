@@ -165,7 +165,7 @@ const HomePage: React.FC = () => {
               {/*en tu Organización*/}
             </h1>
             <p className={styles['hero-description']}>
-              Plataforma integral para gestionar proyectos innovadores, experimentar con nuevas tecnologías 
+              Conoce nuestra plataforma para gestionar proyectos innovadores, experimentar con nuevas tecnologías 
               y acelerar el desarrollo de soluciones disruptivas en tu empresa.
             </p>
             
@@ -287,7 +287,7 @@ const HomePage: React.FC = () => {
         </div>
       </section>
       */}
-      
+
       {/* @section: Innovation Resources */}
       <section className={styles['innovation-section']}>
         <div className={styles['section-container']}>

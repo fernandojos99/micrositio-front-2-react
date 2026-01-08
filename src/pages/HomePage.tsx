@@ -160,12 +160,12 @@ const HomePage: React.FC = () => {
         <div className={styles['hero-content']}>
           <div className={styles['hero-text']}>
             <h1 className={styles['hero-title']}>
-              Impulsa la <span className={styles['hero-highlight']}>Innovación</span>
+              Impulsa tu <span className={styles['hero-highlight']}>Proceso de Innovación</span>
               <br />
-              en tu Organización
+              {/*en tu Organización*/}
             </h1>
             <p className={styles['hero-description']}>
-              Plataforma integral para gestionar proyectos innovadores, experimentar con nuevas tecnologías 
+              Conoce nuestra plataforma para gestionar proyectos innovadores, experimentar con nuevas tecnologías 
               y acelerar el desarrollo de soluciones disruptivas en tu empresa.
             </p>
             
@@ -180,9 +180,9 @@ const HomePage: React.FC = () => {
                 <ArrowRight size={16} />
               </button>
               
-              <Link to="/assistant" className={styles['cta-secondary']}>
+              <Link to="/agentes" className={styles['cta-secondary']}>
                 <Brain size={20} />
-                Explorar Asistente
+                Explorar Agente
               </Link>
             </div>
           </div>
@@ -257,7 +257,7 @@ const HomePage: React.FC = () => {
         </section>
       )}
 
-      {/* @section: Feature Cards */}
+      {/* @section: Feature Cards 
       <section className={styles['features-section']}>
         <div className={styles['section-container']}>
           <div className={styles['section-header']}>
@@ -286,6 +286,7 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </section>
+      */}
 
       {/* @section: Innovation Resources */}
       <section className={styles['innovation-section']}>

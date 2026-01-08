@@ -47,6 +47,13 @@
   }
 }
 
+.logo-image {
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
 .logo-icon {
   width: 2.5rem;
   height: 2.5rem;

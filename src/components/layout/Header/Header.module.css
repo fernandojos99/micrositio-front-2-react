@@ -78,6 +78,14 @@
   transform: rotate(5deg);
 }
 
+/* Estilo para la imagen del logo */
+.logo-image {
+  height: 100px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
 .logo-text {
   color: white;
   font-weight: var(--font-weight-bold);

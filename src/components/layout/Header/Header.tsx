@@ -15,6 +15,7 @@ import BubbleBackground from '../BubbleBackground/BubbleBackground';
 import LoginModal from '../../auth/LoginModal';
 import RegisterModal from '../../auth/RegisterModal';
 import styles from './Header.module.css';
+import irisLogo from '../../../logoIRIS.png';
 
 /**
  * Componente Header con sistema de autenticación integrado
@@ -79,13 +80,11 @@ const Header: React.FC = () => {
       <div className={styles['header-content']}>
         {/* @section: Logo y título */}
         <Link to="/" className={styles['logo-area']}>
-          <div className={styles['logo-icon']}>
-            <span className={styles['logo-text']}>IR</span>
-          </div>
-          <h1 className={styles['logo-title']}>
-            <span className={styles['logo-innovative']}>Iris </span>
-            <span className={styles['logo-repository']}>Start up Lab</span>
-          </h1>
+          <img 
+            src={irisLogo} 
+            alt="Iris StartUp Lab Logo" 
+            className={styles['logo-image']}
+          />
         </Link>
 
         {/* @section: Acciones del header */}

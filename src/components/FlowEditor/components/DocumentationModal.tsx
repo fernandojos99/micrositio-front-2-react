@@ -36,7 +36,7 @@ interface DocumentationModalProps {
  * Características principales:
  * - Validación de URLs en tiempo real
  * - Drag & Drop para archivos
- * - Límite de 10MB por archivo
+ * - Límite de 50MB por archivo
  * - Preview de archivos seleccionados
  * - Validación de tipos de archivo
  * - Interfaz intuitiva con pestañas
@@ -130,21 +130,45 @@ const DocumentationModal: React.FC<DocumentationModalProps> = ({
    * @returns {string | null} Mensaje de error o null si es válido
    */
   const validateFile = (file: File): string | null => {
-    // @validation: Tamaño máximo 10MB
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    // @validation: Tamaño máximo 50MB
+    const maxSize = 50 * 1024 * 1024; // 50MB
     if (file.size > maxSize) {
-      return `${file.name}: El archivo excede el límite de 10MB`;
+      return `${file.name}: El archivo excede el límite de 50MB`;
     }
 
     // @validation: Tipos de archivo permitidos
     const allowedTypes = [
+      // Documentos
       'application/pdf',
+      'text/plain',
+      'text/csv',
+      // Word
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      // Excel
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      // PowerPoint
+      'application/vnd.ms-powerpoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'application/vnd.ms-powerpoint.presentation.macroEnabled.12',
+      'application/vnd.oasis.opendocument.presentation',
+      // Imágenes
       'image/jpeg',
       'image/png',
       'image/gif',
-      'text/plain',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      'image/webp',
+      'image/svg+xml',
+      // Videos
+      'video/mp4',
+      'video/mpeg',
+      'video/quicktime',
+      'video/x-msvideo',
+      'video/webm',
+      // Audio
+      'audio/mpeg',
+      'audio/wav',
+      'audio/ogg'
     ];
 
     if (!allowedTypes.includes(file.type)) {
@@ -365,7 +389,7 @@ const DocumentationModal: React.FC<DocumentationModalProps> = ({
                 <Upload size={32} />
                 <p>Arrastra archivos aquí o haz clic para seleccionar</p>
                 <p className="drop-zone-hint">
-                  Máximo 10MB por archivo • PDF, JPG, PNG, GIF, TXT, DOC, DOCX
+                  Máximo 50MB por archivo • PDF, Word, Excel, PowerPoint, Imágenes, Videos, Audio
                 </p>
               </div>
 
@@ -375,7 +399,7 @@ const DocumentationModal: React.FC<DocumentationModalProps> = ({
                 multiple
                 onChange={(e) => e.target.files && handleFileSelection(e.target.files)}
                 className="hidden-file-input"
-                accept=".pdf,.jpg,.jpeg,.png,.gif,.txt,.doc,.docx"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.pptm,.odp,.txt,.csv,.jpg,.jpeg,.png,.gif,.webp,.svg,.mp4,.mpeg,.mov,.avi,.webm,.mp3,.wav,.ogg"
               />
 
               {errors.files && (

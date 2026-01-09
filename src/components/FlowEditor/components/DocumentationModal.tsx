@@ -386,8 +386,10 @@ const DocumentationModal: React.FC<DocumentationModalProps> = ({
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
               >
-                <Upload size={32} />
-                <p>Arrastra archivos aquí o haz clic para seleccionar</p>
+                <div className="drop-zone-icon">
+                  <Upload size={32} />
+                </div>
+                <p className="drop-zone-text">Arrastra archivos aquí o haz clic para seleccionar</p>
                 <p className="drop-zone-hint">
                   Máximo 50MB por archivo • PDF, Word, Excel, PowerPoint, Imágenes, Videos, Audio
                 </p>

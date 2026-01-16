@@ -2,16 +2,17 @@ import apiClient from '../apiClient';
 
 /**
  * Interfaz que representa una métrica de testing card.
+ * @interface MetricaTestingCard
  */
 export interface MetricaTestingCard {
-  id: number;                    // ← Campo correcto del backend
+  id_metrica: number;
   id_testing_card: number;
   nombre: string;
   operador: string;
   criterio: string;
-  resultado?: string ;   // ← Puede ser string 
-  creado: string;               // ← Campo correcto del backend
-  actualizado: string;          // ← Campo correcto del backend
+  resultado?: string;
+  creado: string;
+  actualizado: string;
 }
 
 /**

@@ -23,29 +23,22 @@ import {
 import { Node } from 'reactflow';
 import { TestingCardData } from './types';
 import DocumentationModal from './components/DocumentationModal';
-
-/**
- * Interfaz extendida para métricas con propiedades adicionales del frontend
- */
-interface MetricaWithFrontendProps {
-  id_metrica: number;
-  id_testing_card: number;
-  nombre: string;
-  operador: string;
-  criterio: string;
-  created_at?: string;
-  updated_at?: string;
-  needsCreation?: boolean; // Propiedad adicional para el frontend
-}
 import EmpleadoSelector from '../../pages/Proyectos/components/EmpleadoSelector';
 import { Empleado, obtenerEmpleados } from '../../services/empleadosService';
 import { obtenerTestingCardPorId, actualizarTestingCard } from '../../services/testingCardService';
-import { obtenerPorTestingCard, eliminar, crear } from '../../services/metricaTestingCardService';
+import { MetricaTestingCard, obtenerPorTestingCard, eliminar, crear } from '../../services/metricaTestingCardService';
 import { UrlTestingCard, obtenerPorTestingCard as obtenerUrlsPorTestingCard, crear as crearUrl, eliminar as eliminarUrl } from '../../services/urlTestingCardService';
 import { TestingCardDocument, getDocumentsByTestingCard, deleteDocument, isImage, uploadDocument } from '../../services/testingCardDocumentService';
 import TestingCardPlaybookService from '../../services/TestingCardPlaybookService';
 import { TestingCardPlaybook } from '../../types/testingCardPlaybook';
 import './styles/TestingCardEditModal.css';
+
+/**
+ * Interfaz extendida para métricas con propiedad adicional del frontend
+ */
+interface MetricaWithFrontendProps extends MetricaTestingCard {
+  needsCreation?: boolean; // Propiedad adicional para marcar si necesita ser creada en BD
+}
 
 /**
  * Props para el componente TestingCardEditModal
@@ -338,12 +331,14 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
 
   // Añade una nueva métrica vacía
   const addMetric = () => {
-    const newMetric = { 
+    const newMetric: MetricaWithFrontendProps = { 
       id_metrica: 0, 
       id_testing_card: editingId, 
       nombre: '', 
       operador: '', 
       criterio: '',
+      creado: new Date().toISOString(),
+      actualizado: new Date().toISOString(),
       needsCreation: true // Marca que necesita ser creada en BD
     };  
     setFormData({
@@ -518,7 +513,7 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
       // Actualizar el formData con las métricas cargadas
       setFormData(prev => ({
         ...prev,
-        metricas: metricasData
+        metricas: metricasData as MetricaWithFrontendProps[]
       }));
       
       console.log('[cargarMetricas] ✅ FormData actualizado con las métricas');

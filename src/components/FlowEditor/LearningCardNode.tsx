@@ -236,7 +236,7 @@ const LearningCardNode: React.FC<LearningCardNodeProps> = ({ data, selected }) =
       }}>
         {metricas.map((metrica) => (
           <div 
-            key={metrica.id} 
+            key={metrica.id_metrica} 
             //key={metrica.id_metrica} 
 
             className="metrica-item"

@@ -262,7 +262,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       const resultadosIniciales: {[uniqueKey: string]: string} = {};
       metricasArray.forEach((metrica, index) => {
         // Crear clave única usando múltiples campos para garantizar unicidad
-        const uniqueKey = `${metrica.id || index}_${metrica.nombre || 'sin_nombre'}_${metrica.id_testing_card}`;
+        const uniqueKey = `${metrica.id_metrica || index}_${metrica.nombre || 'sin_nombre'}_${metrica.id_testing_card}`;
         resultadosIniciales[uniqueKey] = metrica.resultado ? String(metrica.resultado) : '';
       });
       
@@ -281,7 +281,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
    * Genera una clave única para identificar una métrica
    */
   const generarClaveUnicaMetrica = (metrica: MetricaTestingCard, index: number): string => {
-    return `${metrica.id || index}_${metrica.nombre || 'sin_nombre'}_${metrica.id_testing_card}`;
+    return `${metrica.id_metrica || index}_${metrica.nombre || 'sin_nombre'}_${metrica.id_testing_card}`;
   };
 
   /**
@@ -310,8 +310,8 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       return;
     }
     
-    if (metrica.id === undefined || metrica.id === null) {
-      console.error('[guardarResultadoMetricaNuevo] ❌ ID de métrica no válido:', metrica.id);
+    if (metrica.id_metrica === undefined || metrica.id_metrica === null) {
+      console.error('[guardarResultadoMetricaNuevo] ❌ ID de métrica no válido:', metrica.id_metrica);
       setErrorMsg('Error: ID de métrica no válido');
       return;
     }
@@ -331,15 +331,15 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
     }
     
     try {
-      setSavingMetrica(metrica.id);
+      setSavingMetrica(metrica.id_metrica);
       
       // Llamada a la API - El resultado ahora es varchar(30) en la BD
-      await actualizarResultado(metrica.id, String(nuevoResultado));
+      await actualizarResultado(metrica.id_metrica, String(nuevoResultado));
       
       // Actualizar el estado local con la métrica actualizada (como string)
       setMetricas(prevMetricas => 
         prevMetricas.map(m => 
-          m.id === metrica.id 
+          m.id_metrica === metrica.id_metrica 
             ? { ...m, resultado: String(nuevoResultado) }
             : m
         )
@@ -389,7 +389,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
         {metricas.map((metrica, index) => {
           const claveUnica = generarClaveUnicaMetrica(metrica, index);
           const valorActual = resultadosEditables[claveUnica] || '';
-          const estaGuardando = savingMetrica === metrica.id;
+          const estaGuardando = savingMetrica === metrica.id_metrica;
           
           return (
           <div key={claveUnica} className="metrica-item">

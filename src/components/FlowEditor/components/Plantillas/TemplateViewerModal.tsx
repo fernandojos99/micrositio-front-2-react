@@ -52,7 +52,7 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
   //onUseTemplate,
 }) => {
   // Estados locales para el manejo de datos y UI
-  console.log('TemplateViewerModal renderizado:', { isOpen, id_testing_card });
+  //console.log('TemplateViewerModal renderizado:', { isOpen, id_testing_card });
   const [templateData, setTemplateData] = useState<TemplateServiceResponse | null>(null);
   const [loadingState, setLoadingState] = useState<LoadingState>(TEMPLATE_CONSTANTS.LOADING_STATES.IDLE);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +68,7 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
   const [loadingSelectedCardMetricas, setLoadingSelectedCardMetricas] = useState(false);
 
   // Log para confirmar que se recibe el id_testing_card
-  console.log('TemplateViewerModal recibió id_testing_card:', id_testing_card);
+  //console.log('TemplateViewerModal recibió id_testing_card:', id_testing_card);
 
   /**
    * Función para cargar datos de plantilla
@@ -78,7 +78,7 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
       setLoadingState(TEMPLATE_CONSTANTS.LOADING_STATES.LOADING);
       setError(null);
       
-      console.log('Cargando datos de plantilla para testing card:', id_testing_card);
+      //console.log('Cargando datos de plantilla para testing card:', id_testing_card);
 
       // Simular carga de datos de plantilla
       // TODO: Reemplazar con llamada real al servicio cuando esté disponible
@@ -108,7 +108,7 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
       setTemplateData(mockTemplateData);
       setLoadingState(TEMPLATE_CONSTANTS.LOADING_STATES.SUCCESS);
       
-      console.log('Datos de plantilla cargados exitosamente');
+      //console.log('Datos de plantilla cargados exitosamente');
     } catch (err) {
       console.error('Error cargando datos de plantilla:', err);
       setError(
@@ -124,7 +124,7 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
    * Función placeholder para aplicar testing card
    */
   const handleApplyTestingCard = () => {
-    console.log('Aplicar testing card para:', id_testing_card);
+    //console.log('Aplicar testing card para:', id_testing_card);
   };
 
   /**

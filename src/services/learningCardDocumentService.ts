@@ -128,8 +128,8 @@ export const uploadDocument = async (
   formData.append('document', file);
 
   const endpoint = `/api/learning-card/${learningCardId}/documents`;
-  console.log('[learningCardDocumentService] Subiendo documento a:', endpoint);
-  console.log('[learningCardDocumentService] Archivo:', file.name);
+  //console.log('[learningCardDocumentService] Subiendo documento a:', endpoint);
+  //console.log('[learningCardDocumentService] Archivo:', file.name);
 
   const response = await apiClient.post<DocumentUploadResponse>(
     endpoint,
@@ -158,60 +158,60 @@ export const getDocumentsByLearningCard = async (
 ): Promise<LearningCardDocument[]> => {
   try {
     const endpoint = `/api/learning-card/${learningCardId}/documents`;
-    console.log('[learningCardDocumentService] Llamando endpoint:', endpoint);
-    console.log('[learningCardDocumentService] URL completa:', `http://localhost:3000${endpoint}`);
+    //console.log('[learningCardDocumentService] Llamando endpoint:', endpoint);
+    //console.log('[learningCardDocumentService] URL completa:', `http://localhost:3000${endpoint}`);
     
     const response = await apiClient.get<DocumentListResponse>(endpoint);
 
     // Validación defensiva de la respuesta
     if (!response.data) {
-      console.warn('[learningCardDocumentService] Respuesta sin data, devolviendo array vacío');
+      //console.warn('[learningCardDocumentService] Respuesta sin data, devolviendo array vacío');
       return [];
     }
 
     if (!response.data.success) {
-      console.warn('[learningCardDocumentService] API respondió con success=false:', response.data);
+      //console.warn('[learningCardDocumentService] API respondió con success=false:', response.data);
       return [];
     }
 
     // Asegurar que data contenga la estructura esperada
     const responseData = response.data.data;
     if (!responseData || typeof responseData !== 'object') {
-      console.warn('[learningCardDocumentService] API no devolvió la estructura esperada:', responseData);
+      //console.warn('[learningCardDocumentService] API no devolvió la estructura esperada:', responseData);
       return [];
     }
 
     // Verificar que tenga la propiedad documents
     if (!responseData.hasOwnProperty('documents')) {
-      console.warn('[learningCardDocumentService] API no devolvió la propiedad documents:', responseData);
+      //console.warn('[learningCardDocumentService] API no devolvió la propiedad documents:', responseData);
       return [];
     }
 
     const documents = responseData.documents;
-    console.log('[learningCardDocumentService] Estructura de respuesta completa:', JSON.stringify(response.data, null, 2));
-    console.log('[learningCardDocumentService] Tipo de documents:', typeof documents);
-    console.log('[learningCardDocumentService] Es array?:', Array.isArray(documents));
-    console.log('[learningCardDocumentService] Contenido de documents:', documents);
-    console.log('[learningCardDocumentService] Count:', responseData.count);
+    //console.log('[learningCardDocumentService] Estructura de respuesta completa:', JSON.stringify(response.data, null, 2));
+    //console.log('[learningCardDocumentService] Tipo de documents:', typeof documents);
+    //console.log('[learningCardDocumentService] Es array?:', Array.isArray(documents));
+    //console.log('[learningCardDocumentService] Contenido de documents:', documents);
+    //console.log('[learningCardDocumentService] Count:', responseData.count);
     
     if (!Array.isArray(documents)) {
-      console.warn('[learningCardDocumentService] API no devolvió un array en documents, devolviendo array vacío');
-      console.warn('[learningCardDocumentService] Valor recibido:', documents);
+      //console.warn('[learningCardDocumentService] API no devolvió un array en documents, devolviendo array vacío');
+      //console.warn('[learningCardDocumentService] Valor recibido:', documents);
       return [];
     }
 
     return documents;
   } catch (error: any) {
-    console.error('[learningCardDocumentService] Error al obtener documentos:', error);
+    //console.error('[learningCardDocumentService] Error al obtener documentos:', error);
     
     // Si el error es 404 (no found), devolver array vacío en lugar de error
     if (error.response?.status === 404) {
-      console.log('[learningCardDocumentService] Learning Card sin documentos (404), devolviendo array vacío');
+      //console.log('[learningCardDocumentService] Learning Card sin documentos (404), devolviendo array vacío');
       return [];
     }
     
     // Para otros errores, devolver array vacío para evitar crashes
-    console.warn('[learningCardDocumentService] Error inesperado, devolviendo array vacío');
+    //console.warn('[learningCardDocumentService] Error inesperado, devolviendo array vacío');
     return [];
   }
 };
@@ -223,7 +223,7 @@ export const getDocumentsByLearningCard = async (
  */
 export const getDocumentById = async (documentId: string): Promise<LearningCardDocument> => {
   const endpoint = `/api/learning-card/documents/${documentId}`;
-  console.log('[learningCardDocumentService] Obteniendo documento:', endpoint);
+  //console.log('[learningCardDocumentService] Obteniendo documento:', endpoint);
   
   const response = await apiClient.get<{ success: boolean; data: LearningCardDocument }>(endpoint);
 
@@ -247,34 +247,34 @@ export const deleteDocument = async (documentId: string): Promise<void> => {
     }
 
     const endpoint = `/api/learning-card/documents/${documentId}`;
-    console.log('[learningCardDocumentService] Eliminando documento:', endpoint);
-    console.log('[learningCardDocumentService] Document ID:', documentId);
+    //console.log('[learningCardDocumentService] Eliminando documento:', endpoint);
+    //console.log('[learningCardDocumentService] Document ID:', documentId);
     
     const response = await apiClient.delete<DocumentDeleteResponse>(endpoint);
-    console.log('[learningCardDocumentService] Respuesta del servidor:', response.data);
+    //console.log('[learningCardDocumentService] Respuesta del servidor:', response.data);
 
     if (!response.data.success) {
       throw new Error(response.data.message || 'Error al eliminar documento');
     }
     
-    console.log('[learningCardDocumentService] ✅ Documento eliminado exitosamente');
+    //console.log('[learningCardDocumentService] ✅ Documento eliminado exitosamente');
   } catch (error: any) {
-    console.error('[learningCardDocumentService] ❌ Error al eliminar documento:', error);
+    //console.error('[learningCardDocumentService] ❌ Error al eliminar documento:', error);
     
     // Log detallado del error
     if (error.response) {
-      console.error('[learningCardDocumentService] Status:', error.response.status);
-      console.error('[learningCardDocumentService] Data:', error.response.data);
-      console.error('[learningCardDocumentService] Headers:', error.response.headers);
+      //console.error('[learningCardDocumentService] Status:', error.response.status);
+      //console.error('[learningCardDocumentService] Data:', error.response.data);
+      //console.error('[learningCardDocumentService] Headers:', error.response.headers);
       
       // Lanzar error con mensaje del backend si está disponible
       const backendMessage = error.response.data?.message || error.response.data?.detail || 'Error interno del servidor';
       throw new Error(`Error ${error.response.status}: ${backendMessage}`);
     } else if (error.request) {
-      console.error('[learningCardDocumentService] No response:', error.request);
+      //console.error('[learningCardDocumentService] No response:', error.request);
       throw new Error('No se pudo conectar con el servidor');
     } else {
-      console.error('[learningCardDocumentService] Error config:', error.message);
+      //console.error('[learningCardDocumentService] Error config:', error.message);
       throw error;
     }
   }

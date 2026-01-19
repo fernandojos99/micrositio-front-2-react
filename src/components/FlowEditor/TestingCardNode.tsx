@@ -59,7 +59,7 @@ const TestingCardNode: React.FC<TestingCardNodeProps> = ({ data, selected }) => 
 
   // Handlers para las acciones de plantillas
   const handleApplyTemplate = () => {
-    console.log('Vamos a abrir el modal plantilla para la TC:', data.id_testing_card);
+    //console.log('Vamos a abrir el modal plantilla para la TC:', data.id_testing_card);
     //console.log('Estados antes del cambio:', { showTemplateModal, selectedTemplateId });
     // Por ahora, abrir modal con una plantilla de ejemplo
     //setSelectedTemplateId(1); // ID de plantilla de ejemplo
@@ -69,7 +69,7 @@ const TestingCardNode: React.FC<TestingCardNodeProps> = ({ data, selected }) => 
 
   const handleSaveTemplate = async () => {
     try {
-      console.log('Guardar como plantilla para Testing Card:', data.id_testing_card);
+      //console.log('Guardar como plantilla para Testing Card:', data.id_testing_card);
       
       // Importar la función para crear plantilla
       const { crearPlantillaTestingCard } = await import('../../services/plantillaTestingCardService');
@@ -78,15 +78,15 @@ const TestingCardNode: React.FC<TestingCardNodeProps> = ({ data, selected }) => 
       // TODO: Obtener el id_empleado del usuario actual desde el contexto de autenticación
       const id_empleado = 10;
       
-      console.log('Creando plantilla con datos:', {
-        id_testing_card: data.id_testing_card,
-        id_empleado: id_empleado
-      });
+      //console.log('Creando plantilla con datos:', {
+      //  id_testing_card: data.id_testing_card,
+      //  id_empleado: id_empleado
+      //});
       
       // Llamar al servicio para crear la plantilla
       const plantillaCreada = await crearPlantillaTestingCard(data.id_testing_card, id_empleado);
       
-      console.log('Plantilla creada exitosamente:', plantillaCreada);
+      //console.log('Plantilla creada exitosamente:', plantillaCreada);
       
       // Mostrar mensaje de éxito al usuario
       alert(`✅ Testing Card "${data.titulo}" guardada como plantilla exitosamente!\n\nID de plantilla: ${plantillaCreada.id_plantilla_testing_card}`);
@@ -110,7 +110,7 @@ const TestingCardNode: React.FC<TestingCardNodeProps> = ({ data, selected }) => 
 
   // Handler para cerrar el modal de plantillas
   const handleCloseTemplateModal = () => {
-    console.log('Cerrando modal de plantillas');
+    //console.log('Cerrando modal de plantillas');
     setShowTemplateModal(false);
     //setSelectedTemplateId(null);
   };
@@ -122,21 +122,21 @@ const TestingCardNode: React.FC<TestingCardNodeProps> = ({ data, selected }) => 
 
   // Cargar métricas y URLs cuando se expande el componente
   useEffect(() => {
-    console.log('[TestingCardNode] useEffect activado:', {
-      isExpanded,
-      id_testing_card: data.id_testing_card
-    });
+    //console.log('[TestingCardNode] useEffect activado:', {
+    //  isExpanded,
+    //  id_testing_card: data.id_testing_card
+    //});
     
     if (isExpanded && data.id_testing_card) {
-      console.log('[TestingCardNode] Condiciones cumplidas, iniciando cargas...');
+      //console.log('[TestingCardNode] Condiciones cumplidas, iniciando cargas...');
       cargarMetricas();
       cargarUrls();
       cargarResponsable();
     } else {
-      console.log('[TestingCardNode] Condiciones no cumplidas:', {
-        expandido: isExpanded,
-        tieneId: !!data.id_testing_card
-      });
+      //console.log('[TestingCardNode] Condiciones no cumplidas:', {
+      //  expandido: isExpanded,
+      //  tieneId: !!data.id_testing_card
+      //});
     }
   }, [isExpanded, data.id_testing_card]);
 
@@ -187,7 +187,7 @@ const TestingCardNode: React.FC<TestingCardNodeProps> = ({ data, selected }) => 
       const urlsData = await obtenerUrlsPorTestingCard(data.id_testing_card);
       setUrls(urlsData || []);
     } catch (error) {
-      console.error('[TestingCardNode] Error al cargar URLs:', error);
+      //console.error('[TestingCardNode] Error al cargar URLs:', error);
       setUrls([]);
     } finally {
       setLoadingUrls(false);
@@ -342,7 +342,7 @@ const TestingCardNode: React.FC<TestingCardNodeProps> = ({ data, selected }) => 
     return (
       <div className="metricas-list">
         {metricas.map((metrica) => (
-          <div key={metrica.id} className="metrica-item">
+          <div key={metrica.id_metrica} className="metrica-item">
             <div className="metrica-header" style={{
               display: 'flex',
               alignItems: 'center',

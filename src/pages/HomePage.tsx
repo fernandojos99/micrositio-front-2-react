@@ -59,10 +59,10 @@ const featuredProjects = [
  * @constant stats
  */
 const stats = [
-  { label: 'Proyectos Activos', value: '24+', icon: <Rocket size={20} /> },
-  { label: 'Colaboradores', value: '50+', icon: <Users size={20} /> },
-  { label: 'Experimentos', value: '120+', icon: <Zap size={20} /> },
-  { label: 'Tasa de Éxito', value: '94%', icon: <TrendingUp size={20} /> }
+  { label: 'Proyectos Activos-prueba', value: '24+', icon: <Rocket size={20} /> },
+  { label: 'Colaboradores-prueba', value: '50+', icon: <Users size={20} /> },
+  { label: 'Experimentos-prueba', value: '120+', icon: <Zap size={20} /> },
+  { label: 'Tasa de Éxito-prueba', value: '94%', icon: <TrendingUp size={20} /> }
 ];
 
 /**

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Edit, FlaskConical } from 'lucide-react';
+import { Plus, Trash2, Edit, FlaskConical, Save } from 'lucide-react';
 import { Secuencia } from '../../../types/secuencia';
 import Button from '../../../components/ui/Button/Button';
 import ConfirmationModal from '../../../components/ui/ConfirmationModal/ConfirmationModal';
@@ -333,13 +333,44 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
       {/* @section: Header de la sección */}
       <div className={styles['secuencias-header']}>
         <div className={styles['secuencias-title-container']}>
+
+      {/**
           <h2 className={styles['secuencias-title']}>Secuencias del Proyecto:</h2>
+
           <h3 className={styles['proyecto-titulo']}>
             {tituloProyecto || 'Sin título'}
           </h3>
+
           <p className={styles['secuencias-description']}>
             Selecciona una secuencia para visualizar y editar su flujo de trabajo
           </p>
+   */}  
+
+              <h2 className={styles['secuencias-title']}>
+                Secuencias del Proyecto:
+              </h2>
+
+              <div className={styles['proyecto-header']}>
+                <h3 className={styles['proyecto-titulo']}>
+                  {tituloProyecto || 'Sin título'}
+                </h3>
+
+                 <Button
+                variant="primary"
+                size="small"
+                icon={<Save size={14} />}
+               // onClick={handleGuardarCambios}
+              >
+
+                
+                Accionables
+              </Button>
+              </div>
+
+              <p className={styles['secuencias-description']}>
+                Selecciona una secuencia para visualizar y editar su flujo de trabajo
+              </p>
+
         </div>
       </div>
 

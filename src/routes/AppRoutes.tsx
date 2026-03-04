@@ -35,45 +35,48 @@ import Assistant from '../pages/Assistant';
 import LibroDigital from '../pages/LibroDigital/LibroDigital';
 import Administracion from '../pages/Administracion/Administracion';
 import Busqueda from '../pages/Busqueda/Busqueda';
+import { GraphTotal } from '../pages/ProyectoDetalle/components/graph/GraphTotal';
 
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<MainLayout />}>
-        <Route index element={<HomePage />} />
+          <Route index element={<HomePage />} />
 
-        <Route path="proyectos" element={<Proyectos />} />
-        <Route path="proyectos/:proyectoId" element={<ProyectoDetalle />} />
+          <Route path="proyectos" element={<Proyectos />} />
+          <Route path="proyectos/:proyectoId" element={<ProyectoDetalle />} />
 
-        <Route path="perfil" element={<Perfil />} />
-        <Route path="equipo" element={<Equipo />} />
+          <Route path="perfil" element={<Perfil />} />
+          <Route path="equipo" element={<Equipo />} />
 
-        <Route path="agentes" element={<Agentes />} />
-        <Route path="agentes/:agenteId" element={<AgenteDetalle />} />
+          <Route path="agentes" element={<Agentes />} />
+          <Route path="agentes/:agenteId" element={<AgenteDetalle />} />
 
-        <Route path="formatos" element={<Formatos />} />
-        <Route path="assistant" element={<Assistant />} />
-        <Route path="libro-digital" element={<LibroDigital />} />
-        <Route path="administracion" element={<Administracion />} />
-        <Route path="buscar" element={<Busqueda />} />
+          <Route path="formatos" element={<Formatos />} />
+          <Route path="assistant" element={<Assistant />} />
+          <Route path="libro-digital" element={<LibroDigital />} />
+          <Route path="administracion" element={<Administracion />} />
+          <Route path="buscar" element={<Busqueda />} />
+          <Route path="buscar" element={<GraphTotal />} />
 
-        {/* Rutas alternativas que ya tenías */}
-        <Route path="/proyecto/:proyectoId" element={<ProyectoDetalle />} />
-        <Route
-          path="/proyecto/:proyectoId/secuencia/:secuenciaId"
-          element={<ProyectoDetalle />}
-        />
-        <Route
-          path="/proyecto/:proyectoId/secuencia/:secuenciaId/testing-card/:testingCardId"
-          element={<ProyectoDetalle />}
-        />
-        <Route
-          path="/proyecto/:proyectoId/secuencia/:secuenciaId/learning-card/:learningCardId"
-          element={<ProyectoDetalle />}
-        />
 
-        {/* Catch all */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Rutas alternativas que ya tenías */}
+          <Route path="/proyecto/:proyectoId" element={<ProyectoDetalle />} />
+          <Route
+            path="/proyecto/:proyectoId/secuencia/:secuenciaId"
+            element={<ProyectoDetalle />}
+          />
+          <Route
+            path="/proyecto/:proyectoId/secuencia/:secuenciaId/testing-card/:testingCardId"
+            element={<ProyectoDetalle />}
+          />
+          <Route
+            path="/proyecto/:proyectoId/secuencia/:secuenciaId/learning-card/:learningCardId"
+            element={<ProyectoDetalle />}
+          />
+
+          {/* Catch all */}
+          <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
   );

@@ -337,3 +337,16 @@
     transform: none;
   }
 }
+
+.proyecto-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.proyecto-boton {
+  padding: 0.6rem 1.4rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}

@@ -39,8 +39,7 @@ select {
 
 button {
   cursor: pointer;
-  border: none;
-  background: none;
+
 }
 
 a {
@@ -66,4 +65,12 @@ h6 {
 #root {
   height: 100%;
   isolation: isolate;
+}
+
+/* Fix focus outline from Recharts */
+.recharts-wrapper:focus,
+.recharts-surface:focus,
+.recharts-layer:focus,
+svg:focus {
+  outline: none !important;
 }

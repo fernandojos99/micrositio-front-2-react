@@ -57,7 +57,7 @@ function AppRoutes() {
           <Route path="libro-digital" element={<LibroDigital />} />
           <Route path="administracion" element={<Administracion />} />
           <Route path="buscar" element={<Busqueda />} />
-          <Route path="buscar" element={<GraphTotal />} />
+          <Route path="grafica" element={<GraphTotal />} />
 
 
           {/* Rutas alternativas que ya tenías */}

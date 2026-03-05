@@ -90,18 +90,4 @@
   --z-tooltip: 1070;
 }
 
-/* Fix focus outline from Recharts */
-.recharts-wrapper:focus,
-.recharts-surface:focus,
-.recharts-layer:focus,
-svg:focus {
-  outline: none !important;
-}
 
-:focus {
-  outline: none !important;
-}
-
-:focus-visible {
-  outline: none !important;
-}

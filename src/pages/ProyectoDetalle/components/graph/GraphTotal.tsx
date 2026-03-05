@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react"
 import { QuadrantScatterChart, ScatterPoint } from "./graph/QuadrantScatterChart"
-
+import styles from "./GraphTotal.module.css";
 const teamA: ScatterPoint[] = [
   { x: 20, y: 30, label: "Proyecto Alpha" },
   { x: 35, y: 70, label: "Proyecto Beta" },
@@ -65,7 +65,9 @@ export const GraphTotal=()=> {
 
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center p-4 gap-6">
-      <div className="w-full max-w-4xl space-y-6">
+      <div
+        className={`${styles.focus} ${styles["focus-visible"]} w-full max-w-4xl space-y-6 miComponente`}
+      >
         <div className="space-y-1 text-center">
           <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl text-balance">
             Scatter Chart con Cuadrantes

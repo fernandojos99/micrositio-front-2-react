@@ -1,6 +1,8 @@
-"use client"
+//"use client"
 
 import { useState, useCallback } from "react"
+
+
 import {
   ScatterChart,
   Scatter,
@@ -13,6 +15,8 @@ import {
   ReferenceLine,
   Tooltip,
 } from "recharts"
+
+
 import {
   Card,
   CardContent,
@@ -22,7 +26,11 @@ import {
 } from "../ui/card"
 import { ChartContainer } from "../ui/chart"
 
+
 // --- Types ---
+// Scatter = dispersión
+
+// Point 
 export interface ScatterPoint {
   x: number
   y: number
@@ -30,18 +38,22 @@ export interface ScatterPoint {
   [key: string]: string | number | undefined
 }
 
+// sets of points
 export interface ScatterSeriesConfig {
   name: string
   data: ScatterPoint[]
   color: string
 }
 
+// Configuration of cuadrants , color and label
 export interface QuadrantConfig {
   topLeft: { color: string; label: string }
   topRight: { color: string; label: string }
   bottomLeft: { color: string; label: string }
   bottomRight: { color: string; label: string }
 }
+
+
 
 interface ActivePoint {
   point: ScatterPoint
@@ -52,8 +64,10 @@ interface ActivePoint {
 }
 
 
-
+//=================================================
 // --- Quadrant Labels via CustomizedLabel ---
+// Control the position of Quadrant Labels
+//==================================================
 function QuadrantLabels({
   xMid,
   yMid,
@@ -67,6 +81,8 @@ function QuadrantLabels({
   yDomain: [number, number]
   quadrants: QuadrantConfig
 }) {
+
+
   const labels = [
     {
       label: quadrants.topLeft.label,
@@ -113,7 +129,10 @@ function QuadrantLabels({
   )
 }
 
+
+
 // --- Custom Dot Shape ---
+// Se modifica el punto para que no sea solo un punto sencillo
 function DotShape(props: {
   cx?: number
   cy?: number
@@ -154,7 +173,10 @@ function DotShape(props: {
       }}
     >
       {/* Hit area */}
+      {/* Area para dar click , si le pongo seriesColor pinta el area para apretar. 
+      <circle r={5} fill={seriesColor}/>*/}
       <circle cx={cx} cy={cy} r={20} fill="transparent" />
+
       {/* Pulse ring on active */}
       {isActive && (
         <circle
@@ -168,6 +190,7 @@ function DotShape(props: {
           strokeWidth={1.5}
         >
           <animate
+          // efecto pulsante cuando se aprieta el boton
             attributeName="r"
             values="14;18;14"
             dur="1.5s"
@@ -181,6 +204,10 @@ function DotShape(props: {
           />
         </circle>
       )}
+
+
+
+
       {/* White border */}
       <circle
         cx={cx}
@@ -209,6 +236,7 @@ function DotShape(props: {
 }
 
 // --- Custom Tooltip ---
+// Es el contenido cuando pasa el mouse arriba del punto.
 function ScatterTooltipContent({ active, payload }: { active?: boolean; payload?: Array<{ payload: ScatterPoint }> }) {
   if (!active || !payload?.length) return null
   const pt = payload[0].payload
@@ -228,6 +256,8 @@ function ScatterTooltipContent({ active, payload }: { active?: boolean; payload?
 }
 
 // --- Point Popover ---
+// Es la tarjeta que sale cuando dame click sobre un boton 
+
 function PointPopover({
   point,
   onClose,
@@ -333,8 +363,8 @@ export interface QuadrantScatterChartProps {
 //fef3c7
 
 const DEFAULT_QUADRANTS: QuadrantConfig = {
-  topLeft: { color: "#fef3c7", label: "Bajo Rendimiento" },
-  topRight: { color: "#dcfce7", label: "Alto Rendimiento" },
+  topLeft: { color: "#fef3c7", label: "Bajo Esfuerzo" },
+  topRight: { color: "#dcfce7", label: "Alto Impacto" },
   bottomLeft: { color: "#fee2e2", label: "Critico" },
   bottomRight: { color: "#dbeafe", label: "En Crecimiento" },
 }

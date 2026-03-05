@@ -1,8 +1,11 @@
-//"use client"
+//"use client"  esto es de next.js
 
 import { useCallback, useState } from "react"
 import { QuadrantScatterChart, ScatterPoint } from "./graph/QuadrantScatterChart"
 import styles from "./GraphTotal.module.css";
+
+
+
 const teamA: ScatterPoint[] = [
   { x: 20, y: 30, label: "Proyecto Alpha" },
   { x: 35, y: 70, label: "Proyecto Beta" },
@@ -12,7 +15,7 @@ const teamA: ScatterPoint[] = [
   { x: 72, y: 40, label: "Proyecto Zeta" },
 ]
 
-const teamB: ScatterPoint[] = [
+/* const teamB: ScatterPoint[] = [
   { x: 45, y: 25, label: "Iniciativa 1" },
   { x: 55, y: 60, label: "Iniciativa 2" },
   { x: 90, y: 75, label: "Iniciativa 3" },
@@ -27,7 +30,7 @@ const teamC: ScatterPoint[] = [
   { x: 50, y: 50, label: "Tarea Z" },
   { x: 65, y: 70, label: "Tarea W" },
   { x: 30, y: 40, label: "Tarea V" },
-]
+] */
 
 
 // posibles lineas a seguir
@@ -48,9 +51,16 @@ export const App = () => {
 }
 */
 
+//========================================================
+//          main function
+// =======================================================
+
+
 export const GraphTotal=()=> {
   const [lastAction, setLastAction] = useState<string | null>(null)
 
+
+  /* Funcion para contruir el mensjar de ultimo evento cliquado */
   const handlePointAction = useCallback(
     (
       action: string,
@@ -64,34 +74,52 @@ export const GraphTotal=()=> {
   )
 
   return (
+
+
     <main className="min-h-screen bg-background flex flex-col items-center justify-center p-4 gap-6">
       <div
         className={`${styles.focus} ${styles["focus-visible"]} w-full max-w-4xl space-y-6 miComponente`}
       >
+
+        {/* 
+        =============================
+        component's Header 
+        =============================
+        */}
         <div className="space-y-1 text-center">
           <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl text-balance">
-            Scatter Chart con Cuadrantes
+            Accionables
           </h1>
           <p className="text-muted-foreground text-sm">
             Haz clic en cualquier punto para interactuar. Los cuadrantes
-            representan diferentes estados.
+            representan diferentes niveles de aprovechamiento.
           </p>
         </div>
 
+
+        {/*
+        ==============================
+                  Graph 
+        ==============================
+        */}
         <QuadrantScatterChart
-          title="Rendimiento vs Satisfaccion"
-          description="Distribucion de proyectos por equipo en 4 cuadrantes"
+          title="Esfuerzo vs Impacto"
+          description="Distribucion de accionables en 4 cuadrantes"
           series={series}
-          xLabel="Rendimiento"
-          yLabel="Satisfaccion"
+          xLabel="Esfuerzo"
+          yLabel="Impacto"
           quadrants={{
-            topLeft: { color: "#fef3c7", label: "Bajo Rend. / Alta Satisf." },
-            topRight: { color: "#dcfce7", label: "Alto Rend. / Alta Satisf." },
-            bottomLeft: { color: "#fee2e2", label: "Bajo Rend. / Baja Satisf." },
-            bottomRight: { color: "#dbeafe", label: "Alto Rend. / Baja Satisf." },
+            topLeft: { color: "#fef3c7", label: "Bajo Esfuerzo. / Alto Impacto." },
+            topRight: { color: "#dcfce7", label: "Alto Esfuezo. / Alto Impacto." },
+            bottomLeft: { color: "#fee2e2", label: "Bajo Impacto. / Bajo Esfuerzo." },
+            bottomRight: { color: "#dbeafe", label: "Bajo Impacto. / Alto Esfuerzo." },
           }}
           onPointAction={handlePointAction}
         />
+
+
+
+
 
         {lastAction && (
           <div className="rounded-lg border border-border bg-card p-4 text-sm text-card-foreground animate-in fade-in-0 slide-in-from-bottom-2 duration-200">
@@ -101,6 +129,10 @@ export const GraphTotal=()=> {
             <p className="font-mono text-sm">{lastAction}</p>
           </div>
         )}
+
+
+
+
       </div>
     </main>
   )

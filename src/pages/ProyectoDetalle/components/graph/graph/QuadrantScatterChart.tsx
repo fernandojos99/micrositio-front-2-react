@@ -542,10 +542,11 @@ export const QuadrantScatterChart=({
                     },
                   }}
                 />
-                <Tooltip
+                {/* Para desactivar la vista previa al pasar por arriba del boton */}
+             {/*    <Tooltip
                   content={<ScatterTooltipContent />}
                   cursor={false}
-                />
+                /> */}
 
                 {series.map((s) => (
                   <Scatter

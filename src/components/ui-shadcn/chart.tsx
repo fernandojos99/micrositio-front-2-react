@@ -1,8 +1,7 @@
-import { cn } from "@/lib/utils"
 import * as React from "react"
 import * as RechartsPrimitive from "recharts"
 
-
+import { cn } from "@/lib/utils"
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const
@@ -17,14 +16,9 @@ export type ChartConfig = {
   )
 }
 
-
-//====================================================
-
 type ChartContextProps = {
   config: ChartConfig
 }
-
-//====================================================
 
 const ChartContext = React.createContext<ChartContextProps | null>(null)
 
@@ -38,10 +32,6 @@ function useChart() {
   return context
 }
 
-//====================================================
-
-
-// chart = tabla o cuadro
 function ChartContainer({
   id,
   className,
@@ -59,17 +49,16 @@ function ChartContainer({
 
   return (
     <ChartContext.Provider value={{ config }}>
-    <div
+      <div
         data-slot="chart"
         data-chart={chartId}
-        tabIndex={-1}
         className={cn(
-          "flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector]:outline-none [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-surface]:outline-none [&_.recharts-surface]:focus:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-wrapper]:focus:outline-none",
+          "flex aspect-video justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-hidden [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector]:outline-hidden [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-surface]:outline-hidden",
           className
         )}
         {...props}
       >
-              <ChartStyle id={chartId} config={config} />
+        <ChartStyle id={chartId} config={config} />
         <RechartsPrimitive.ResponsiveContainer>
           {children}
         </RechartsPrimitive.ResponsiveContainer>
@@ -77,10 +66,6 @@ function ChartContainer({
     </ChartContext.Provider>
   )
 }
-
-
-//======================================================
-
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(
@@ -114,10 +99,6 @@ ${colorConfig
     />
   )
 }
-
-
-
-// ===========================================================
 
 const ChartTooltip = RechartsPrimitive.Tooltip
 
@@ -266,11 +247,6 @@ function ChartTooltipContent({
     </div>
   )
 }
-
-
-
-// ============================================================================
-//==========================================================================
 
 const ChartLegend = RechartsPrimitive.Legend
 

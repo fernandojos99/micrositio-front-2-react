@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Edit, FlaskConical, Save } from 'lucide-react';
+import { Plus, Trash2, Edit, FlaskConical, Save, Check } from 'lucide-react';
 import { Secuencia } from '../../../types/secuencia';
 import Button from '../../../components/ui/Button/Button';
 import ConfirmationModal from '../../../components/ui/ConfirmationModal/ConfirmationModal';
@@ -10,6 +10,7 @@ import TemplateDropdown from '../../../components/FlowEditor/components/Plantill
 import TemplateViewerModalSecuencia from '../../../components/FlowEditor/components/Plantillas/TemplateViewerModalSecuencia';
 import { useAuth } from '../../../contexts/AuthContext';
 import { crearPlantillaSecuencia } from '../../../services/plantillaSecuenciaService';
+import { useNavigate } from 'react-router-dom';
 
 /**
  * Props para el componente SecuenciasSection
@@ -328,51 +329,56 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
     return estado.replace(/\s+/g, '_');
   };
 
+
+  const navigate = useNavigate()
+
+  const gotoAccionables = () => {
+    navigate("/grafica")
+  }
   return (
     <div className={styles['secuencias-section']}>
       {/* @section: Header de la sección */}
+
       <div className={styles['secuencias-header']}>
         <div className={styles['secuencias-title-container']}>
 
-      {/**
-          <h2 className={styles['secuencias-title']}>Secuencias del Proyecto:</h2>
+          <h2 className={styles['secuencias-title']}>
+            Secuencias del Proyecto:
+          </h2>
 
-          <h3 className={styles['proyecto-titulo']}>
-            {tituloProyecto || 'Sin título'}
-          </h3>
+          <div className={styles['proyecto-header']}>
+            <h3 className={styles['proyecto-titulo']}>
+              {tituloProyecto || 'Sin título'}
+            </h3>
+
+            <Button
+              variant="primary"
+              size="small"
+              icon={<Check size={16}/>}
+             style={{
+                height: "3rem",
+                paddingTop: "0.75rem",
+                paddingBottom: "0.75rem",
+                backgroundColor: "#22c55e"
+              }}              
+               onClick={gotoAccionables}
+            >
+              Accionables
+            </Button>
+
+
+
+
+          </div>
 
           <p className={styles['secuencias-description']}>
             Selecciona una secuencia para visualizar y editar su flujo de trabajo
           </p>
-   */}  
-
-              <h2 className={styles['secuencias-title']}>
-                Secuencias del Proyecto:
-              </h2>
-
-              <div className={styles['proyecto-header']}>
-                <h3 className={styles['proyecto-titulo']}>
-                  {tituloProyecto || 'Sin título'}
-                </h3>
-
-                 <Button
-                variant="primary"
-                size="small"
-                icon={<Save size={14} />}
-               // onClick={handleGuardarCambios}
-              >
-
-                
-                Accionables
-              </Button>
-              </div>
-
-              <p className={styles['secuencias-description']}>
-                Selecciona una secuencia para visualizar y editar su flujo de trabajo
-              </p>
 
         </div>
       </div>
+
+
 
       {/* @section: Contenido principal */}
       <div className={styles['secuencias-content']}>

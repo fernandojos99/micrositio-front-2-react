@@ -40,6 +40,7 @@ import { notificacionSiguienteResponsable } from '../../services/notificacionesS
 import { useAuth } from '../../contexts/AuthContext';
 import EmpleadoSelector from '../../pages/Proyectos/components/EmpleadoSelector';
 import './styles/TestingCardEditModal.css';
+import ListItems from '../listItems/ListItems';
 
 // Interface para Empleado
 interface Empleado {
@@ -899,7 +900,9 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
             </select>
           </div>
 
-          {/* @section: Resultados obtenidos */}
+
+
+        {/* @section: Resultados obtenidos */}
           <div className="testing-form-group">
             <label htmlFor="result" className="testing-form-label">
               <FileText className="testing-form-icon" />
@@ -916,8 +919,17 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
             {errors.resultado && <span className="testing-error-text">{errors.resultado}</span>}
           </div>
 
+
+
+
+
+
+
+
+
+
           {/* @section: Hallazgo accionable */}
-          <div className="testing-form-group">
+      {/*     <div className="testing-form-group">
             <label htmlFor="insight" className="testing-form-label">
               <FileText className="testing-form-icon" />
               Hallazgo Accionable (por ende, haremos...)
@@ -931,7 +943,9 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
               rows={3}
             />
             {errors.hallazgo && <span className="testing-error-text">{errors.hallazgo}</span>}
-          </div>
+          </div> */}
+
+        <ListItems/>
 
           {/* @section: Métricas del Testing Card asociado */}
           <div className="testing-form-section">

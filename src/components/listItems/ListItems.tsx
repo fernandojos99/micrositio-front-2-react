@@ -141,6 +141,8 @@ function ItemRow({ item, onUpdate, onDelete }: {
         label="Impacto"
       />
       
+      {/* Boton para eliminar */}
+      
       <Button
         variant="ghost"
         type="button"

@@ -1,6 +1,5 @@
 import { useState } from "react"
 import { ChevronDown, Plus, Trash2 } from "lucide-react"
-import { Button } from "@/components/ui-shadcn/button"
 import { Input } from "@/components/ui-shadcn/input"
 import {
   DropdownMenu,
@@ -9,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui-shadcn/dropdown-menu"
 import { Checkbox } from "@/components/ui-shadcn/checkbox"
+import { Button } from "../ui-shadcn/button"
 
 interface ItemData {
   id: number
@@ -18,14 +18,22 @@ interface ItemData {
   checked: boolean
 }
 
+
+// =======================================================================
+//  La lista de numeros
+// =======================================================================
+
+
 function NumberDropdown({ value, onChange, label }: { value: number; onChange: (val: number) => void; label: string }) {
   const numbers = Array.from({ length: 10 }, (_, i) => i + 1)
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1  ">
       <span className="text-xs text-muted-foreground">{label}</span>
-      <DropdownMenu>
+      <DropdownMenu  >
         <DropdownMenuTrigger asChild>
+        {/* <DropdownMenuTrigger > */}
+
           <Button variant="outline"
           type="button"
           className="w-16 justify-between">
@@ -33,14 +41,12 @@ function NumberDropdown({ value, onChange, label }: { value: number; onChange: (
             <ChevronDown className="ml-1 h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-16 min-w-0">
+        
+        <DropdownMenuContent className="w-16 min-w-0 z-[9999] ">
           {numbers.map((num) => (
             <DropdownMenuItem
               key={num}
-              onClick={(e) => {
-                e.stopPropagation() // Evita que el click suba al contenedor padre
-                onChange(num)
-              }}
+              onSelect={() => onChange(num)}
               className="justify-center"
             >
               {num}
@@ -51,6 +57,13 @@ function NumberDropdown({ value, onChange, label }: { value: number; onChange: (
     </div>
   )
 }
+
+
+
+// =======================================================================
+//           Input que se hace grande
+// =======================================================================
+
 
 function ExpandableInput({ value, onChange, placeholder }: {
   value: string
@@ -102,6 +115,12 @@ function ExpandableInput({ value, onChange, placeholder }: {
   )
 }
 
+
+// ================================================================================
+//              Asi se ve la fila compuesta con los anteriores componentes
+// ================================================================================
+
+
 function ItemRow({ item, onUpdate, onDelete }: { 
   item: ItemData
   onUpdate: (id: number, updates: Partial<ItemData>) => void
@@ -129,6 +148,10 @@ function ItemRow({ item, onUpdate, onDelete }: {
         placeholder="Escribe aqui..."
       />
       
+
+
+
+      {/* Los menus de numeros */}
       <NumberDropdown
         value={item.number1}
         onChange={(val) => onUpdate(item.id, { number1: val })}
@@ -141,6 +164,7 @@ function ItemRow({ item, onUpdate, onDelete }: {
         label="Impacto"
       />
       
+
       {/* Boton para eliminar */}
       
       <Button
@@ -159,11 +183,19 @@ function ItemRow({ item, onUpdate, onDelete }: {
   )
 }
 
+
+// ===================================================================================
+//              Genera la lista 
+// ===================================================================================
+
+
 export default function ListItems() {
   const [items, setItems] = useState<ItemData[]>([
     { id: 1, text: "", number1: 1, number2: 1, checked: false }
   ])
 
+
+  // Funciones para que el componente hijo se comunique con el padre
   const addItem = () => {
     const newId = Math.max(...items.map(i => i.id), 0) + 1
     setItems([...items, { id: newId, text: "", number1: 1, number2: 1, checked: false }])

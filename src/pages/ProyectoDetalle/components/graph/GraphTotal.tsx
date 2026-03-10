@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react"
 import { QuadrantScatterChart, ScatterPoint } from "./graph/QuadrantScatterChart"
 import styles from "./GraphTotal.module.css";
+import ListItems from "@/components/listItems/ListItems";
 
 
 
@@ -131,9 +132,13 @@ export const GraphTotal=()=> {
         )}
 
 
+        
+
 
 
       </div>
+
+      <ListItems/>
     </main>
   )
 }

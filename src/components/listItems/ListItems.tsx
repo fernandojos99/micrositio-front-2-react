@@ -7,42 +7,56 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui-shadcn/dropdown-menu"
-import { Checkbox } from "@/components/ui-shadcn/checkbox"
-import { Button } from "../ui-shadcn/button"
+import { Button } from "../ui-shadcn2/button"
 
-interface ItemData {
+export interface ItemData {
   id: number
+  title: string
   text: string
   number1: number
   number2: number
   checked: boolean
 }
 
+type Props = {
+  items: ItemData[]
+  onItemsChange: (items: ItemData[]) => void
+}
 
-// =======================================================================
-//  La lista de numeros
-// =======================================================================
 
 
-function NumberDropdown({ value, onChange, label }: { value: number; onChange: (val: number) => void; label: string }) {
+// ====================================================
+//==========    dropdown de nuemero ===================
+// ====================================================
+
+function NumberDropdown({
+  value,
+  onChange,
+  label,
+}: {
+  value: number
+  onChange: (val: number) => void
+  label: string
+}) {
   const numbers = Array.from({ length: 10 }, (_, i) => i + 1)
 
   return (
-    <div className="flex flex-col gap-1  ">
+    <div className="flex flex-col gap-1">
       <span className="text-xs text-muted-foreground">{label}</span>
-      <DropdownMenu  >
-        <DropdownMenuTrigger asChild>
-        {/* <DropdownMenuTrigger > */}
 
-          <Button variant="outline"
-          type="button"
-          className="w-16 justify-between">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            type="button"
+            className="w-16 justify-between"
+          >
             {value}
             <ChevronDown className="ml-1 h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        
-        <DropdownMenuContent className="w-16 min-w-0 z-[9999] ">
+
+        <DropdownMenuContent className="w-16 min-w-0 z-[9999]">
           {numbers.map((num) => (
             <DropdownMenuItem
               key={num}
@@ -60,12 +74,17 @@ function NumberDropdown({ value, onChange, label }: { value: number; onChange: (
 
 
 
-// =======================================================================
-//           Input que se hace grande
-// =======================================================================
+// ====================================================
+//==========   Expandible Input   = ===================
+// ====================================================
 
 
-function ExpandableInput({ value, onChange, placeholder }: {
+
+function ExpandableInput({
+  value,
+  onChange,
+  placeholder,
+}: {
   value: string
   onChange: (val: string) => void
   placeholder: string
@@ -82,6 +101,7 @@ function ExpandableInput({ value, onChange, placeholder }: {
   return (
     <div className="relative flex-1">
       <span className="text-xs text-muted-foreground">Texto</span>
+
       <div className="relative h-10">
         {!isExpanded ? (
           <Input
@@ -89,7 +109,7 @@ function ExpandableInput({ value, onChange, placeholder }: {
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onFocus={(e) => {
-              e.stopPropagation() // Detener propagación si el padre tiene click
+              e.stopPropagation()
               setIsExpanded(true)
             }}
             className="w-full truncate"
@@ -116,109 +136,115 @@ function ExpandableInput({ value, onChange, placeholder }: {
 }
 
 
-// ================================================================================
-//              Asi se ve la fila compuesta con los anteriores componentes
-// ================================================================================
+
+// ====================================================
+//==========    Construye la fila   ===================
+// ====================================================
 
 
-function ItemRow({ item, onUpdate, onDelete }: { 
+
+function ItemRow({
+  item,
+  onUpdate,
+  onDelete,
+}: {
   item: ItemData
   onUpdate: (id: number, updates: Partial<ItemData>) => void
-  onDelete: (id: number) => void 
+  onDelete: (id: number) => void
 }) {
   return (
     <div
-      className={`flex items-end gap-3 rounded-lg border border-border bg-card p-3 ${item.checked ? "opacity-60" : ""}`}
-      // Si el row fuera clickeable, podemos agregar un onClick aquí y los botones no interferirán
-      onClick={() => console.log("Row clicked", item.id)}
+      className={`flex flex-col gap-2 rounded-lg border border-border bg-card p-3 ${
+        item.checked ? "opacity-60" : ""
+      }`}
     >
-      <div className="flex items-center pb-2">
-        <Checkbox
-          checked={item.checked}
-          // onCheckedChange={(checked, e) => {
-           onCheckedChange={(checked) => {
-            // e?.stopPropagation() // Evitar que el click suba
-            onUpdate(item.id, { checked: !!checked })
-          }}
-          className="h-5 w-5"
+      <input
+        type="text"
+        value={item.title}
+        onChange={(e) => onUpdate(item.id, { title: e.target.value })}
+        placeholder="Titulo..."
+        className="w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
+      />
+
+      <div className="flex items-end gap-3">
+        <ExpandableInput
+          value={item.text}
+          onChange={(val) => onUpdate(item.id, { text: val })}
+          placeholder="Escribe aqui..."
         />
+
+        <NumberDropdown
+          value={item.number1}
+          onChange={(val) => onUpdate(item.id, { number1: val })}
+          label="Esfuerzo"
+        />
+
+        <NumberDropdown
+          value={item.number2}
+          onChange={(val) => onUpdate(item.id, { number2: val })}
+          label="Impacto"
+        />
+
+        <Button
+          variant="ghost"
+          type="button"
+          size="icon"
+          onClick={() => onDelete(item.id)}
+          className="h-10 w-10 text-muted-foreground hover:text-destructive"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
-      <ExpandableInput
-        value={item.text}
-        onChange={(val) => onUpdate(item.id, { text: val })}
-        placeholder="Escribe aqui..."
-      />
-      
-
-
-
-      {/* Los menus de numeros */}
-      <NumberDropdown
-        value={item.number1}
-        onChange={(val) => onUpdate(item.id, { number1: val })}
-        label="Esfuerzo"
-      />
-      
-      <NumberDropdown
-        value={item.number2}
-        onChange={(val) => onUpdate(item.id, { number2: val })}
-        label="Impacto"
-      />
-      
-
-      {/* Boton para eliminar */}
-      
-      <Button
-        variant="ghost"
-        type="button"
-        size="icon"
-        onClick={(e) => {
-          e.stopPropagation() // Evita que el click suba al row
-          onDelete(item.id)
-        }}
-        className="h-10 w-10 text-muted-foreground hover:text-destructive"
-      >
-        <Trash2 className="h-4 w-4" />
-      </Button>
     </div>
   )
 }
 
 
-// ===================================================================================
-//              Genera la lista 
-// ===================================================================================
 
 
-export default function ListItems() {
-  const [items, setItems] = useState<ItemData[]>([
-    { id: 1, text: "", number1: 1, number2: 1, checked: false }
-  ])
+// ====================================================
+//==========    Genera la lista de accionables ========
+// ====================================================
 
 
-  // Funciones para que el componente hijo se comunique con el padre
+
+
+export default function ListItems({ items, onItemsChange }: Props) {
+
+
+  // Agregar item
   const addItem = () => {
     const newId = Math.max(...items.map(i => i.id), 0) + 1
-    setItems([...items, { id: newId, text: "", number1: 1, number2: 1, checked: false }])
+
+    const newItems = [
+      ...items,
+      { id: newId, title: "", text: "", number1: 1, number2: 1, checked: false }
+    ]
+
+    onItemsChange(newItems)
   }
 
+  // Actualizar item
   const updateItem = (id: number, updates: Partial<ItemData>) => {
-    setItems(items.map(item => 
+    const updatedItems = items.map(item =>
       item.id === id ? { ...item, ...updates } : item
-    ))
+    )
+
+    onItemsChange(updatedItems)
   }
 
+  // delete item
   const deleteItem = (id: number) => {
-    if (items.length > 1) {
-      setItems(items.filter(item => item.id !== id))
-    }
+    const updatedItems = items.filter(item => item.id !== id)
+
+    onItemsChange(updatedItems)
   }
 
   return (
     <main className="w-full space-y-4">
       <div className="w-full max-w-2xl space-y-4">
-        <h1 className=" font-semibold text-foreground">Accionables</h1>
-        
+        <h1 className="font-semibold text-foreground">Accionables</h1>
+
         <div className="space-y-3">
           {items.map((item) => (
             <ItemRow
@@ -229,12 +255,13 @@ export default function ListItems() {
             />
           ))}
         </div>
-        
-        <Button onClick={addItem}
-        type="button"
-        style={{ marginBottom: "16px" }}
-        variant="outline"
-         className="w-full">
+
+        <Button
+          onClick={addItem}
+          type="button"
+          variant="outline"
+          className="w-full"
+        >
           <Plus className="mr-2 h-4 w-4" />
           Agregar Accionable
         </Button>

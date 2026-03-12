@@ -36,6 +36,7 @@ import LibroDigital from '../pages/LibroDigital/LibroDigital';
 import Administracion from '../pages/Administracion/Administracion';
 import Busqueda from '../pages/Busqueda/Busqueda';
 import { GraphTotal } from '../pages/ProyectoDetalle/components/graph/GraphTotal';
+import GraphImprovedTotal from '@/pages/ProyectoDetalle/components/graphImproved/graphImprovedTotal';
 
 function AppRoutes() {
   return (
@@ -57,7 +58,7 @@ function AppRoutes() {
           <Route path="libro-digital" element={<LibroDigital />} />
           <Route path="administracion" element={<Administracion />} />
           <Route path="buscar" element={<Busqueda />} />
-          <Route path="grafica" element={<GraphTotal />} />
+          <Route path="grafica" element={<GraphImprovedTotal />} />
 
 
           {/* Rutas alternativas que ya tenías */}

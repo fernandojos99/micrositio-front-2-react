@@ -40,7 +40,8 @@ import { notificacionSiguienteResponsable } from '../../services/notificacionesS
 import { useAuth } from '../../contexts/AuthContext';
 import EmpleadoSelector from '../../pages/Proyectos/components/EmpleadoSelector';
 import './styles/TestingCardEditModal.css';
-import ListItems from '../listItems/ListItems';
+import ListItems, { ItemData } from '../listItems/ListItems';
+import { Accionable } from '@/pages/Interfaces/accionablesPoints';
 
 // Interface para Empleado
 interface Empleado {
@@ -235,6 +236,10 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
   useEffect(() => {
     cargarEmpleados();
   }, []);
+
+// Mantener estado de accionables
+  const [items, setItems] = useState<ItemData[]>([])
+
 
   /**
    * Carga las métricas del Testing Card asociado - NUEVO ENFOQUE
@@ -861,6 +866,11 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
     return () => document.removeEventListener('keydown', handleEsc);
   }, [onClose]);
 
+
+  
+
+
+
   return (
     <div className="testing-modal-backdrop" onClick={(e) => e.stopPropagation()}>
       <div className="testing-modal-container">
@@ -929,7 +939,8 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
 
 
           {/* @section: Hallazgo accionable */}
-      {/*     <div className="testing-form-group">
+
+            {/* <div className="testing-form-group">
             <label htmlFor="insight" className="testing-form-label">
               <FileText className="testing-form-icon" />
               Hallazgo Accionable (por ende, haremos...)
@@ -945,7 +956,15 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
             {errors.hallazgo && <span className="testing-error-text">{errors.hallazgo}</span>}
           </div> */}
 
-        <ListItems/>
+       <ListItems
+            items={items}
+            onItemsChange={(newItems) => {
+              console.log("items:", newItems)
+              setItems(newItems)
+            }}
+          />
+
+          
 
           {/* @section: Métricas del Testing Card asociado */}
           <div className="testing-form-section">

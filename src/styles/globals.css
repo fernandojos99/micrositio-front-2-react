@@ -88,6 +88,8 @@
   --z-modal: 1050;
   --z-popover: 1060;
   --z-tooltip: 1070;
+
+  scrollbar-gutter: stable;
 }
 
 

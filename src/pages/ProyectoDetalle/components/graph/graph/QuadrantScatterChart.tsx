@@ -173,9 +173,9 @@ function DotShape(props: {
       }}
     >
       {/* Hit area */}
-      {/* Area para dar click , si le pongo seriesColor pinta el area para apretar. 
-      <circle r={5} fill={seriesColor}/>*/}
-      <circle cx={cx} cy={cy} r={20} fill="transparent" />
+      {/* Area para dar click , si le pongo seriesColor pinta el area para apretar. /
+      <circle r={5} fill={seriesColor}/>
+      {/* <circle cx={cx} cy={cy} r={20} fill="transparent" /> */}
 
       {/* Pulse ring on active */}
       {isActive && (
@@ -236,7 +236,7 @@ function DotShape(props: {
 }
 
 // --- Custom Tooltip ---
-// Es el contenido cuando pasa el mouse arriba del punto.
+// Es el contenido cuando pasa el mouse arriba del punto. (Lo desactive)
 function ScatterTooltipContent({ active, payload }: { active?: boolean; payload?: Array<{ payload: ScatterPoint }> }) {
   if (!active || !payload?.length) return null
   const pt = payload[0].payload
@@ -256,7 +256,7 @@ function ScatterTooltipContent({ active, payload }: { active?: boolean; payload?
 }
 
 // --- Point Popover ---
-// Es la tarjeta que sale cuando dame click sobre un boton 
+// Es la tarjeta que sale cuando dame click sobre un boton  (el modal)
 
 function PointPopover({
   point,
@@ -340,7 +340,7 @@ function PointPopover({
 
 
 // --- Main Component;  Props que recibe ---
-
+// Interface de las props que recibe el componente principal, con sus respectivos tipos
 export interface QuadrantScatterChartProps {
   title?: string
   description?: string
@@ -379,6 +379,7 @@ export const QuadrantScatterChart=({
   description = "Haz clic en cualquier punto para interactuar",
   series,
   quadrants = DEFAULT_QUADRANTS,
+  // Rango de los ejes, se puede modificar segun los datos que se quieran mostrar
   xDomain = [0, 100],
   yDomain = [0, 100],
   xLabel = "Eje X",
@@ -580,7 +581,14 @@ export const QuadrantScatterChart=({
             />
           )}
 
-          {/* Legend */}
+
+
+
+
+
+
+
+          {/* Legend where are the teams names (lower ) */}
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
             {series.map((s) => (
               <div key={s.name} className="flex items-center gap-2">
@@ -594,6 +602,11 @@ export const QuadrantScatterChart=({
               </div>
             ))}
           </div>
+
+
+
+
+
         </div>
       </CardContent>
     </Card>

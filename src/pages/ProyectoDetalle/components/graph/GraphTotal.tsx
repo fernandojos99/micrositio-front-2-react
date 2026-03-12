@@ -1,14 +1,30 @@
 //"use client"  esto es de next.js
 
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { QuadrantScatterChart, ScatterPoint } from "./graph/QuadrantScatterChart"
 import styles from "./GraphTotal.module.css";
 import ListItems from "@/components/listItems/ListItems";
+import { Accionable } from "@/pages/Interfaces/accionablesPoints";
+import { getAccionables } from "@/services/graphPoints";
+
+
+
+function accionablesToScatterPoints(data: Accionable[]): ScatterPoint[] {
+  return data.map((a) => ({
+    x: a.impacto,
+    y: a.esfuerzo,
+    label: a.contenido,
+    id: a.id_accionable
+  }))
+}
+
+
 
 
 
 const teamA: ScatterPoint[] = [
   { x: 20, y: 30, label: "Proyecto Alpha" },
+
   { x: 35, y: 70, label: "Proyecto Beta" },
   { x: 60, y: 85, label: "Proyecto Gamma" },
   { x: 80, y: 90, label: "Proyecto Delta" },
@@ -34,12 +50,14 @@ const teamC: ScatterPoint[] = [
 ] */
 
 
-// posibles lineas a seguir
-const series = [
-  { name: "Equipo A", data: teamA, color: "#2563eb" },
-  //{ name: "Equipo B", data: teamB, color: "#f43f5e" },
-  //{ name: "Equipo C", data: teamC, color: "#10b981" },
-]
+// // posibles lineas a seguir
+// const series = [
+//   { name: "Equipo A", data: teamA, color: "#2563eb" },
+//   //{ name: "Equipo B", data: teamB, color: "#f43f5e" },
+//   //{ name: "Equipo C", data: teamC, color: "#10b981" },
+// ]
+
+
 
 //import React from 'react'
 
@@ -52,16 +70,58 @@ export const App = () => {
 }
 */
 
+
+
+
+
+
+
 //========================================================
 //          main function
 // =======================================================
 
 
 export const GraphTotal=()=> {
+
+  const [accionables, setAccionables] = useState<Accionable[]>([])
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await getAccionables()
+        setAccionables(res.data)
+      } catch (error) {
+        console.error("Error cargando accionables", error)
+      }
+    }
+
+    loadData()
+  }, [])
+
+  // const scatterPoints: ScatterPoint[] = accionablesToScatterPoints(accionables)
+  const scatterPoints = useMemo(
+    () => accionablesToScatterPoints(accionables),
+    [accionables]
+  )
+
+  const series = [
+    {
+      name: "Accionables",
+      data: scatterPoints,
+      color: "#2563eb",
+    },
+  ]
+
+
+
+
+
+
+
   const [lastAction, setLastAction] = useState<string | null>(null)
 
 
-  /* Funcion para contruir el mensjar de ultimo evento cliquado */
+  /* Funcion para contruir el mensaje de ultimo evento cliquado */
   const handlePointAction = useCallback(
     (
       action: string,
@@ -121,6 +181,7 @@ export const GraphTotal=()=> {
 
 
 
+        {/* Lo que aparece hasta abajo cuando apretamos el modal */}
 
         {lastAction && (
           <div className="rounded-lg border border-border bg-card p-4 text-sm text-card-foreground animate-in fade-in-0 slide-in-from-bottom-2 duration-200">

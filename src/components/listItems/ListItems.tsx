@@ -135,8 +135,9 @@ function ItemRow({ item, onUpdate, onDelete }: {
       <div className="flex items-center pb-2">
         <Checkbox
           checked={item.checked}
-          onCheckedChange={(checked, e) => {
-            e?.stopPropagation() // Evitar que el click suba
+          // onCheckedChange={(checked, e) => {
+           onCheckedChange={(checked) => {
+            // e?.stopPropagation() // Evitar que el click suba
             onUpdate(item.id, { checked: !!checked })
           }}
           className="h-5 w-5"

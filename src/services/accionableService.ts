@@ -3,12 +3,30 @@ import { Accionable } from "@/pages/Interfaces/accionablesPoints";
 
 
 export async function syncAccionables(
+  id: number,
   accionables: Accionable[]
 ): Promise<void> {
 
-  await apiClient.put("/accionables/sync", accionables);
+  await apiClient.put(`/accionables/sync/${id}`, accionables);
 
 }
+
+
+export async function obtenerAccionablesPorLearningCard(
+  idLearningCard: number
+): Promise<Accionable[]> {
+
+  const response = await apiClient.get(
+    `accionables/learning-card/${idLearningCard}/accionables`
+  );
+
+  return response.data.data;
+
+}
+
+
+
+
 
 /**
  * En el body va a ir algo asi 

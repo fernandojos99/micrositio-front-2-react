@@ -171,6 +171,8 @@ function ItemRow({
         item.realizado ? "opacity-60" : ""
       }`}
     >
+
+      {/* descomentar si quiero poner un titulo */}
       {/* <input
         type="contenido"
         value={item.title}
@@ -227,19 +229,32 @@ export default function ListItems({ items, onItemsChange }: Props) {
   // ------------------------------------------------------------------
 
 
-  // Agregar item
-  const addItem = () => {
-    // const newId = Math.max(...items.map(i => i.id_accionable!), 0) + 1 // valor 0 en caso de que el id.accionable no venga 
-    // Los arega como (id,"", "", 1, 1, false) por defecto
-    const newItems = [
-      ...items,
-      { id_learning_card: 0, contenido: "", impacto: 1, esfuerzo: 1, realizado: false }
-    ]
-    onItemsChange(newItems) //Contiene un nuevo arreglo Accionable con el nuevo item agregado al final. 
-  }
+  // Agregar item , todos los nuevos los vamos a crear con 0
+// Agregar item con id incremental
+// Agregar item
+const addItem = () => {
 
+  const maxId = items.length
+    ? Math.max(...items.map(i => i.id_accionable ?? 0))
+    : 0
 
+  const newId = maxId + 1
 
+  const newItems = [
+    ...items,
+    {
+      idF:newId,
+      id_accionable: 0,
+      id_learning_card:0 ,
+      contenido: "",
+      impacto: 1,
+      esfuerzo: 1,
+      realizado: false
+    }
+  ]
+
+  onItemsChange(newItems)
+}
   // Actualizar item
   const updateItem = (id: number, updates: Partial<Accionable>) => {
     const updatedItems = items.map(item =>
@@ -262,7 +277,7 @@ export default function ListItems({ items, onItemsChange }: Props) {
 
 
   return (
-    <main className="w-full space-y-4">
+    <main className="w-full space-y-4 mb-5">
       <div className="w-full max-w-2xl space-y-4">
         <h1 className="font-semibold contenido-foreground">Accionables</h1>
 
@@ -272,7 +287,7 @@ export default function ListItems({ items, onItemsChange }: Props) {
             // Le pasamos a cada ItemRow las funciones para que puedan 
             // modificar el useState del componente padre (ListItems) 
             <ItemRow
-              key={item.id_accionable}
+              key={item.idF }
               item={item}
               onUpdate={updateItem}
               onDelete={deleteItem}
@@ -287,12 +302,13 @@ export default function ListItems({ items, onItemsChange }: Props) {
           onClick={addItem}
           type="button"
           variant="outline"
-          className="w-full"
+          className="w-full , mb-4"
         >
           <Plus className="mr-2 h-4 w-4" />
           Agregar Accionable
         </Button>
-      </div>
+      </div >
     </main>
   )
+
 }

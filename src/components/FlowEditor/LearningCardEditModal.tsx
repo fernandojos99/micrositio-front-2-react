@@ -42,7 +42,7 @@ import EmpleadoSelector from '../../pages/Proyectos/components/EmpleadoSelector'
 import './styles/TestingCardEditModal.css';
 import ListItems from '../listItems/ListItems';
 import { Accionable } from '@/pages/Interfaces/accionablesPoints';
-import { syncAccionables } from '@/services/accionableService';
+import { obtenerAccionablesPorLearningCard, syncAccionables } from '@/services/accionableService';
 
 // Interface para Empleado
 interface Empleado {
@@ -846,12 +846,21 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       try {
         await actualizarLearningCard(editingIdLC, payload);
         // 2️⃣ agregar id_learning_card a todos los accionables
-        const accionablesPayload = items.map((item) => ({
+      /*   const accionablesPayload = items.map((item) => ({
+          ...item,
+          id_learning_card: editingIdLC
+        })); */
+        // 2️⃣ agregar id_learning_card a todos los accionables
+        const accionablesPayload = items.map(({ idF, ...item }) => ({
           ...item,
           id_learning_card: editingIdLC
         }));
+
+
+
+        
         // 3️⃣ mandar el arreglo completo
-        await syncAccionables(accionablesPayload);
+        await syncAccionables(id_learning_card,accionablesPayload);
         setSuccessMsg('¡Learning Card guardada exitosamente!');
         onSave(payload); // Notifica al padre
       } catch (err: any) {
@@ -894,8 +903,22 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
     return () => document.removeEventListener('keydown', handleEsc);
   }, [onClose]);
 
+    useEffect(() => {
+        const cargarAccionables = async () => {
 
-  
+          const data = await obtenerAccionablesPorLearningCard(editingIdLC)
+
+          setItems(data)
+
+        }
+
+        //Se valida que exista un id valido para esperar a que cargue el componente 
+        //y no haga la peticion con un `undefiend`
+        if (editingIdLC) {
+          cargarAccionables()
+        }
+
+    }, [editingIdLC])
 
 
 
@@ -1003,6 +1026,8 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
           con setItems(newItems)
         
         */}
+
+     
         <ListItems
               items={items}
               onItemsChange={(newItems) => {

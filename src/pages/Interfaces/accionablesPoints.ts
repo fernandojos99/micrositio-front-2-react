@@ -5,6 +5,7 @@ export interface Points {
 }
 
 export interface Accionable{
+    idF?:number;
     id_accionable?:    number;
     id_learning_card: number;
     contenido:        string;

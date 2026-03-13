@@ -40,8 +40,9 @@ import { notificacionSiguienteResponsable } from '../../services/notificacionesS
 import { useAuth } from '../../contexts/AuthContext';
 import EmpleadoSelector from '../../pages/Proyectos/components/EmpleadoSelector';
 import './styles/TestingCardEditModal.css';
-import ListItems, { ItemData } from '../listItems/ListItems';
+import ListItems from '../listItems/ListItems';
 import { Accionable } from '@/pages/Interfaces/accionablesPoints';
+import { syncAccionables } from '@/services/accionableService';
 
 // Interface para Empleado
 interface Empleado {
@@ -238,7 +239,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
   }, []);
 
 // Mantener estado de accionables
-  const [items, setItems] = useState<ItemData[]>([])
+  const [items, setItems] = useState<Accionable[]>([])
 
 
   /**
@@ -803,6 +804,13 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
     }
   };
 
+
+
+
+
+
+
+  // Aqui tengo que poner la logica para agregar accionable 
   /**
    * Maneja el envío del formulario
    * @function handleSubmit
@@ -837,6 +845,13 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       
       try {
         await actualizarLearningCard(editingIdLC, payload);
+        // 2️⃣ agregar id_learning_card a todos los accionables
+        const accionablesPayload = items.map((item) => ({
+          ...item,
+          id_learning_card: editingIdLC
+        }));
+        // 3️⃣ mandar el arreglo completo
+        await syncAccionables(accionablesPayload);
         setSuccessMsg('¡Learning Card guardada exitosamente!');
         onSave(payload); // Notifica al padre
       } catch (err: any) {
@@ -853,6 +868,19 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       }
     }
   };
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   /**
    * Efecto para manejar el cierre del modal con tecla ESC
@@ -886,6 +914,16 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
             <X size={20} />
           </button>
         </div>
+
+
+
+
+
+
+
+        {/*-------------------- Inicio de form ----------------- */}
+
+
 
         <form onSubmit={handleSubmit} className="testing-modal-form">
           {loading && <div className="testing-form-loading">Cargando...</div>}
@@ -956,15 +994,24 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
             {errors.hallazgo && <span className="testing-error-text">{errors.hallazgo}</span>}
           </div> */}
 
-       <ListItems
-            items={items}
-            onItemsChange={(newItems) => {
-              console.log("items:", newItems)
-              setItems(newItems)
-            }}
+
+        {/*EXPLICACION:   */}
+        {/* items es un arreglo de item que conserva su estado mediante useState 
+        Pasamos al componente 
+        * useState 
+        * funcion que toma algo como parametro (newItems) y actualiza el estado de items
+          con setItems(newItems)
+        
+        */}
+        <ListItems
+              items={items}
+              onItemsChange={(newItems) => {
+                console.log("items:", newItems)
+                setItems(newItems)
+              }}
           />
 
-          
+            
 
           {/* @section: Métricas del Testing Card asociado */}
           <div className="testing-form-section">
@@ -1148,8 +1195,21 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
             )}
           </div>
 
-          {/* @section: Botones de acción */}
+
+
+
+
+
+
+
+          {/* ====================================================== */}
+                  {/* @section: Botones de acción */}
+          {/* ====================================================== */}
+
+
+
           <div className="testing-form-actions">
+
             <button 
               type="button" 
               onClick={onClose} 
@@ -1157,6 +1217,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
             >
               Cancelar
             </button>
+
             <button 
               type="submit" 
               className="learning-btn-submit"
@@ -1166,6 +1227,16 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
             </button>
           </div>
         </form>
+
+
+
+
+
+
+
+
+
+
 
         {/* @component: Modal de documentación reutilizado */}
         {isDocumentationModalOpen && (

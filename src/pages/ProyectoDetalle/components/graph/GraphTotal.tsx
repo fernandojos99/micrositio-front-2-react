@@ -5,7 +5,7 @@ import { QuadrantScatterChart, ScatterPoint } from "./graph/QuadrantScatterChart
 import styles from "./GraphTotal.module.css";
 import ListItems from "@/components/listItems/ListItems";
 import { Accionable } from "@/pages/Interfaces/accionablesPoints";
-import { getAccionables } from "@/services/graphPoints";
+import { getAccionables } from "@/services/accionableService";
 
 
 

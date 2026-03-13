@@ -36,7 +36,8 @@ import LibroDigital from '../pages/LibroDigital/LibroDigital';
 import Administracion from '../pages/Administracion/Administracion';
 import Busqueda from '../pages/Busqueda/Busqueda';
 import { GraphTotal } from '../pages/ProyectoDetalle/components/graph/GraphTotal';
-import GraphImprovedTotal from '@/pages/ProyectoDetalle/components/graphImproved/graphImprovedTotal';
+import GraphImprovedTotal from '@/pages/ProyectoDetalle/components/graphImproved/GraphImprovedTotal';
+
 
 function AppRoutes() {
   return (

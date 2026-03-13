@@ -8,19 +8,23 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui-shadcn/dropdown-menu"
 import { Button } from "../ui-shadcn2/button"
+import { Accionable } from "@/pages/Interfaces/accionablesPoints"
 
-export interface ItemData {
-  id: number
-  title: string
-  text: string
-  number1: number
-  number2: number
-  checked: boolean
-}
+// export interface Accionable {
+//   id: number
+//   title: string
+//   contenido: string
+//   impacto: number
+//   esfuerzo: number
+//   realizado: boolean
+// }
 
-type Props = {
-  items: ItemData[]
-  onItemsChange: (items: ItemData[]) => void
+
+
+// Interface de las props que vamos a recibir en el componente ListItems
+interface Props {
+  items: Accionable[]
+  onItemsChange: (items: Accionable[]) => void
 }
 
 
@@ -29,9 +33,10 @@ type Props = {
 //==========    dropdown de nuemero ===================
 // ====================================================
 
+
 function NumberDropdown({
-  value,
-  onChange,
+  value, 
+  onChange, // para actualizar el valor seleccionado
   label,
 }: {
   value: number
@@ -42,31 +47,36 @@ function NumberDropdown({
 
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs text-muted-foreground">{label}</span>
+      <span className="contenido-xs contenido-muted-foreground">{label}</span>
 
       <DropdownMenu>
+
+        {/* Botton que acciona el Dropdown */}
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            type="button"
-            className="w-16 justify-between"
-          >
-            {value}
-            <ChevronDown className="ml-1 h-4 w-4" />
-          </Button>
+            <Button
+              variant="outline"
+              type="button"
+              className="w-16 justify-between"
+            >
+              {value}
+              <ChevronDown className="ml-1 h-4 w-4" />
+            </Button>
         </DropdownMenuTrigger>
 
+        {/* Es el contenido que se despliega */}
         <DropdownMenuContent className="w-16 min-w-0 z-[9999]">
+          {/*  Genera un mapa con objetos sencillos(solo numeros por defecto) */}
           {numbers.map((num) => (
             <DropdownMenuItem
-              key={num}
-              onSelect={() => onChange(num)}
+              key={num} // cada item debe tener una key unica, en este caso el numero es unico
+              onSelect={() => onChange(num)} // cuando se selecciona un numero, se llama a onChange (que viene de las props) 
               className="justify-center"
             >
               {num}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
+
       </DropdownMenu>
     </div>
   )
@@ -86,7 +96,8 @@ function ExpandableInput({
   placeholder,
 }: {
   value: string
-  onChange: (val: string) => void
+  // Tambien recibe una función onChange para actualizar el valor del input
+  onChange: (val: string) => void  
   placeholder: string
 }) {
   const [isExpanded, setIsExpanded] = useState(false)
@@ -100,7 +111,7 @@ function ExpandableInput({
 
   return (
     <div className="relative flex-1">
-      <span className="text-xs text-muted-foreground">Texto</span>
+      <span className="contenido-xs contenido-muted-foreground">Texto</span>
 
       <div className="relative h-10">
         {!isExpanded ? (
@@ -120,13 +131,14 @@ function ExpandableInput({
               autoFocus
               placeholder={placeholder}
               value={value}
+              // Cada que cambia el valor del textarea, se llama a onChange (que viene de las props) 
               onChange={(e) => onChange(e.target.value)}
               onBlur={(e) => {
                 e.stopPropagation()
                 setIsExpanded(false)
               }}
               rows={calculateRows()}
-              className="w-full resize-none rounded-md border-2 border-primary bg-background px-3 py-2 text-sm shadow-xl placeholder:text-muted-foreground focus:outline-none"
+              className="w-full resize-none rounded-md border-2 border-primary bg-background px-3 py-2 contenido-sm shadow-xl placeholder:contenido-muted-foreground focus:outline-none"
             />
           </div>
         )}
@@ -148,40 +160,42 @@ function ItemRow({
   onUpdate,
   onDelete,
 }: {
-  item: ItemData
-  onUpdate: (id: number, updates: Partial<ItemData>) => void
+  item: Accionable
+  //solo especifica que vendra una parte de Accionable, no todo el objeto
+  onUpdate: (id: number, updates: Partial<Accionable>) => void 
   onDelete: (id: number) => void
 }) {
   return (
     <div
       className={`flex flex-col gap-2 rounded-lg border border-border bg-card p-3 ${
-        item.checked ? "opacity-60" : ""
+        item.realizado ? "opacity-60" : ""
       }`}
     >
-      <input
-        type="text"
+      {/* <input
+        type="contenido"
         value={item.title}
-        onChange={(e) => onUpdate(item.id, { title: e.target.value })}
+        onChange={(e) => onUpdate(item.id_accionable, { title: e.target.value })}
         placeholder="Titulo..."
-        className="w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
-      />
+        className="w-full rounded-md border border-input bg-background px-3 py-1 contenido-sm"
+      /> */}
 
       <div className="flex items-end gap-3">
         <ExpandableInput
-          value={item.text}
-          onChange={(val) => onUpdate(item.id, { text: val })}
+          //Para identificar el input 
+          value={item.contenido}
+          onChange={(val) => onUpdate(item.id_accionable!, { contenido: val })}
           placeholder="Escribe aqui..."
         />
 
         <NumberDropdown
-          value={item.number1}
-          onChange={(val) => onUpdate(item.id, { number1: val })}
+          value={item.impacto}
+          onChange={(val) => onUpdate(item.id_accionable!, { impacto: val })}
           label="Esfuerzo"
         />
 
         <NumberDropdown
-          value={item.number2}
-          onChange={(val) => onUpdate(item.id, { number2: val })}
+          value={item.esfuerzo}
+          onChange={(val) => onUpdate(item.id_accionable!, { esfuerzo: val })}
           label="Impacto"
         />
 
@@ -189,8 +203,8 @@ function ItemRow({
           variant="ghost"
           type="button"
           size="icon"
-          onClick={() => onDelete(item.id)}
-          className="h-10 w-10 text-muted-foreground hover:text-destructive"
+          onClick={() => onDelete(item.id_accionable!)}
+          className="h-10 w-10 contenido-muted-foreground hover:contenido-destructive"
         >
           <Trash2 className="h-4 w-4" />
         </Button>
@@ -206,49 +220,59 @@ function ItemRow({
 //==========    Genera la lista de accionables ========
 // ====================================================
 
-
-
-
 export default function ListItems({ items, onItemsChange }: Props) {
+
+  // ------------------------------------------------------------------
+  // === Funciones que se encargaran de modificar el arreglo de items ===
+  // ------------------------------------------------------------------
 
 
   // Agregar item
   const addItem = () => {
-    const newId = Math.max(...items.map(i => i.id), 0) + 1
-
+    // const newId = Math.max(...items.map(i => i.id_accionable!), 0) + 1 // valor 0 en caso de que el id.accionable no venga 
+    // Los arega como (id,"", "", 1, 1, false) por defecto
     const newItems = [
       ...items,
-      { id: newId, title: "", text: "", number1: 1, number2: 1, checked: false }
+      { id_learning_card: 0, contenido: "", impacto: 1, esfuerzo: 1, realizado: false }
     ]
-
-    onItemsChange(newItems)
+    onItemsChange(newItems) //Contiene un nuevo arreglo Accionable con el nuevo item agregado al final. 
   }
+
+
 
   // Actualizar item
-  const updateItem = (id: number, updates: Partial<ItemData>) => {
+  const updateItem = (id: number, updates: Partial<Accionable>) => {
     const updatedItems = items.map(item =>
-      item.id === id ? { ...item, ...updates } : item
+      item.id_accionable === id ? { ...item, ...updates } : item
     )
-
-    onItemsChange(updatedItems)
+    onItemsChange(updatedItems) //Contiene un nuevo arreglo Accionable donde el item con
+                                // el id especificado ha sido actualizado con los nuevos 
+                                //valores proporcionados en updates.
   }
+
 
   // delete item
   const deleteItem = (id: number) => {
-    const updatedItems = items.filter(item => item.id !== id)
+    const updatedItems = items.filter(item => item.id_accionable !== id)
 
-    onItemsChange(updatedItems)
+    onItemsChange(updatedItems)  //Contiene un nuevo arreglo Accionable que excluye 
+                                //el item con el id especificado,
   }
+
+
 
   return (
     <main className="w-full space-y-4">
       <div className="w-full max-w-2xl space-y-4">
-        <h1 className="font-semibold text-foreground">Accionables</h1>
+        <h1 className="font-semibold contenido-foreground">Accionables</h1>
 
         <div className="space-y-3">
+          {/* si vemos inicialmente no tiene ningun item */}
           {items.map((item) => (
+            // Le pasamos a cada ItemRow las funciones para que puedan 
+            // modificar el useState del componente padre (ListItems) 
             <ItemRow
-              key={item.id}
+              key={item.id_accionable}
               item={item}
               onUpdate={updateItem}
               onDelete={deleteItem}
@@ -256,6 +280,9 @@ export default function ListItems({ items, onItemsChange }: Props) {
           ))}
         </div>
 
+
+
+        {/* Agregar accionable boton */}
         <Button
           onClick={addItem}
           type="button"

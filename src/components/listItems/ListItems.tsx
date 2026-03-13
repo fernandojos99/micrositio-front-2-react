@@ -243,9 +243,8 @@ const addItem = () => {
   const newItems = [
     ...items,
     {
-      idF:newId,
-      id_accionable: 0,
-      id_learning_card:0 ,
+      id_accionable: newId,
+      id_learning_card: 0,
       contenido: "",
       impacto: 1,
       esfuerzo: 1,
@@ -255,6 +254,8 @@ const addItem = () => {
 
   onItemsChange(newItems)
 }
+
+
   // Actualizar item
   const updateItem = (id: number, updates: Partial<Accionable>) => {
     const updatedItems = items.map(item =>

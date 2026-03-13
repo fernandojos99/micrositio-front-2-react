@@ -851,7 +851,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
           id_learning_card: editingIdLC
         })); */
         // 2️⃣ agregar id_learning_card a todos los accionables
-        const accionablesPayload = items.map(({ idF, ...item }) => ({
+        const accionablesPayload = items.map(({ id_accionable, ...item }) => ({
           ...item,
           id_learning_card: editingIdLC
         }));

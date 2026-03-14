@@ -845,13 +845,9 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       
       try {
         await actualizarLearningCard(editingIdLC, payload);
+      
         // 2️⃣ agregar id_learning_card a todos los accionables
-      /*   const accionablesPayload = items.map((item) => ({
-          ...item,
-          id_learning_card: editingIdLC
-        })); */
-        // 2️⃣ agregar id_learning_card a todos los accionables
-        const accionablesPayload = items.map(({ id_accionable, ...item }) => ({
+        const accionablesPayload = items.map(({ idF,id_accionable ,...item }) => ({
           ...item,
           id_learning_card: editingIdLC
         }));
@@ -903,22 +899,28 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
     return () => document.removeEventListener('keydown', handleEsc);
   }, [onClose]);
 
-    useEffect(() => {
-        const cargarAccionables = async () => {
 
-          const data = await obtenerAccionablesPorLearningCard(editingIdLC)
+/**useEffecto para hacer la peticion y obtener los accionables */
+  useEffect(() => {
+      const cargarAccionables = async () => {
 
-          setItems(data)
+        const data = await obtenerAccionablesPorLearningCard(editingIdLC)
+        const itemsConFrontendId = data.map(item => ({
+          ...item,
+          idF: crypto.randomUUID()
+        }))
 
-        }
+        setItems(itemsConFrontendId)
 
-        //Se valida que exista un id valido para esperar a que cargue el componente 
-        //y no haga la peticion con un `undefiend`
-        if (editingIdLC) {
-          cargarAccionables()
-        }
+      }
 
-    }, [editingIdLC])
+      //Se valida que exista un id valido para esperar a que cargue el componente 
+      //y no haga la peticion con un `undefiend`
+      if (editingIdLC) {
+        cargarAccionables()
+      }
+
+  }, [editingIdLC])
 
 
 

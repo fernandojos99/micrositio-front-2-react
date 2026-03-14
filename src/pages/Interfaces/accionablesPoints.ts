@@ -5,7 +5,7 @@ export interface Points {
 }
 
 export interface Accionable{
-    idF?:number;
+    idF?:             string; // Solo para uso en frontend, no se envía al backend
     id_accionable?:    number;
     id_learning_card: number;
     contenido:        string;

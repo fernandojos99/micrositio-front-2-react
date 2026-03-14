@@ -9,6 +9,7 @@ import {
 } from "@/components/ui-shadcn/dropdown-menu"
 import { Button } from "../ui-shadcn2/button"
 import { Accionable } from "@/pages/Interfaces/accionablesPoints"
+import { randomInt } from "crypto"
 
 // export interface Accionable {
 //   id: number
@@ -162,8 +163,8 @@ function ItemRow({
 }: {
   item: Accionable
   //solo especifica que vendra una parte de Accionable, no todo el objeto
-  onUpdate: (id: number, updates: Partial<Accionable>) => void 
-  onDelete: (id: number) => void
+  onUpdate: (id:string, updates: Partial<Accionable>) => void 
+  onDelete: (id: string) => void
 }) {
   return (
     <div
@@ -185,19 +186,19 @@ function ItemRow({
         <ExpandableInput
           //Para identificar el input 
           value={item.contenido}
-          onChange={(val) => onUpdate(item.id_accionable!, { contenido: val })}
+          onChange={(val) => onUpdate(item.idF!, { contenido: val })}
           placeholder="Escribe aqui..."
         />
 
         <NumberDropdown
           value={item.impacto}
-          onChange={(val) => onUpdate(item.id_accionable!, { impacto: val })}
+          onChange={(val) => onUpdate(item.idF!, { impacto: val })}
           label="Esfuerzo"
         />
 
         <NumberDropdown
           value={item.esfuerzo}
-          onChange={(val) => onUpdate(item.id_accionable!, { esfuerzo: val })}
+          onChange={(val) => onUpdate(item.idF!, { esfuerzo: val })}
           label="Impacto"
         />
 
@@ -205,7 +206,7 @@ function ItemRow({
           variant="ghost"
           type="button"
           size="icon"
-          onClick={() => onDelete(item.id_accionable!)}
+          onClick={() => onDelete(item.idF!)}
           className="h-10 w-10 contenido-muted-foreground hover:contenido-destructive"
         >
           <Trash2 className="h-4 w-4" />
@@ -234,16 +235,11 @@ export default function ListItems({ items, onItemsChange }: Props) {
 // Agregar item
 const addItem = () => {
 
-  const maxId = items.length
-    ? Math.max(...items.map(i => i.id_accionable ?? 0))
-    : 0
-
-  const newId = maxId + 1
-
   const newItems = [
     ...items,
     {
-      id_accionable: newId,
+      idF: crypto.randomUUID(),
+      id_accionable: undefined, // Genera un ID único para el nuevo item
       id_learning_card: 0,
       contenido: "",
       impacto: 1,
@@ -256,26 +252,19 @@ const addItem = () => {
 }
 
 
-  // Actualizar item
-  const updateItem = (id: number, updates: Partial<Accionable>) => {
+  const updateItem = (id: string, updates: Partial<Accionable>) => {
     const updatedItems = items.map(item =>
-      item.id_accionable === id ? { ...item, ...updates } : item
+      item.idF === id ? { ...item, ...updates } : item
     )
-    onItemsChange(updatedItems) //Contiene un nuevo arreglo Accionable donde el item con
-                                // el id especificado ha sido actualizado con los nuevos 
-                                //valores proporcionados en updates.
+
+    onItemsChange(updatedItems)
   }
 
-
-  // delete item
-  const deleteItem = (id: number) => {
-    const updatedItems = items.filter(item => item.id_accionable !== id)
-
-    onItemsChange(updatedItems)  //Contiene un nuevo arreglo Accionable que excluye 
-                                //el item con el id especificado,
+  const deleteItem = (id: string) => {
+    const updatedItems = items.filter(item => item.idF !== id)
+  
+    onItemsChange(updatedItems)
   }
-
-
 
   return (
     <main className="w-full space-y-4 mb-5">
@@ -287,8 +276,8 @@ const addItem = () => {
           {items.map((item) => (
             // Le pasamos a cada ItemRow las funciones para que puedan 
             // modificar el useState del componente padre (ListItems) 
-            <ItemRow
-              key={item.idF }
+              <ItemRow
+              key={item.idF}
               item={item}
               onUpdate={updateItem}
               onDelete={deleteItem}

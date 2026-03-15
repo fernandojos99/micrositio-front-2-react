@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
  */
 interface SecuenciasSectionProps {
   /** Lista de secuencias del proyecto */
+  idProyecto: Number;
   secuencias: Secuencia[];
   /** Secuencia actualmente seleccionada */
   secuenciaSeleccionada: Secuencia | null;
@@ -69,6 +70,7 @@ interface SecuenciasSectionProps {
  * @returns {JSX.Element} Sección de secuencias
  */
 const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
+  idProyecto,
   secuencias,
   secuenciaSeleccionada,
   tituloProyecto,
@@ -332,9 +334,18 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
 
   const navigate = useNavigate()
 
+  /*
+    Función para navegar a la página grafica de accionables del proyecto
+  **/
   const gotoAccionables = () => {
-    navigate("/grafica")
+    console.log('Navegando a accionables del proyecto:', idProyecto);
+    navigate(`/proyecto/grafica/${idProyecto}`)
+
+
+    
   }
+  const tieneSecciones = secuencias && secuencias.length > 0;
+
   return (
     <div className={styles['secuencias-section']}>
       {/* @section: Header de la sección */}
@@ -351,21 +362,28 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
               {tituloProyecto || 'Sin título'}
             </h3>
 
+
             <Button
-              variant="primary"
+            variant="primary"
               size="small"
-              icon={<Check size={16}/>}
-             style={{
+              icon={<Check size={16} />}
+              disabled={!tieneSecciones}
+              style={{
                 height: "3rem",
                 paddingTop: "0.75rem",
                 paddingBottom: "0.75rem",
-                backgroundColor: "#22c55e"
-              }}              
-               onClick={gotoAccionables}
+                backgroundColor: tieneSecciones ? "#22c55e" : "#9ca3af",
+                cursor: tieneSecciones ? "pointer" : "not-allowed"
+              }}
+              onClick={() => {
+                if (tieneSecciones) {
+                  gotoAccionables();
+                  // console.log('Navegando a accionables del proyectdesde botono:', secuencias[0].proyectoId);
+                }
+              }}
             >
               Accionables
             </Button>
-
 
 
 

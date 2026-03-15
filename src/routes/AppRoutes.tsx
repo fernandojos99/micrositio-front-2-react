@@ -59,7 +59,10 @@ function AppRoutes() {
           <Route path="libro-digital" element={<LibroDigital />} />
           <Route path="administracion" element={<Administracion />} />
           <Route path="buscar" element={<Busqueda />} />
-          <Route path="grafica" element={<GraphImprovedTotal />} />
+          <Route 
+            path="proyecto/grafica/:idProyecto" 
+            element={<GraphImprovedTotal />}
+          />
 
 
           {/* Rutas alternativas que ya tenías */}

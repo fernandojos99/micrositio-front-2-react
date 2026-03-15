@@ -25,6 +25,19 @@ export async function obtenerAccionablesPorLearningCard(
 }
 
 
+// Obtener accionables por secuencia, para mostrar en la seccion de accionables del proyecto
+export async function obtenerAccionablesPorSecuencia(
+  idSecuencia: number
+): Promise<Accionable[]> {
+
+  const response = await apiClient.get(
+    `accionables/secuencia/${idSecuencia}/accionables`
+  );
+
+  return response.data.data;
+
+}
+
 
 
 

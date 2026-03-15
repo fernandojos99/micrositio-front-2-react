@@ -851,12 +851,11 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
           ...item,
           id_learning_card: editingIdLC
         }));
-
+        // 3️⃣ mandar el arreglo completo
+        await syncAccionables(id_learning_card,accionablesPayload);
 
 
         
-        // 3️⃣ mandar el arreglo completo
-        await syncAccionables(id_learning_card,accionablesPayload);
         setSuccessMsg('¡Learning Card guardada exitosamente!');
         onSave(payload); // Notifica al padre
       } catch (err: any) {

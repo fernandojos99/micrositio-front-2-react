@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useMemo } from "react"
+import { useState, useCallback, useMemo, useRef } from "react"
 import {
   ScatterChart,
   Scatter,
@@ -28,6 +28,9 @@ import { ChartContainer } from "@/components/ui-shadcn2/chart"
 import { ChevronDown, ChevronUp } from "lucide-react"
 
 // --- Types ---
+// Scatter = dispersión
+
+// Point
 export interface ScatterPoint {
   x: number
   y: number
@@ -35,18 +38,22 @@ export interface ScatterPoint {
   [key: string]: string | number | undefined
 }
 
+
+ // sets of points
 export interface ScatterSeriesConfig {
   name: string
   data: ScatterPoint[]
   color: string
 }
 
+// Configuration of cuadrants , color and label
 export interface QuadrantConfig {
   topLeft: { color: string; label: string }
   topRight: { color: string; label: string }
   bottomLeft: { color: string; label: string }
   bottomRight: { color: string; label: string }
 }
+
 
 interface ClusteredPoint {
   x: number
@@ -128,6 +135,8 @@ function clusterPoints(
   return clusters
 }
 
+
+
 // --- Get quadrant for a point ---
 function getQuadrant(
   x: number,
@@ -142,6 +151,7 @@ function getQuadrant(
 }
 
 // --- Custom Dot Shape with Badge ---
+// Se modifica el punto para que no sea solo un punto sencillo
 function ClusterDotShape(props: {
   cx?: number
   cy?: number
@@ -249,7 +259,9 @@ function ClusterDotShape(props: {
   )
 }
 
+
 // --- Custom Tooltip ---
+// Es el contenido cuando pasa el mouse arriba del punto. (Lo desactive)
 function ScatterTooltipContent({
   active,
   payload,
@@ -291,6 +303,8 @@ function ScatterTooltipContent({
 }
 
 // --- Cluster Popover ---
+// Es la tarjeta que sale cuando da un click sobre un boton  (el modal)
+// Se agrego la funcionalidad de que fuera clickeable y se pueda mover por la pantalla, 
 function ClusterPopover({
   cluster,
   onClose,
@@ -300,21 +314,76 @@ function ClusterPopover({
   onClose: () => void
   onAction: (action: string, points: Array<{ seriesName: string; data: ScatterPoint }>) => void
 }) {
+ // const isSingle = cluster.cluster.count === 1
+ // const firstPoint = cluster.cluster.points[0]
+
+
+  const [pos, setPos] = useState({
+    x: cluster.cx,
+    y: cluster.cy - 16
+  });
+
+  const dragging = useRef(false);
+  const offset = useRef({ x: 0, y: 0 });
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    dragging.current = true;
+
+    offset.current = {
+      x: e.clientX - pos.x,
+      y: e.clientY - pos.y
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!dragging.current) return;
+
+    setPos({
+      x: e.clientX - offset.current.x,
+      y: e.clientY - offset.current.y
+    });
+  };
+
+  const handleMouseUp = () => {
+    dragging.current = false;
+    window.removeEventListener("mousemove", handleMouseMove);
+    window.removeEventListener("mouseup", handleMouseUp);
+  };
+
   const isSingle = cluster.cluster.count === 1
   const firstPoint = cluster.cluster.points[0]
 
+
+
+
+
+
+  
   return (
     <div
       className="absolute z-50 animate-in fade-in-0 zoom-in-95 duration-150"
       style={{
-        left: cluster.cx,
-        top: cluster.cy - 16,
+        //left: cluster.cx,
+        //top: cluster.cy - 16,
+        left:pos.x,
+        top:pos.y,
         transform: "translate(-50%, -100%)",
         pointerEvents: "auto",
       }}
     >
       <div className="rounded-xl border border-border bg-card text-card-foreground shadow-xl min-w-[240px] max-w-[320px] max-h-[320px] overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5">
+        
+        
+        {/* <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5"> */}
+        {/* HEADER DRAGGABLE */}
+        <div
+          onMouseDown={handleMouseDown}
+          className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5 cursor-move"
+        > 
+
           <div className="flex items-center gap-2">
             <span
               className="inline-block h-3 w-3 rounded-full shrink-0"
@@ -409,6 +478,9 @@ function ClusterPopover({
     </div>
   )
 }
+
+
+
 
 // --- Quadrant Table ---
 function QuadrantTable({
@@ -506,7 +578,11 @@ function QuadrantTable({
   )
 }
 
+
+
+
 // --- Main Component ---
+// Interface de las props que recibe el componente principal, con sus respectivos tipos
 export interface QuadrantScatterChartProps {
   title?: string
   description?: string
@@ -540,8 +616,8 @@ export default function QuadrantScatterChart({
   description = "Haz clic en cualquier punto para interactuar",
   series,
   quadrants = DEFAULT_QUADRANTS,
-  xDomain = [0, 100],
-  yDomain = [0, 100],
+  xDomain = [0, 10],
+  yDomain = [0, 10],
   xLabel = "Eje X",
   yLabel = "Eje Y",
   clusterRadius = 5,
@@ -608,17 +684,18 @@ export default function QuadrantScatterChart({
   )
 
   return (
-    <Card className="w-full">
+    <Card className="w-full overflow-visible">
       <CardHeader className="pb-2 sm:pb-4">
         <CardTitle className="text-balance text-lg sm:text-xl">{title}</CardTitle>
         <CardDescription className="text-xs sm:text-sm">{description}</CardDescription>
       </CardHeader>
       <CardContent className="px-2 sm:px-6">
         <div className="relative">
-          <ChartContainer config={chartConfig} className="h-[300px] sm:h-[400px] md:h-[480px] w-full">
+          <ChartContainer config={chartConfig} className="h-[300px] sm:h-[400px] md:h-[480px] w-full overflow-visible">
             <ResponsiveContainer width="100%" height="100%">
               <ScatterChart
-                margin={{ top: 20, right: 12, left: 0, bottom: 20 }}
+              // Para tener mas espacio entre el borde del grafico y los puntos, para que se vea mejor
+                margin={{ top: 20, right: 40, left: 0, bottom: 20 }}
                 onClick={() => setActiveCluster(null)}
               >
                 {/* Quadrant background areas */}
@@ -718,6 +795,7 @@ export default function QuadrantScatterChart({
                     },
                   }}
                 />
+                 {/* Para desactivar la vista previa al pasar por arriba del boton */}
                 <Tooltip content={<ScatterTooltipContent />} cursor={false} />
 
                 <Scatter
@@ -747,7 +825,7 @@ export default function QuadrantScatterChart({
             />
           )}
 
-          {/* Legend */}
+          {/* Legend  : Es el nombre de los conjuntos de puntos  (secuencias)*/}
           <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 pt-3 sm:pt-4">
             {series.map((s) => (
               <div key={s.name} className="flex items-center gap-1.5 sm:gap-2">

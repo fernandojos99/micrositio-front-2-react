@@ -560,6 +560,7 @@ const ProyectoDetalle: React.FC = () => {
 
         {/* @section: Secuencias del proyecto */}
         <SecuenciasSection
+          idProyecto={Number(proyecto.id)}
           secuencias={secuencias}
           secuenciaSeleccionada={secuenciaSeleccionada}
           tituloProyecto={proyecto.nombre}

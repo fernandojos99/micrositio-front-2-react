@@ -40,26 +40,15 @@ export async function obtenerAccionablesPorSecuencia(
 
 
 
+export async function actualizarAccionable(
+  idAccionable: number,
+  realizado: boolean
+): Promise<void> {
 
-/**
- * En el body va a ir algo asi 
- * [
-  {
-    "id_learning_card": 3,
-    "contenido": "Automatizar pruebas",
-    "impacto": 5,
-    "esfuerzo": 3,
-    "realizado": false
-  },
-  {
-    "id_accionable": 7,
-    "id_learning_card": 3,
-    "contenido": "Actualizar API",
-    "impacto": 4,
-    "esfuerzo": 2,
-    "realizado": true
-  }
-]
- * 
- * 
- */
+  await apiClient.put(`/accionables/${idAccionable}`, {
+    realizado
+  });
+
+}
+
+

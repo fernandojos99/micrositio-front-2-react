@@ -13,3 +13,19 @@ export interface Accionable{
     esfuerzo:         number;
     realizado:        boolean;
 }
+
+export function createAccionable(
+    idLearningCard: number
+  ): Accionable {
+  
+    return {
+      idF: crypto.randomUUID(),
+      id_accionable: undefined,
+      id_learning_card: idLearningCard,
+      contenido: "",
+      impacto: 1,
+      esfuerzo: 1,
+      realizado: false
+    }
+  
+  }

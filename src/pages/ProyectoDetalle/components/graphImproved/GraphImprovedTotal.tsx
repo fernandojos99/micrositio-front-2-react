@@ -86,7 +86,7 @@ export default function DemoPage() {
   const { idProyecto } = useParams();
   console.log("ID del proyecto desde URL:", idProyecto);
 
-
+  const [accionables, setAccionables] = useState<Accionable[]>([]); //Guarda todos los accionables de todas las secuencias 
   const [proyecto, setProyecto] = useState<any>(null);
 
   //Para obtener el proyecto y mostrar su titulo en el header del grafico.
@@ -102,7 +102,7 @@ export default function DemoPage() {
 
 
 
-//          Obtener secuencias del proyecto
+//   Obtener secuencias del proyecto
   const [secuencias, setSecuencias] = useState<Secuencia[]>([]);
 
   useEffect(() => {
@@ -121,6 +121,8 @@ export default function DemoPage() {
   const [secuenciasConAccionables, setSecuenciasConAccionables] = useState<SecuenciaConAccionables[]>([]);
 
 
+  // Obtener accionables de cada secuencia y guardarlos en un nuevo estado que combine
+  // ambos datos para facilitar el acceso a la hora de generar los puntos del grafico.
   useEffect(() => {
 
     if (secuencias.length === 0) return;
@@ -148,13 +150,22 @@ export default function DemoPage() {
 
 
 
-  //Aqui recorrer secuenciasConAccionables para generar
+  //Aqui recorre secuenciasConAccionables para generar
   // los puntos del grafico a partir de los accionables.
 
 
   const series = useMemo(() => {
 
-    const colores = ["#2563eb", "#f43f5e", "#10b981"];
+    const colores = [
+      "#2563eb",
+      "#f43f5e",
+      "#10b981",
+      "#f59e0b",
+      "#8b5cf6",
+      "#14b8a6",
+      "#ec4899",
+      "#22c55e"
+    ]
   
     return secuenciasConAccionables.map((item, index) => ({
       name: item.secuencia.nombre,
@@ -166,23 +177,34 @@ export default function DemoPage() {
 
 
 
+  //Para obtener todos los accionables 
+  useEffect(() => {
+    if (secuenciasConAccionables.length === 0) return;
+    const todos = secuenciasConAccionables.flatMap(s => s.accionables);
+    setAccionables(todos);
+     // console.log("Accionables combinados:", todos);
+  }, [secuenciasConAccionables]);
+
 
 
   const handlePointAction = useCallback(
     (
       action: string,
-      points: Array<{ seriesName: string; data: ScatterPoint }>
+      points: Array<{ seriesName: string; data: ScatterPoint  }>,
+      accionable?:Accionable
     ) => {
-      if (points.length === 1) {
+      // 2 casos dependiendo de la cantidad de accionables
+      if (points.length === 1) { // Solo 1 accionable
         const point = points[0]
-        const name = point.data.label || `(${point.data.x}, ${point.data.y})`
-        const message = `Accion: "${action}" en ${point.seriesName} - ${name}`
+        const punto =  `(${point.data.x}, ${point.data.y})`
+        const message = `Accionable en el punto  ${punto} , Secuencia = ${point.seriesName}  \n,  Contenido=  ${accionable?.contenido} \n, Impacto= ${accionable?.impacto} \n, Esfuerzo=  ${accionable?.esfuerzo} \n, Realizado = ${accionable?.realizado ? "Sí" : "No" }`
+
         setLastAction(message)
       } else {
         const names = points
           .map((p) => p.data.label || `(${p.data.x}, ${p.data.y})`)
           .join(", ")
-        const message = `Accion: "${action}" en ${points.length} puntos: ${names}`
+        const message = `Accionables: "${action}" en ${points.length} puntos: ${names}`
         setLastAction(message)
       }
     },
@@ -213,6 +235,7 @@ export default function DemoPage() {
           title="Esfuerzo vs Impacto"
           description="Distribucion de proyectos por equipo. Puntos cercanos se agrupan automaticamente."
           series={series}
+          accionables={accionables}
           xLabel="Esfuerzo"
           yLabel="Impacto"
           clusterRadius={6}
@@ -231,7 +254,7 @@ export default function DemoPage() {
         {lastAction && (
           <div className="rounded-lg border border-border bg-card p-3 sm:p-4 text-sm text-card-foreground animate-in fade-in-0 slide-in-from-bottom-2 duration-200">
             <p className="font-medium text-xs text-muted-foreground mb-1">
-              Ultima accion:
+              Detalles:
             </p>
             <p className="font-mono text-xs sm:text-sm break-all">{lastAction}</p>
           </div>

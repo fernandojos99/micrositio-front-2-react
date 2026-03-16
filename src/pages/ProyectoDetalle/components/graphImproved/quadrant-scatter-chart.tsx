@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useMemo, useRef } from "react"
+import { useState, useCallback, useMemo, useRef, useEffect } from "react"
 import {
   ScatterChart,
   Scatter,
@@ -25,7 +25,9 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui-shadcn2/collapsible"
 import { ChartContainer } from "@/components/ui-shadcn2/chart"
-import { ChevronDown, ChevronUp } from "lucide-react"
+import { Check, ChevronDown, ChevronUp } from "lucide-react"
+import { Accionable, createAccionable } from "@/pages/Interfaces/accionablesPoints"
+import { actualizarAccionable } from "@/services/accionableService"
 
 // --- Types ---
 // Scatter = dispersión
@@ -282,10 +284,10 @@ function ScatterTooltipContent({
             </p>
           )}
           <p className="text-xs text-muted-foreground">
-            X: <span className="font-medium text-foreground">{cluster.points[0].point.x}</span>
+            Esfuerzo: <span className="font-medium text-foreground">{cluster.points[0].point.x}</span>
           </p>
           <p className="text-xs text-muted-foreground">
-            Y: <span className="font-medium text-foreground">{cluster.points[0].point.y}</span>
+            Impacto: <span className="font-medium text-foreground">{cluster.points[0].point.y}</span>
           </p>
         </>
       ) : (
@@ -412,11 +414,11 @@ function ClusterPopover({
               )}
               <div className="flex gap-4">
                 <div>
-                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground">X</p>
+                  <p className="text-[10px]  tracking-wide text-muted-foreground">Esfuerzo</p>
                   <p className="text-xl font-bold tracking-tight">{firstPoint.point.x}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Y</p>
+                  <p className="text-[10px]  tracking-wide text-muted-foreground">Impacto</p>
                   <p className="text-xl font-bold tracking-tight">{firstPoint.point.y}</p>
                 </div>
               </div>
@@ -445,7 +447,7 @@ function ClusterPopover({
         </div>
         
         <div className="flex border-t border-border divide-x divide-border">
-          <button
+          {/* <button
             onClick={() =>
               onAction(
                 "details",
@@ -458,8 +460,8 @@ function ClusterPopover({
             className="flex-1 px-4 py-2.5 text-xs font-medium text-foreground hover:bg-accent transition-colors rounded-bl-xl"
           >
             Ver detalles
-          </button>
-          <button
+          </button> */}
+          {/* <button
             onClick={() =>
               onAction(
                 "compare",
@@ -472,7 +474,7 @@ function ClusterPopover({
             className="flex-1 px-4 py-2.5 text-xs font-medium text-foreground hover:bg-accent transition-colors rounded-br-xl"
           >
             Comparar
-          </button>
+          </button> */}
         </div>
       </div>
     </div>
@@ -482,20 +484,77 @@ function ClusterPopover({
 
 
 
+
 // --- Quadrant Table ---
+// La tabla que contiene los dropdown de cada cuadrante
 function QuadrantTable({
   title,
   color,
   points,
   onRowClick,
+  accionables,
 }: {
   title: string
   color: string
+  accionables: Accionable[]
   points: Array<{ point: ScatterPoint; seriesName: string; seriesColor: string }>
-  onRowClick?: (point: ScatterPoint, seriesName: string) => void
+  onRowClick?: (point: ScatterPoint, seriesName: string,accionable:Accionable) => void
 }) {
   const [isOpen, setIsOpen] = useState(false)
 
+
+  //Este estado es para mantener un registro de qué filas están seleccionadas (marcadas) en la tabla de cada cuadrante. 
+  const [checkedRows, setCheckedRows] = useState(new Set<string>())
+
+
+  
+
+  useEffect(() => {
+    const initialChecked = new Set<string>()
+  
+    points.forEach((p) => {
+      const accionable = accionables.find(a => a.contenido === p.point.label)
+  
+      if (accionable?.realizado) {
+        initialChecked.add(p.point.label||"")
+      }
+    })
+  
+    setCheckedRows(initialChecked)
+  
+  }, [points, accionables])
+
+  // Aqui tengo que agregar despues la llamada a la API para actulizar el
+  // la columna de realizado (tanto para true como false)
+  const toggleCheck = async (label: string) => {
+
+    const accionable = accionables.find(a => a.contenido === label)
+  
+    if (!accionable) return
+  
+    const nuevoValor = !accionable.realizado
+  
+    try {
+  
+      await actualizarAccionable(accionable.id_accionable||0, nuevoValor)
+  
+      setCheckedRows(prev => {
+        const newSet = new Set(prev)
+  
+        if (newSet.has(label)) {
+          newSet.delete(label)
+        } else {
+          newSet.add(label)
+        }
+  
+        return newSet
+      })
+  
+    } catch (error) {
+      console.error("Error actualizando accionable", error)
+    }
+  
+  }
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger asChild>
@@ -524,56 +583,91 @@ function QuadrantTable({
         ) : (
           <div className="rounded-lg border border-border overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-muted/50">
-                    <th className="px-3 py-2 text-left font-medium text-muted-foreground text-xs">
-                      Etiqueta
-                    </th>
-                    <th className="px-3 py-2 text-left font-medium text-muted-foreground text-xs">
-                      Serie
-                    </th>
-                    <th className="px-3 py-2 text-right font-medium text-muted-foreground text-xs">
-                      X
-                    </th>
-                    <th className="px-3 py-2 text-right font-medium text-muted-foreground text-xs">
-                      Y
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {points.map((p, i) => (
-                    <tr
-                      key={i}
-                      className="border-b border-border last:border-b-0 hover:bg-accent/30 cursor-pointer transition-colors"
-                      onClick={() => onRowClick?.(p.point, p.seriesName)}
-                    >
-                      <td className="px-3 py-2 font-medium truncate max-w-[120px]">
-                        {p.point.label || "-"}
-                      </td>
-                      <td className="px-3 py-2">
-                        <div className="flex items-center gap-1.5">
-                          <span
-                            className="inline-block h-2 w-2 rounded-full shrink-0"
-                            style={{ backgroundColor: p.seriesColor }}
-                          />
-                          <span className="truncate text-xs">{p.seriesName}</span>
-                        </div>
-                      </td>
-                      <td className="px-3 py-2 text-right tabular-nums">
-                        {p.point.x}
-                      </td>
-                      <td className="px-3 py-2 text-right tabular-nums">
-                        {p.point.y}
-                      </td>
+             
+            <table className="w-full text-sm table-fixed">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/50">
+                      <th className="w-[5%] px-3 py-2"></th>
+
+                      <th className="w-[60%] px-3 py-2 text-left font-medium text-muted-foreground text-xs">
+                        Accionable
+                      </th>
+
+                      <th className="w-[15%] px-3 py-2 text-left font-medium text-muted-foreground text-xs">
+                        Secuencia
+                      </th>
+
+                      <th className="w-[10%] px-3 py-2 text-right font-medium text-muted-foreground text-xs">
+                        Esfuerzo
+                      </th>
+
+                      <th className="w-[10%] px-3 py-2 text-right font-medium text-muted-foreground text-xs">
+                        Impacto
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+
+                  <tbody>
+                    {points.map((p) => {
+                      const isChecked = checkedRows.has(p.point.label||"") // Verifica si la fila actual está marcada
+
+                      return (
+                        <tr
+                        key={p.point.label}
+                          className="border-b border-border last:border-b-0 hover:bg-accent/30 transition-colors"
+                        >
+                          {/* CHECK BUTTON */}
+                          <td className="px-3 py-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                toggleCheck(p.point.label||"")
+                              }}
+                              className={`flex items-center justify-center w-5 h-5 rounded border transition-colors
+                                ${isChecked 
+                                  ? "bg-green-500 border-green-500 text-white" 
+                                  : "border-muted-foreground/40"}
+                              `}
+                            >
+                              {isChecked && <Check size={14} />}
+                            </button>
+                          </td>
+
+                          <td
+                            className="px-3 py-2 font-medium truncate cursor-pointer"
+                            onClick={() => onRowClick?.(p.point, p.seriesName,accionables.find(a => a.contenido === p.point.label) ||createAccionable(0))}
+                          >
+                            {p.point.label || "-"}
+                          </td>
+
+                          <td className="px-3 py-2">
+                            <div className="flex items-center gap-1.5">
+                              <span
+                                className="inline-block h-2 w-2 rounded-full shrink-0"
+                                style={{ backgroundColor: p.seriesColor }}
+                              />
+                              <span className="truncate text-xs">{p.seriesName}</span>
+                            </div>
+                          </td>
+
+                          <td className="px-3 py-2 text-right tabular-nums">
+                            {p.point.x}
+                          </td>
+
+                          <td className="px-3 py-2 text-right tabular-nums">
+                            {p.point.y}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
             </div>
           </div>
         )}
       </CollapsibleContent>
+
+
     </Collapsible>
   )
 }
@@ -587,6 +681,7 @@ export interface QuadrantScatterChartProps {
   title?: string
   description?: string
   series: ScatterSeriesConfig[]
+  accionables:Accionable[]
   quadrants?: QuadrantConfig
   xDomain?: [number, number]
   yDomain?: [number, number]
@@ -595,7 +690,8 @@ export interface QuadrantScatterChartProps {
   clusterRadius?: number
   onPointAction?: (
     action: string,
-    points: Array<{ seriesName: string; data: ScatterPoint }>
+    points: Array<{ seriesName: string; data: ScatterPoint }>,
+    accionable?: Accionable
   ) => void
 }
 
@@ -608,13 +704,14 @@ const DEFAULT_QUADRANTS: QuadrantConfig = {
 
 
 // ==================================================
-//                  Creo  que este es el bueno
+//                  Creo  que este es el bueno MAIN
 // ==================================================
 
 export default function QuadrantScatterChart({
   title = "Analisis por Cuadrantes",
   description = "Haz clic en cualquier punto para interactuar",
   series,
+  accionables,
   quadrants = DEFAULT_QUADRANTS,
   xDomain = [0, 10],
   yDomain = [0, 10],
@@ -669,8 +766,8 @@ export default function QuadrantScatterChart({
   )
 
   const handleRowClick = useCallback(
-    (point: ScatterPoint, seriesName: string) => {
-      onPointAction?.("row-click", [{ seriesName, data: point }])
+    (point: ScatterPoint, seriesName: string,accionable:Accionable) => {
+      onPointAction?.("row-click", [{ seriesName, data: point }],accionable)
     },
     [onPointAction]
   )
@@ -851,24 +948,28 @@ export default function QuadrantScatterChart({
               title={quadrants.topLeft.label}
               color={quadrants.topLeft.color}
               points={pointsByQuadrant.topLeft}
+              accionables={accionables}
               onRowClick={handleRowClick}
             />
             <QuadrantTable
               title={quadrants.topRight.label}
               color={quadrants.topRight.color}
               points={pointsByQuadrant.topRight}
+              accionables={accionables}
               onRowClick={handleRowClick}
             />
             <QuadrantTable
               title={quadrants.bottomLeft.label}
               color={quadrants.bottomLeft.color}
               points={pointsByQuadrant.bottomLeft}
+              accionables={accionables}
               onRowClick={handleRowClick}
             />
             <QuadrantTable
               title={quadrants.bottomRight.label}
               color={quadrants.bottomRight.color}
               points={pointsByQuadrant.bottomRight}
+              accionables={accionables}
               onRowClick={handleRowClick}
             />
           </div>

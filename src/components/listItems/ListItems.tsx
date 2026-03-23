@@ -11,14 +11,6 @@ import { Button } from "../ui-shadcn2/button"
 import { Accionable } from "@/pages/Interfaces/accionablesPoints"
 import { randomInt } from "crypto"
 
-// export interface Accionable {
-//   id: number
-//   title: string
-//   contenido: string
-//   impacto: number
-//   esfuerzo: number
-//   realizado: boolean
-// }
 
 
 
@@ -31,7 +23,7 @@ interface Props {
 
 
 // ====================================================
-//==========    dropdown de nuemero ===================
+//==========    dropdown de numero ===================
 // ====================================================
 
 
@@ -168,9 +160,7 @@ function ItemRow({
 }) {
   return (
     <div
-      className={`flex flex-col gap-2 rounded-lg border border-border bg-card p-3 ${
-        item.realizado ? "opacity-60" : ""
-      }`}
+      className={`flex flex-col gap-2 rounded-lg border border-border bg-card p-3 `}
     >
 
       {/* descomentar si quiero poner un titulo */}

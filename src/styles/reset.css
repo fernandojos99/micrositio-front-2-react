@@ -39,8 +39,7 @@ select {
 
 button {
   cursor: pointer;
-  border: none;
-  background: none;
+
 }
 
 a {
@@ -67,3 +66,4 @@ h6 {
   height: 100%;
   isolation: isolate;
 }
+

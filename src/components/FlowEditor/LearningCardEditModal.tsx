@@ -40,6 +40,9 @@ import { notificacionSiguienteResponsable } from '../../services/notificacionesS
 import { useAuth } from '../../contexts/AuthContext';
 import EmpleadoSelector from '../../pages/Proyectos/components/EmpleadoSelector';
 import './styles/TestingCardEditModal.css';
+import ListItems from '../listItems/ListItems';
+import { Accionable } from '@/pages/Interfaces/accionablesPoints';
+import { obtenerAccionablesPorLearningCard, syncAccionables } from '@/services/accionableService';
 
 // Interface para Empleado
 interface Empleado {
@@ -234,6 +237,10 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
   useEffect(() => {
     cargarEmpleados();
   }, []);
+
+// Mantener estado de accionables
+  const [items, setItems] = useState<Accionable[]>([])
+
 
   /**
    * Carga las métricas del Testing Card asociado - NUEVO ENFOQUE
@@ -797,6 +804,13 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
     }
   };
 
+
+
+
+
+
+
+  // Aqui tengo que poner la logica para agregar accionable 
   /**
    * Maneja el envío del formulario
    * @function handleSubmit
@@ -831,6 +845,17 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
       
       try {
         await actualizarLearningCard(editingIdLC, payload);
+      
+        // 2️⃣ agregar id_learning_card a todos los accionables
+        const accionablesPayload = items.map(({ idF,id_accionable ,...item }) => ({
+          ...item,
+          id_learning_card: editingIdLC
+        }));
+        // 3️⃣ mandar el arreglo completo
+        await syncAccionables(id_learning_card,accionablesPayload);
+
+
+        
         setSuccessMsg('¡Learning Card guardada exitosamente!');
         onSave(payload); // Notifica al padre
       } catch (err: any) {
@@ -848,6 +873,19 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
     }
   };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
   /**
    * Efecto para manejar el cierre del modal con tecla ESC
    * @function useEffect
@@ -859,6 +897,31 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
     document.addEventListener('keydown', handleEsc);
     return () => document.removeEventListener('keydown', handleEsc);
   }, [onClose]);
+
+
+/**useEffecto para hacer la peticion y obtener los accionables */
+  useEffect(() => {
+      const cargarAccionables = async () => {
+
+        const data = await obtenerAccionablesPorLearningCard(editingIdLC)
+        const itemsConFrontendId = data.map(item => ({
+          ...item,
+          idF: crypto.randomUUID()
+        }))
+
+        setItems(itemsConFrontendId)
+
+      }
+
+      //Se valida que exista un id valido para esperar a que cargue el componente 
+      //y no haga la peticion con un `undefiend`
+      if (editingIdLC) {
+        cargarAccionables()
+      }
+
+  }, [editingIdLC])
+
+
 
   return (
     <div className="testing-modal-backdrop" onClick={(e) => e.stopPropagation()}>
@@ -875,6 +938,16 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
             <X size={20} />
           </button>
         </div>
+
+
+
+
+
+
+
+        {/*-------------------- Inicio de form ----------------- */}
+
+
 
         <form onSubmit={handleSubmit} className="testing-modal-form">
           {loading && <div className="testing-form-loading">Cargando...</div>}
@@ -899,7 +972,9 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
             </select>
           </div>
 
-          {/* @section: Resultados obtenidos */}
+
+
+        {/* @section: Resultados obtenidos */}
           <div className="testing-form-group">
             <label htmlFor="result" className="testing-form-label">
               <FileText className="testing-form-icon" />
@@ -916,8 +991,18 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
             {errors.resultado && <span className="testing-error-text">{errors.resultado}</span>}
           </div>
 
+
+
+
+
+
+
+
+
+
           {/* @section: Hallazgo accionable */}
-          <div className="testing-form-group">
+
+            {/* <div className="testing-form-group">
             <label htmlFor="insight" className="testing-form-label">
               <FileText className="testing-form-icon" />
               Hallazgo Accionable (por ende, haremos...)
@@ -931,7 +1016,28 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
               rows={3}
             />
             {errors.hallazgo && <span className="testing-error-text">{errors.hallazgo}</span>}
-          </div>
+          </div> */}
+
+
+        {/*EXPLICACION:   */}
+        {/* items es un arreglo de item que conserva su estado mediante useState 
+        Pasamos al componente 
+        * useState 
+        * funcion que toma algo como parametro (newItems) y actualiza el estado de items
+          con setItems(newItems)
+        
+        */}
+
+     
+        <ListItems
+              items={items}
+              onItemsChange={(newItems) => {
+                console.log("items:", newItems)
+                setItems(newItems)
+              }}
+          />
+
+            
 
           {/* @section: Métricas del Testing Card asociado */}
           <div className="testing-form-section">
@@ -1115,8 +1221,21 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
             )}
           </div>
 
-          {/* @section: Botones de acción */}
+
+
+
+
+
+
+
+          {/* ====================================================== */}
+                  {/* @section: Botones de acción */}
+          {/* ====================================================== */}
+
+
+
           <div className="testing-form-actions">
+
             <button 
               type="button" 
               onClick={onClose} 
@@ -1124,6 +1243,7 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
             >
               Cancelar
             </button>
+
             <button 
               type="submit" 
               className="learning-btn-submit"
@@ -1133,6 +1253,16 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
             </button>
           </div>
         </form>
+
+
+
+
+
+
+
+
+
+
 
         {/* @component: Modal de documentación reutilizado */}
         {isDocumentationModalOpen && (

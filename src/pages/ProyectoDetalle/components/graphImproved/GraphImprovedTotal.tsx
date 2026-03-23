@@ -240,11 +240,13 @@ export default function DemoPage() {
           yLabel="Impacto"
           clusterRadius={6}
           quadrants={{
-            topLeft: { color: "#fef3c7", label: "Quick win" },
-            topRight: { color: "#dcfce7", label: "Trayectoria" },
-            bottomLeft: { color: "#fee2e2", label: "Cambios sencillos" },
-            bottomRight: { color: "#dbeafe", label: "<Insertar-tema>." },
+            topLeft: { color: "#fef3c7", label: "Quick Wins" },
+            topRight: { color: "#dcfce7", label: "Proyectos Principales" },
+            bottomLeft: { color: "#fee2e2", label: "Tareas Menores" },
+            bottomRight: { color: "#dbeafe", label: "Tareas Complejas" },
           }}
+
+         // Quick Wins, Proyectos Principales, Tareas Menores, Tareas Complejas
           onPointAction={handlePointAction}
         />
 

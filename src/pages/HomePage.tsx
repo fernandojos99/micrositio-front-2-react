@@ -1,5 +1,5 @@
 //
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Brain, 
   Lightbulb, 
@@ -23,6 +23,9 @@ import FeatureCard from '../components/cards/FeatureCard';
 import InnovationCard from '../components/cards/InnovationCard';
 import LoginModal from '../components/auth/LoginModal';
 import styles from './HomePage.module.css';
+import { obtenerEmpleados } from '@/services/empleadosService';
+import { listarTodasTestingCards } from '@/services/testingCardService';
+import { obtenerProyectos } from '@/services/proyectosService';
 
 /**
  * Datos de proyectos destacados para mostrar en el home
@@ -55,16 +58,9 @@ const featuredProjects = [
   }
 ];
 
-/**
- * Estadísticas para mostrar en el hero section
- * @constant stats
- */
-const stats = [
-  { label: 'Proyectos Activos-prueba2', value: '24+', icon: <Rocket size={20} /> },
-  { label: 'Colaboradores-prueba', value: '50+', icon: <Users size={20} /> },
-  { label: 'Experimentos-prueba2', value: '120+', icon: <Zap size={20} /> },
-  { label: 'Tasa de Éxito-prueba', value: '94%', icon: <TrendingUp size={20} /> }
-];
+
+
+
 
 /**
  * Temas de innovación disponibles
@@ -129,6 +125,69 @@ const innovationTopics = [
  * @returns {JSX.Element} Página de inicio rediseñada
  */
 const HomePage: React.FC = () => {
+
+   const [total, setTotal] = useState(0);
+
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const empleados = await obtenerEmpleados();
+        setTotal(empleados.length); // 🔥 aquí cuentas
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetch();
+  }, []);
+
+   const [totalEx, setTotalEx] = useState(0);
+
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const testingCards = await listarTodasTestingCards();
+        setTotalEx(testingCards.length); // 🔥 aquí cuentas
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetch();
+  }, []);
+
+
+   const [totalPr, setTotalPr] = useState(0);
+
+    useEffect(() => {
+    const fetch = async () => {
+      try {
+        const proyectos = await obtenerProyectos();
+        setTotalPr(proyectos.length); // 🔥 aquí cuentas
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetch();
+  }, []);
+
+
+
+
+  /**
+   * Estadísticas para mostrar en el hero section
+   * @constant stats
+   */
+  const stats = [
+    { label: 'Proyectos Activos', value: totalPr === 0 ? '30+' : `${totalPr}+`, icon: <Rocket size={20} /> },
+    { label: 'Colaboradores Especialistas' , value: total === 0 ? '20+' : `${total}+`,  icon: <Users size={20} /> },
+    { label: 'Experimentos', value: totalEx === 0 ? '200+' : `${totalEx}+`,  icon: <Zap size={20} /> },
+    { label: 'Servicios de Innovación', value: '50+', icon: <TrendingUp size={20} /> }
+  ];
+
+
+
   // @context: Contexto de autenticación
   const { user } = useAuth();
   
@@ -204,59 +263,64 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </section>
-
+      {/**Esto aparece si se loguea el usuario , pero lo comentare 
+       * porque aun no esta terminado 
+       */}
       {/* @section: Proyectos Destacados */}
-      {user && (
-        <section className={styles['featured-projects']}>
-          <div className={styles['section-container']}>
-            <div className={styles['section-header']}>
-              <h2 className={styles['section-title']}>
-                <Star size={24} />
-                Proyectos Destacados
-              </h2>
-              <p className={styles['section-description']}>
-                Tus proyectos más importantes y su progreso actual
-              </p>
-              <Link to="/proyectos" className={styles['section-link']}>
-                Ver todos <ChevronRight size={16} />
-              </Link>
-            </div>
+      {/*      {user && (
+              <section className={styles['featured-projects']}>
+                <div className={styles['section-container']}>
+                  <div className={styles['section-header']}>
+                    <h2 className={styles['section-title']}>
+                      <Star size={24} />
+                      Proyectos Destacados
+                    </h2>
+                    <p className={styles['section-description']}>
+                      Tus proyectos más importantes y su progreso actual
+                    </p>
+                    <Link to="/proyectos" className={styles['section-link']}>
+                      Ver todos <ChevronRight size={16} />
+                    </Link>
+                  </div>
 
-            <div className={styles['projects-grid']}>
-              {featuredProjects.map((project) => (
-                <div key={project.id} className={styles['project-card']}>
-                  <div className={styles['project-header']}>
-                    <h3 className={styles['project-name']}>{project.name}</h3>
-                    <span className={styles['project-status']}>{project.status}</span>
-                  </div>
-                  
-                  <p className={styles['project-description']}>
-                    {project.description}
-                  </p>
-                  
-                  <div className={styles['project-progress']}>
-                    <div className={styles['progress-header']}>
-                      <span>Progreso</span>
-                      <span>{project.progress}%</span>
-                    </div>
-                    <div className={styles['progress-bar']}>
-                      <div 
-                        className={styles['progress-fill']}
-                        style={{ width: `${project.progress}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                  
-                  <div className={styles['project-team']}>
-                    <Users size={14} />
-                    <span>{project.team.join(', ')}</span>
+                  <div className={styles['projects-grid']}>
+                    {featuredProjects.map((project) => (
+                      <div key={project.id} className={styles['project-card']}>
+                        <div className={styles['project-header']}>
+                          <h3 className={styles['project-name']}>{project.name}</h3>
+                          <span className={styles['project-status']}>{project.status}</span>
+                        </div>
+                        
+                        <p className={styles['project-description']}>
+                          {project.description}
+                        </p>
+                        
+                        <div className={styles['project-progress']}>
+                          <div className={styles['progress-header']}>
+                            <span>Progreso</span>
+                            <span>{project.progress}%</span>
+                          </div>
+                          <div className={styles['progress-bar']}>
+                            <div 
+                              className={styles['progress-fill']}
+                              style={{ width: `${project.progress}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                        
+                        <div className={styles['project-team']}>
+                          <Users size={14} />
+                          <span>{project.team.join(', ')}</span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+              </section>
+            )}
+      */}
+
+
 
       {/* @section: Feature Cards 
       <section className={styles['features-section']}>
@@ -289,7 +353,9 @@ const HomePage: React.FC = () => {
       </section>
       */}
 
-      {/* @section: Innovation Resources */}
+ {/* @section: Innovation Resources */}
+ {/* Descomentar si quiero los recuadros de abajo del landingpage */}
+{/*      
       <section className={styles['innovation-section']}>
         <div className={styles['section-container']}>
           <div className={styles['section-header']}>
@@ -318,7 +384,7 @@ const HomePage: React.FC = () => {
           </div>
         </div>
       </section>
-
+ */}
       {/* @component: Modal de login */}
       <LoginModal
         isOpen={showLoginModal}

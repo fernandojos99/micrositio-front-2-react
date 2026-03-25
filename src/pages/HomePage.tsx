@@ -182,7 +182,7 @@ const HomePage: React.FC = () => {
   const stats = [
     { label: 'Proyectos Activos', value: totalPr === 0 ? '30+' : `${totalPr}+`, icon: <Rocket size={20} /> },
     { label: 'Colaboradores Especialistas' , value: total === 0 ? '20+' : `${total}+`,  icon: <Users size={20} /> },
-    { label: 'Experimentos', value: totalEx === 0 ? '200+' : `${totalEx}+`,  icon: <Zap size={20} /> },
+    { label: 'Experimentos realizados', value: totalEx === 0 ? '200+' : `${totalEx}+`,  icon: <Zap size={20} /> },
     { label: 'Servicios de Innovación', value: '50+', icon: <TrendingUp size={20} /> }
   ];
 

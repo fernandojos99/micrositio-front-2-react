@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   FolderOpen, 
@@ -10,6 +10,9 @@ import {
   BookOpen
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
+import { useAuth } from '@/contexts/AuthContext';
+import { useUI } from '@/contexts/UIContext';
+//import { ... } from '@/contexts/AuthContext';
 
 interface MenuItem {
   path: string;
@@ -52,6 +55,10 @@ const Sidebar: React.FC = () => {
     setIsCollapsed(prev => !prev);
   };
 
+  const { user } = useAuth();
+  const { openLoginModal } = useUI();
+
+
   return (
     <aside className={`${styles.sidebar} ${isCollapsed ? styles['sidebar-collapsed'] : styles['sidebar-expanded']}`}>
       <div className={styles['sidebar-content']}>
@@ -71,9 +78,18 @@ const Sidebar: React.FC = () => {
         <nav className={styles.navigation}>
           <ul className={styles['nav-list']}>
             {menuItems.map((item) => (
+
               <li key={item.path}>
                 <NavLink
                   to={item.path}
+                  // Para que active el modal si no hay usuario
+                  // Utiliza contexto para administrar el modal de forma global
+                    onClick={(e) => {
+                      if (!user) {
+                        e.preventDefault();
+                        openLoginModal();
+                        }
+                      }}
                   className={({ isActive }) => 
                     `${styles['nav-item']} ${
                       isActive ? styles['nav-item-active'] : ''
@@ -86,6 +102,7 @@ const Sidebar: React.FC = () => {
                   {!isCollapsed && <span className={styles['nav-text']}>{item.name}</span>}
                 </NavLink>
               </li>
+
             ))}
           </ul>
         </nav>

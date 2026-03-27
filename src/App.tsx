@@ -36,17 +36,20 @@ import { ThemeProvider } from './hooks/useTheme';
 import { AuthProvider } from './contexts/AuthContext';
 import { AppProvider } from './contexts/AppContext';
 import AppRoutes from './routes/AppRoutes';
+import { UIProvider } from './contexts/UIContext';
 
 function App() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <AppProvider>
-          <Router>
-            <AppRoutes />
-          </Router>
-        </AppProvider>
-      </AuthProvider>
+      <UIProvider>
+        <AuthProvider>
+          <AppProvider>
+            <Router>
+              <AppRoutes />
+            </Router>
+          </AppProvider>
+        </AuthProvider>
+      </UIProvider>
     </ThemeProvider>
   );
 }

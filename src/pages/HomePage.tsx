@@ -1,4 +1,5 @@
 //
+import { useMemo } from "react";
 import React, { useEffect, useState } from 'react';
 import { 
   Brain, 
@@ -173,23 +174,49 @@ const HomePage: React.FC = () => {
   }, []);
 
 
-
-
-  /**
+ /**
    * Estadísticas para mostrar en el hero section
    * @constant stats
    */
+
+/*  
   const stats = [
     { label: 'Proyectos Activos', value: totalPr === 0 ? '30+' : `${totalPr}+`, icon: <Rocket size={20} /> },
     { label: 'Colaboradores Especialistas' , value: total === 0 ? '20+' : `${total}+`,  icon: <Users size={20} /> },
     { label: 'Experimentos realizados', value: totalEx === 0 ? '200+' : `${totalEx}+`,  icon: <Zap size={20} /> },
     { label: 'Servicios de Innovación', value: '50+', icon: <TrendingUp size={20} /> }
   ];
+ */
 
 
+const { user } = useAuth();
+
+const stats = useMemo(() => {
+  return [
+    { 
+      label: 'Proyectos Activos', 
+      value: !user || totalPr === 0 ? '30+' : `${totalPr}+`, 
+      icon: <Rocket size={20} /> 
+    },
+    { 
+      label: 'Colaboradores Especialistas', 
+      value: !user || total === 0 ? '20+' : `${total}+`, 
+      icon: <Users size={20} /> 
+    },
+    { 
+      label: 'Experimentos realizados', 
+      value: !user || totalEx === 0 ? '200+' : `${totalEx}+`, 
+      icon: <Zap size={20} /> 
+    },
+    { 
+      label: 'Servicios de Innovación', 
+      value: '50+', 
+      icon: <TrendingUp size={20} /> 
+    }
+  ];
+}, [user, totalPr, total, totalEx]);
 
   // @context: Contexto de autenticación
-  const { user } = useAuth();
   
   // @state: Control del modal de login
   const [showLoginModal, setShowLoginModal] = useState(false);

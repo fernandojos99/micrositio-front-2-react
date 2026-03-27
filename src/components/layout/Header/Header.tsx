@@ -16,6 +16,7 @@ import LoginModal from '../../auth/LoginModal';
 import RegisterModal from '../../auth/RegisterModal';
 import styles from './Header.module.css';
 import irisLogo from '../../../logoIRIS.png';
+import { useUI } from '@/contexts/UIContext';
 
 /**
  * Componente Header con sistema de autenticación integrado
@@ -46,15 +47,17 @@ const Header: React.FC = () => {
   const { user, logout } = useAuth();
   
   // @state: Control de los modales
-  const [showLoginModal, setShowLoginModal] = useState(false);
+  //const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+
+  const { showLoginModal, closeLoginModal, openLoginModal } = useUI();
 
   /**
    * Maneja el clic en el botón de login
    * @function handleLoginClick
    */
   const handleLoginClick = () => {
-    setShowLoginModal(true);
+    openLoginModal();
   };
 
   /**
@@ -167,7 +170,7 @@ const Header: React.FC = () => {
       {/* @component: Modal de login */}
       <LoginModal
         isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
+        onClose={closeLoginModal}
       />
 
       {/* @component: Modal de registro */}

@@ -3,6 +3,8 @@ import { X, Mail, Lock, Eye, EyeOff, UserPlus, AlertCircle } from 'lucide-react'
 import Button from '../ui/Button/Button';
 import { crearUsuarioVisitante } from '../../services/usuarioService';
 import styles from './LoginModal.module.css';
+import { useAuth } from '@/contexts/AuthContext';
+import { useUI } from '@/contexts/UIContext';
 
 interface RegisterModalProps {
   isOpen: boolean;
@@ -22,6 +24,9 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState('');
 
+
+  const { user } = useAuth();
+  const { openLoginModal } = useUI();
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && !isLoading) {
@@ -418,8 +423,17 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
               disabled={!isFormValid() || isLoading}
               icon={<UserPlus size={16} />}
               className={styles['submit-button']}
+/*                onClick={(e) => {
+                  if (!user) {
+                    e.preventDefault();
+                    openLoginModal();
+                    }
+                  }} */
             >
               {isLoading ? 'Creando cuenta...' : 'Crear Cuenta'}
+              {!isLoading && void setTimeout(() => {
+                openLoginModal();
+              }, 1000)}
             </Button>
           </form>
         </div>

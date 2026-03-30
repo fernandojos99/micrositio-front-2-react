@@ -239,6 +239,11 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
+
+
+
+  //
+
   return (
     <div className={styles['modal-backdrop']}>
       <div className={styles['modal-container']}>

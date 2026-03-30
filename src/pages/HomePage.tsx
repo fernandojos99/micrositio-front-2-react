@@ -27,6 +27,7 @@ import styles from './HomePage.module.css';
 import { obtenerEmpleados } from '@/services/empleadosService';
 import { listarTodasTestingCards } from '@/services/testingCardService';
 import { obtenerProyectos } from '@/services/proyectosService';
+import { useUI } from "@/contexts/UIContext";
 
 /**
  * Datos de proyectos destacados para mostrar en el home
@@ -190,6 +191,8 @@ const HomePage: React.FC = () => {
 
 
 const { user } = useAuth();
+const { openLoginModal } = useUI();
+
 
 const stats = useMemo(() => {
   return [
@@ -267,7 +270,14 @@ const stats = useMemo(() => {
                 <ArrowRight size={16} />
               </button>
               
-              <Link to="/agentes" className={styles['cta-secondary']}>
+              <Link to="/agentes" className={styles['cta-secondary']}  
+              // Para que salga el modal si no hay usuario registrado
+               onClick={(e) => {
+                      if (!user) {
+                        e.preventDefault();
+                        openLoginModal();
+                        }
+                      }}>
                 <Brain size={20} />
                 Explorar Agente
               </Link>

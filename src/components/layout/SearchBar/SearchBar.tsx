@@ -3,10 +3,14 @@ import React, { useState } from 'react';
 import { Search, Bot } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './SearchBar.module.css';
+import { useUI } from '@/contexts/UIContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 const SearchBar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { openLoginModal } = useUI();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +46,13 @@ const SearchBar: React.FC = () => {
             <button
               type="submit"
               className={styles['search-button']}
+              // Para que salga el modal si no hay usuario registrado
+              onClick={(e) => {
+                  if (!user) {
+                    e.preventDefault();
+                    openLoginModal();
+                    }
+                  }}
             >
               Buscar
             </button>
@@ -51,6 +62,13 @@ const SearchBar: React.FC = () => {
         <Link
           to="/agentes"
           className={styles['assistant-button']}
+              // Para que salga el modal si no hay usuario registrado
+           onClick={(e) => {
+                      if (!user) {
+                        e.preventDefault();
+                        openLoginModal();
+                        }
+                      }}
         >
           <Bot className={styles['assistant-icon']} />
           <span>Asistente</span>

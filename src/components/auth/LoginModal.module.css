@@ -36,11 +36,15 @@
   box-shadow: var(--shadow-xl);
   width: 100%;
   max-width: 28rem;
+
+  max-height: 90vh;      /* 🔥 SOLUCIÓN CLAVE */
+  overflow-y: auto;      /* 🔥 PERMITE SCROLL */
+
   animation: slideIn 0.4s ease-out;
   z-index: var(--z-modal);
   border: 1px solid var(--theme-border);
-  overflow: hidden;
 }
+/*overflow: hidden;*/
 
 /* @animation: Entrada del modal */
 @keyframes slideIn {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Users, 
   Mail, 
@@ -15,6 +15,8 @@ import {
 import { colaboradoresDisponibles } from '../../data/mockData';
 import Button from '../../components/ui/Button/Button';
 import styles from './Equipo.module.css';
+import { ProfileCard, ProfileCardProps } from './CardProfile';
+import { EmpleadoResumen, obtenerEmpleadosResumen } from '@/services/empleadosService';
 
 /**
  * Datos extendidos del equipo con información adicional
@@ -140,6 +142,113 @@ const Equipo: React.FC = () => {
       .slice(0, 2);
   };
 
+
+
+/**Mapea de resumen empleado a ProfileCardProps para poder 
+ * construir las cartas perfiles
+ */
+const mapToProfileCard = (emp: EmpleadoResumen, index: number): ProfileCardProps => ({
+  avatarUrl: `https://api.dicebear.com/9.x/adventurer/svg?seed=${index + 1}`,
+
+  name: `${emp.nombre_pila ?? ""} ${emp.apellido_paterno ?? ""} ${emp.apellido_materno ?? ""}`.trim(),
+
+  role: emp.cargo ?? "",
+
+  email: emp.correo ?? "",
+
+  badge: emp.departamento ?? "",
+
+  projectsCompleted: emp.projectsCompleted,
+    
+  projectsActive: emp.projectsActive,
+
+  // 🔥 aquí el formato mes + año
+  memberSince: emp.created_at
+    ? new Date(emp.created_at).toLocaleDateString("es-MX", {
+        year: "numeric",
+        month: "long",
+      })
+    : "",
+
+  aboutMe: emp.infopersonal  ?? "",
+  skills: emp.skills ?? [],
+
+  accentColor: ["cyan", "blue", "green", "purple", "orange", "rose"][index % 6] as any,
+});
+
+
+
+
+/**
+ * Administra la informacion de los usuarios que se 
+ * coloca en las cartas de perfiles.
+ * 
+ */
+const [users, setUsers] = useState<ProfileCardProps[]>([]);
+
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const empleados = await obtenerEmpleadosResumen();
+      console.log(empleados)
+
+      const mappedUsers = empleados.map(mapToProfileCard);
+
+      setUsers(mappedUsers);
+    } catch (error) {
+      console.error("Error cargando empleados:", error);
+    }
+  };
+
+  fetchData();
+}, []);
+  
+ /*  const users: ProfileCardProps[] = [
+  {
+
+    avatarUrl: "https://api.dicebear.com/9.x/adventurer/svg?seed=1",
+    name: "Carlos Rodríguez",
+    role: "Senior Developer",
+    email: "carlos.rodriguez@empresa.com",
+    badge: "Desarrollo",
+    projectsCompleted: 45,
+    projectsActive: 5,
+    memberSince: "Enero/2024",
+    aboutMe: "Desarrollador con más de 10 años de experiencia...",
+    skills: ["React", "TypeScript", "Node.js", "AWS", "Docker"],
+    accentColor: "blue",
+  },
+  {
+    avatarUrl: "https://api.dicebear.com/9.x/adventurer/svg?seed=2",
+    name: "Ana López",
+    role: "UX Designer",
+    email: "ana.lopez@empresa.com",
+    badge: "Diseño",
+    projectsCompleted: 30,
+    projectsActive: 3,
+    memberSince: "Febrero/2024",
+    aboutMe: "Diseñadora enfocada en experiencia de usuario...",
+    skills: ["Figma", "UX Research", "Prototyping"],
+    accentColor: "purple",
+  },
+    {
+    avatarUrl: "https://api.dicebear.com/9.x/adventurer/svg?seed=2",
+    name: "Ana Lópezd",
+    role: "UX Designer",
+    email: "ana.lopez@empresa.com",
+    badge: "Diseño",
+    projectsCompleted: 30,
+    projectsActive: 3,
+    memberSince: "Febrero/2024",
+    aboutMe: "Diseñadora enfocada en experiencia de usuario...",
+    skills: ["Figma", "UX Research", "Prototyping"],
+    accentColor: "purple",
+  },
+];
+ */
+
+
+
   return (
     <div className={styles['equipo-container']}>
       <div className={styles['equipo-content']}>
@@ -224,132 +333,37 @@ const Equipo: React.FC = () => {
           </p>
         </div>
 
-        {/* @section: Grid de miembros del equipo */}
-        <div className={styles['team-grid']}>
-          {filteredTeam.length > 0 ? (
-            filteredTeam.map((member) => (
-              <div key={member.id} className={styles['member-card']}>
-                {/* @section: Header de la tarjeta */}
-                <div className={styles['card-header']}>
-                  <div className={styles['member-avatar']}>
-                    {member.avatar ? (
-                      <img 
-                        src={member.avatar} 
-                        alt={member.nombre}
-                        className={styles['avatar-image']}
-                      />
-                    ) : (
-                      <div className={styles['avatar-placeholder']}>
-                        {getInitials(member.nombre)}
-                      </div>
-                    )}
-                    <div className={styles['status-indicator']}></div>
-                  </div>
-                  
-                  <div className={styles['member-basic-info']}>
-                    <h3 className={styles['member-name']}>{member.nombre}</h3>
-                    <p className={styles['member-role']}>{member.role}</p>
-                    <p className={styles['member-department']}>{member.department}</p>
-                  </div>
-                </div>
+        {/* @section: Lista de miembros del equipo */}
 
-                {/* @section: Información de contacto */}
-                <div className={styles['contact-info']}>
-                  <div className={styles['contact-item']}>
-                    <Mail size={14} />
-                    <span className={styles['contact-text']}>{member.email}</span>
-                  </div>
-                  {/*
-                  <div className={styles['contact-item']}>
-                    <MapPin size={14} />
-                    <span className={styles['contact-text']}>{member.location}</span>
-                  </div>
-                  <div className={styles['contact-item']}>
-                    <Calendar size={14} />
-                    <span className={styles['contact-text']}>
-                      Desde {formatJoinDate(member.joinDate)}
-                    </span>
-                  </div>
-                  */}
-                </div>
 
-                {/* @section: Métricas del miembro */}
-                <div className={styles['member-metrics']}>
-                  <div className={styles['metric-item']}>
-                    <span className={styles['metric-value']}>{member.projectsCount}</span>
-                    <span className={styles['metric-label']}>Proyectos</span>
-                  </div>
-                  {/*<div className={styles['metric-item']}>
-                    <span className={styles['metric-value']}>{member.skills.length}</span>
-                    <span className={styles['metric-label']}>Habilidades</span>
-                  </div>*/}
-                </div>
 
-                {/* @section: Habilidades principales 
-                <div className={styles['skills-section']}>
-                  <h4 className={styles['skills-title']}>Habilidades principales</h4>
-                  <div className={styles['skills-list']}>
-                    {member.skills.slice(0, 3).map((skill, index) => (
-                      <span key={index} className={styles['skill-tag']}>
-                        {skill}
-                      </span>
-                    ))}
-                    {member.skills.length > 3 && (
-                      <span className={styles['skills-more']}>
-                        +{member.skills.length - 3} más
-                      </span>
-                    )}
-                  </div>
-                </div>
-                */}
-                {/* @section: Biografía */}
-                <div className={styles['bio-section']}>
-                  <p className={styles['member-bio']}>{member.bio}</p>
-                </div>
 
-                {/* @section: Acciones de la tarjeta 
-                <div className={styles['card-actions']}>
-                  <Button
-                    variant="outline"
-                    size="small"
-                    onClick={() => window.open(`mailto:${member.email}`, '_blank')}
-                  >
-                    <Mail size={14} />
-                    Contactar
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="small"
-                    onClick={() => setSelectedMember(
-                      selectedMember === member.id ? null : member.id
-                    )}
-                  >
-                    <Briefcase size={14} />
-                    Ver Proyectos
-                  </Button>
-                </div> */}
-              </div>
-            ))
-          ) : (
-            /* @section: Estado sin resultados */
-            <div className={styles['no-results']}>
-              <Users size={48} className={styles['no-results-icon']} />
-              <h3 className={styles['no-results-title']}>No se encontraron miembros</h3>
-              <p className={styles['no-results-description']}>
-                Intenta ajustar los filtros de búsqueda o explora todos los miembros del equipo.
-              </p>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setSearchTerm('');
-                  setDepartmentFilter('');
-                }}
-              >
-                Limpiar Filtros
-              </Button>
-            </div>
-          )}
-        </div>
+        {/*<div className="w-full px-4 sm:px-6 lg:px-8 py-6"> ; esto le generaba mucho padding al componente */  }
+        <div className="w-full p-0 m-0">
+         {/*   <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(260px,1fr))]">*/}
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2  items-start">
+            
+            {users.map((user) => (
+              <ProfileCard
+              key={user.name}
+              avatarUrl={user.avatarUrl}
+              name={user.name}
+              role={user.role}
+              email={user.email}
+              badge={user.badge}
+              projectsCompleted={user.projectsCompleted}
+              projectsActive={user.projectsActive}
+              memberSince={user.memberSince}
+              aboutMe={user.aboutMe}
+              skills={user.skills}
+              accentColor={user.accentColor}
+            />
+            ))}
+          </div>
+
+        </div> 
+
+
       </div>
     </div>
   );

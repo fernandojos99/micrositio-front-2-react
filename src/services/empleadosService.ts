@@ -34,6 +34,163 @@ export interface ActualizarEmpleadoData {
   activo?: boolean;
 }
 
+
+export interface EmpleadoResumen {
+  skills: string[];
+  nombre_pila: string;
+  apellido_paterno: string;
+  apellido_materno?: string;
+  correo: string;
+  created_at?: string;
+  cargo: string;
+  departamento: string;
+  infopersonal:string;
+  projectsActive?: number;
+  projectsCompleted?: number;
+}
+
+
+const mapEmpleadoResumen = (emp: any): EmpleadoResumen => ({
+  nombre_pila: emp.nombre_pila,
+  apellido_paterno: emp.apellido_paterno,
+  apellido_materno: emp.apellido_materno,
+  correo: emp.correo,
+  created_at: emp.created_at,
+  infopersonal:emp.infopersonal,
+
+  // 🔥 aquí está la lógica importante
+  cargo: emp.cargo ?? "",
+  departamento: emp.departamento ?? "",
+  skills: emp.skills  ?? [], // Convertir array a string si es necesario
+});
+
+
+/**
+ * Obtiene toda la informacion del empleado 
+ * @returns  regresa solo los campos especificados de la interface
+ * 
+ */
+/* export const obtenerEmpleadosResumen = async (): Promise<EmpleadoResumen[]> => {
+  const response = await apiClient.get('/empleados/todos');
+
+  return response.data.map(mapEmpleadoResumen);
+};
+ */
+
+
+/* export const obtenerEmpleadosResumen = async (): Promise<any[]> => { 
+  const response = await apiClient.get('/empleados/todos');
+  const empleados = response.data;
+
+  const empleadosConHabilidades = await Promise.all(
+    empleados.map(async (empleado: any) => {
+      try {
+        const habilidadesResponse = await apiClient.get(
+          `/habilidad/empleado/${empleado.id_empleado}`
+        );
+
+        // 1. Accedemos al array que está en data.data (según tu imagen)
+        const listaHabilidades = habilidadesResponse.data.data || [];
+
+        // 2. Iteramos sobre el array para extraer solo el string de 'nombre_habilidad'
+        const skillsArray = listaHabilidades.map((h: any) => h.nombre_habilidad);
+
+        return {
+          ...mapEmpleadoResumen(empleado),
+          skills: skillsArray // Ahora contiene un array de strings: ["JavaScript", "React", ...]
+        };
+
+      } catch (error) {
+        console.error(`Error obteniendo habilidades para empleado ${empleado.id_empleado}:`, error);
+        return {
+          ...mapEmpleadoResumen(empleado),
+          skills: []
+        };
+      }
+    })
+  );
+
+  return empleadosConHabilidades;
+};
+ */
+
+
+
+export const obtenerEmpleadosResumen = async (): Promise<any[]> => { 
+  // 🔹 1. Obtener empleados y proyectos en paralelo
+  const [empleadosRes, proyectosRes] = await Promise.all([
+    apiClient.get('/empleados/todos'),
+    apiClient.get('/proyectos')
+  ]);
+
+  const empleados = empleadosRes.data;
+  const proyectos = proyectosRes.data || [];
+
+  // 🔹 2. Agrupar proyectos por id_lider
+  const proyectosPorLider: Record<number, any[]> = {};
+
+  proyectos.forEach((p: any) => {
+    if (!proyectosPorLider[p.id_lider]) {
+      proyectosPorLider[p.id_lider] = [];
+    }
+    proyectosPorLider[p.id_lider].push(p);
+  });
+
+  // 🔹 3. Mapear empleados
+  const empleadosConInfo = await Promise.all(
+    empleados.map(async (empleado: any) => {
+      try {
+        // 🔹 Habilidades (esto sí sigue siendo por empleado)
+        const habilidadesResponse = await apiClient.get(
+          `/habilidad/empleado/${empleado.id_empleado}`
+        );
+
+        const listaHabilidades = habilidadesResponse.data.data || [];
+        const skillsArray = listaHabilidades.map(
+          (h: any) => h.nombre_habilidad
+        );
+
+        // 🔹 Obtener proyectos ya agrupados
+        const proyectosDelEmpleado =
+          proyectosPorLider[empleado.id_empleado] || [];
+
+        // 🔹 Contadores optimizados (una sola pasada)
+        let projectsCompleted = 0;
+        let projectsActive = 0;
+
+        for (const p of proyectosDelEmpleado) {
+          if (p.estado === 'COMPLETADO') projectsCompleted++;
+          else if (p.estado === 'ACTIVO') projectsActive++;
+        }
+
+        return {
+          ...mapEmpleadoResumen(empleado),
+          skills: skillsArray,
+          projectsCompleted,
+          projectsActive
+        };
+
+      } catch (error) {
+        console.error(
+          `Error obteniendo info para empleado ${empleado.id_empleado}:`,
+          error
+        );
+
+        return {
+          ...mapEmpleadoResumen(empleado),
+          skills: [],
+          projectsCompleted: 0,
+          projectsActive: 0
+        };
+      }
+    })
+  );
+
+  return empleadosConInfo;
+};
+
+
+
 /**
  * Obtiene todos los empleados
  * @returns {Promise<Empleado[]>} Lista de todos los empleados
@@ -110,3 +267,5 @@ export const obtenerEmpleadosSinUsuario = async (): Promise<Empleado[]> => {
   const response = await apiClient.get('/empleados/sin-usuario');
   return response.data;
 };
+
+

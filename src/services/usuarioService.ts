@@ -1,7 +1,7 @@
 import apiClient from '../apiClient';
 
 export interface Usuario {
-  id_usuario: string; // UUID
+  id_usuario: number; // UUID , lo cambie a number esta string
   alias: string;
   password_hash: string;
   tipo: 'EDITOR' | 'VISITANTE';
@@ -96,8 +96,9 @@ export const obtenerUsuarioPorId = async (id: string): Promise<Usuario> => {
  * @param {ActualizarUsuarioData} usuarioData - Datos a actualizar
  * @returns {Promise<Usuario>} El usuario actualizado
  */
-export const actualizarUsuario = async (id: string, usuarioData: ActualizarUsuarioData): Promise<Usuario> => {
-  const response = await apiClient.patch(`/usuarios/${id}`, usuarioData);
+//export const actualizarUsuario = async (id: string, usuarioData: ActualizarUsuarioData): Promise<Usuario> => {
+export const actualizarUsuario = async (id: number, usuarioData: ActualizarUsuarioData): Promise<Usuario> => { 
+const response = await apiClient.patch(`/usuarios/${id}`, usuarioData);
   return response.data;
 };
 
@@ -137,7 +138,7 @@ export const darAltaUsuario = async (id: string): Promise<Usuario> => {
  * @param {CambiarPasswordData} passwordData - Nueva contraseña
  * @returns {Promise<Usuario>} El usuario actualizado
  */
-export const cambiarPasswordUsuario = async (id: string, passwordData: CambiarPasswordData): Promise<Usuario> => {
+export const cambiarPasswordUsuario = async (id: number, passwordData: CambiarPasswordData): Promise<Usuario> => {
   const response = await apiClient.patch(`/usuarios/${id}/password`, passwordData);
   return response.data;
 };

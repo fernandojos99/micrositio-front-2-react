@@ -64,6 +64,7 @@ export function ProfileSection({
     <div className="w-full max-w-2xl mx-auto">
       {/* Container para las 3 tarjetas pegadas */}
       <div className="flex flex-col">
+        
         {/* Acerca de mi - Primera tarjeta */}
         <div className="bg-card rounded-t-xl border border-border p-4 sm:p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-1">

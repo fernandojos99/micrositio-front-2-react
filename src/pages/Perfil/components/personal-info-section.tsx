@@ -5,7 +5,9 @@ import { User, Mail, Phone, Edit3, Save, X, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui-shadcn2/button"
 import { Input } from "@/components/ui-shadcn/input"
 import { useToast } from "./../hooks/use-toast"
-import type { Empleado, User as UserType } from "./../types/profile"
+// import type { Empleado, User as UserType } from "./../types/profile"
+import type {  User as UserType } from "./../types/profile"
+import { Empleado } from "@/services/empleadosService"
 
 interface PersonalInfoSectionProps {
   user: UserType | null

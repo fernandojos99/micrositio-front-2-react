@@ -1,7 +1,7 @@
 import apiClient from '../apiClient';
 
 export interface Empleado {
-  id_empleado: number;
+  id: number;
   nombre_pila: string;
   apellido_paterno: string;
   apellido_materno?: string;
@@ -11,6 +11,9 @@ export interface Empleado {
   activo: boolean;
   created_at?: string;
   updated_at?: string;
+  infopersonal?:string;
+  departamento?:string;
+  cargo ?:string;
 }
 
 export interface CrearEmpleadoData {
@@ -32,6 +35,11 @@ export interface ActualizarEmpleadoData {
   correo?: string;
   numero_empleado?: string;
   activo?: boolean;
+
+  // 🔽 nuevos campos
+  cargo?: string;
+  departamento?: string;
+  infopersonal?: string;
 }
 
 
@@ -142,7 +150,9 @@ export const obtenerEmpleadosResumen = async (): Promise<any[]> => {
       try {
         // 🔹 Habilidades (esto sí sigue siendo por empleado)
         const habilidadesResponse = await apiClient.get(
+          // `/habilidad/empleado/${empleado.id_empleado}`
           `/habilidad/empleado/${empleado.id_empleado}`
+
         );
 
         const listaHabilidades = habilidadesResponse.data.data || [];
@@ -219,7 +229,7 @@ export const obtenerEmpleadoPorId = async (id: number): Promise<Empleado> => {
     }
   });
   
-  // console.log('Respuesta del servidor:', response.data);
+  console.log('Respuesta del servidor:', response.data);
   return response.data;
 };
 
@@ -233,18 +243,47 @@ export const crearEmpleado = async (empleadoData: CrearEmpleadoData): Promise<Em
   return response.data;
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /**
  * Actualiza los datos de un empleado existente
  * @param {ActualizarEmpleadoData} empleadoData - Datos a actualizar (debe incluir el id)
  * @returns {Promise<Empleado>} El empleado actualizado
  */
 export const actualizarEmpleado = async (empleadoData: ActualizarEmpleadoData): Promise<Empleado> => {
-  // console.log('actualizarEmpleado - Datos recibidos:', JSON.stringify(empleadoData, null, 2));
-  // console.log('actualizarEmpleado - Tipo de ID:', typeof empleadoData.id);
+  console.log('actualizarEmpleado - Datos recibidos:', JSON.stringify(empleadoData, null, 2));
+   console.log('actualizarEmpleado - Tipo de ID:', typeof empleadoData.id);
   
   const response = await apiClient.patch('/empleados/', empleadoData);
   return response.data;
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Desactiva un empleado (eliminación lógica)

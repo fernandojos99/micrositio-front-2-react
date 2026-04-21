@@ -1,7 +1,9 @@
 "use client"
 
 import { User, Briefcase } from "lucide-react"
-import type { Empleado, User as UserType } from "./../types/profile"
+// import type { Empleado, User as UserType } from "./../types/profile"
+import type {  User as UserType } from "./../types/profile"
+import { Empleado } from "@/services/empleadosService"
 
 interface ProfileHeaderProps {
   user: UserType | null

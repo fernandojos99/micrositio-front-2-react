@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { Shield, User, Key, Edit3, Save, X, Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui-shadcn2/button"
@@ -50,6 +48,11 @@ export function UserConfigSection({
     setAliasError("")
   }
 
+
+
+
+
+  // Save alias 
   const saveAliasChanges = async () => {
     if (!aliasValue.trim()) {
       setAliasError("El alias no puede estar vacío")
@@ -154,6 +157,13 @@ export function UserConfigSection({
       setIsSavingPassword(false)
     }
   }
+
+
+
+
+
+
+
 
   return (
     <div className="bg-card rounded-b-xl border-x border-b border-border p-4 sm:p-6 shadow-sm">

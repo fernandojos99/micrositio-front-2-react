@@ -14,10 +14,12 @@ import {
 import {
   obtenerEmpleadoPorId,
   actualizarEmpleado,
+  Empleado,
 } from "@/services/empleadosService"
 
 import type {
-  Empleado,
+  // Empleado,
+  //AboutMeData,
   AboutMeData,
   SkillsData,
   WorkInfoData,
@@ -43,14 +45,15 @@ const roleOptions = [
 ]
 
 export default function ProfilePage() {
+
+  // Consumimos contexto de Auth para obtener el user y empleado
   const { user, isLoading: authLoading, updateUser } = useAuth();
   
   const [empleado, setEmpleado] = useState<Empleado | null>(null)
   const [loading, setLoading] = useState(true)
-
-  const [aboutMe, setAboutMe] = useState<AboutMeData>({ description: "" })
   const [skills, setSkills] = useState<SkillsData>({ skills: [] })
   const [workInfo, setWorkInfo] = useState<WorkInfoData>({ departamento: "", rol: "" })
+  const [aboutMe, setAboutMe] = useState<AboutMeData>({ description: "" })
 
   // Convertimos el id a número de forma segura para usar en los servicios
   const userIdNumber = user?.id ? Number(user.id) : null;
@@ -62,7 +65,9 @@ export default function ProfilePage() {
       try {
         setLoading(true)
         const empleadoRes = await obtenerEmpleadoPorId(idEmpleado)
+        console.log("Esta es la respuesta de buscar empleado",empleadoRes)
         setEmpleado(empleadoRes)
+        setAboutMe({description:empleadoRes.infopersonal ?? ""})
       } catch (error) {
         console.error("❌ Error cargando datos del empleado:", error)
       } finally {
@@ -72,11 +77,17 @@ export default function ProfilePage() {
     loadData()
   }, [idEmpleado])
 
+
+  /* FUNCIONES PARA MODIFICAR LAS VARIABLES Y MANDARLAS A LOS COMPONENTES
+*/
+
+  // Modificar email 
   const handleSaveEmail = useCallback(async (correo: string) => {
     if (!empleado) return
     try {
+      console.log(empleado.id)
       const updated = await actualizarEmpleado({
-        id: empleado.id_empleado,
+        id:Number( empleado.id),
         correo,
       })
       setEmpleado(updated)
@@ -85,13 +96,17 @@ export default function ProfilePage() {
     }
   }, [empleado])
 
+
+  // Modificar alias
   const handleSaveAlias = useCallback(async (alias: string) => {
     // Validamos que exista el usuario y el ID sea válido
-    if (!user || userIdNumber === null || isNaN(userIdNumber)) return
+    console.log("almenos entro a lafuncion cambiar ALIAS")
+    console.log("valores" , !user,"userIdNumber",userIdNumber ,user , alias)
+    if (!user) return
     
     try {
-      // ✅ Pasamos userIdNumber (tipo number) al servicio
-      const updated = await actualizarUsuario(userIdNumber, { alias })
+      console.log("entro al try")
+      const updated = await actualizarUsuario(user.id, { alias })
       
       if (updateUser) {
         updateUser({ 
@@ -103,47 +118,77 @@ export default function ProfilePage() {
     } catch (error) {
       console.error("❌ Error actualizando alias:", error)
     }
-  }, [user, userIdNumber, updateUser])
+  }, [user, updateUser])
 
+
+  // Modificar contrasenia
   const handleChangePassword = useCallback(async (data: PasswordChangeData) => {
-    if (!user || userIdNumber === null || isNaN(userIdNumber)) return
+    console.log("almenos entro a lafuncion cambiar contrasenia")
+    if (!user ) return
     
     try {
-      // ✅ Pasamos userIdNumber (tipo number) al servicio
-      await cambiarPasswordUsuario(userIdNumber, data)
+      await cambiarPasswordUsuario(user.id, data)
+      console.log("si la cambio")
     } catch (error) {
       console.error("❌ Error cambiando contraseña:", error)
     }
-  }, [user, userIdNumber])
+  }, [user])
 
-  const handleSaveAboutMe = useCallback((data: AboutMeData) => setAboutMe(data), [])
+  // Modificar info sobre el usuario
+//  const handleSaveAboutMe = useCallback((data: AboutMeData) => setAboutMe(data), [])
+
+const handleSaveAboutMe = useCallback(async (data: AboutMeData) => {
+
+  if (!empleado) return
+  try {
+    const updated = await actualizarEmpleado({
+      
+      id: Number(empleado.id ), // 👈 asegúrate de tener este valor
+      //cargo: data.cargo,
+      //departamento: data.departamento,
+      infopersonal: data.description    });
+
+    // 🔽 actualizas el estado con lo que viene del backend
+    setAboutMe(prev => ({
+      ...prev,
+      ...updated
+    }));
+
+  } catch (error) {
+    console.error("Error al actualizar empleado:", error);
+  }
+}, [empleado]);
+
+
+  // Modificar info sobre las habilidades
   const handleSaveSkills = useCallback((data: SkillsData) => setSkills(data), [])
-  
   const handleAddSkill = useCallback(() => {
     setSkills((prev) => ({
       skills: [...prev.skills, { id: Date.now().toString(), name: "" }],
     }))
   }, [])
-
   const handleRemoveSkill = useCallback((id: string) => {
     setSkills((prev) => ({
       skills: prev.skills.filter((s) => s.id !== id),
     }))
   }, [])
-
   const handleUpdateSkill = useCallback((id: string, name: string) => {
     setSkills((prev) => ({
       skills: prev.skills.map((s) => s.id === id ? { ...s, name } : s),
     }))
   }, [])
 
+  // ???
   const handleSaveWorkInfo = useCallback((data: WorkInfoData) => setWorkInfo(data), [])
+  // Modificar Departamento
   const handleDepartmentChange = useCallback((value: string) => {
     setWorkInfo((prev) => ({ ...prev, departamento: value }))
   }, [])
+  // Modificar Rol de trabajo
   const handleRoleChange = useCallback((value: string) => {
     setWorkInfo((prev) => ({ ...prev, rol: value }))
   }, [])
+
 
 
 // Creamos una versión del usuario compatible con los componentes de la UI
@@ -175,12 +220,19 @@ return (
           onSaveEmail={handleSaveEmail}
         />
 
+
+
         <UserConfigSection
           user={mappedUserForUI}
           onSaveAlias={handleSaveAlias}
           onChangePassword={handleChangePassword}
         />
       </div>
+
+
+
+
+
 
       <ProfileSection
         aboutMe={aboutMe}

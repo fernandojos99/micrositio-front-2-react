@@ -1,12 +1,13 @@
 // Tipos para la información del empleado
-export interface Empleado {
-  id_empleado: number
-  nombre_pila: string
-  apellido_paterno: string
-  apellido_materno?: string
-  correo: string
-  celular?: string
-}
+// export interface Empleado {
+//   id_empleado: number
+//   nombre_pila: string
+//   apellido_paterno: string
+//   apellido_materno?: string
+//   correo: string
+//   celular?: string
+  
+// }
 
 // Tipos para el usuario autenticado
 export interface User {

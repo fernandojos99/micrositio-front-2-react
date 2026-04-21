@@ -102,6 +102,15 @@ const response = await apiClient.patch(`/usuarios/${id}`, usuarioData);
   return response.data;
 };
 
+// Es casi lo mismo que arriba pero lo usare par actualizar solo habilidades , esto con el objetivo de 
+// no romper lo que ya funciona .
+export const actualizarUsuario2 = async (id: string, usuarioData: ActualizarUsuarioData): Promise<Usuario> => { 
+const response = await apiClient.patch(`/usuarios/${id}`, usuarioData);
+  return response.data;
+};
+
+
+
 /**
  * Elimina un usuario (eliminación física)
  * @param {string} id - ID del usuario (UUID)

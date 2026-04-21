@@ -1,11 +1,13 @@
 "use client"
 
+import * as React from "react"
 import { useState } from "react"
 import { Info, Briefcase, Building, X, Plus, Save } from "lucide-react"
 import { Button } from "@/components/ui-shadcn2/button"
 import { Textarea } from "@/components/ui-shadcn2/textarea"
 import { Input } from "@/components/ui-shadcn/input"
 import { Label } from "@/components/ui-shadcn2/label"
+import { cn } from "@/lib/utils"
 import {
   Select,
   SelectContent,
@@ -21,31 +23,40 @@ import type {
   RoleOption,
 } from "./../types/profile"
 
+// --- Interfaces adicionales para el Selector de Fecha ---
+export interface DateValue {
+  month: string
+  year: string
+}
+
 interface ProfileSectionProps {
   aboutMe: AboutMeData
   skills: SkillsData
   workInfo: WorkInfoData
   departmentOptions: DepartmentOption[]
   roleOptions: RoleOption[]
-  onSaveAboutMe: (data: AboutMeData) => void
+  onSaveAboutMe: (data: AboutMeData) => Promise<void>
   onCancelAboutMe: () => void
-  onSaveSkills: (data: SkillsData) => void
+  onSaveSkills: (data: SkillsData) => Promise<void>
   onCancelSkills: () => void
   onAddSkill: () => void
   onRemoveSkill: (id: string) => void
   onUpdateSkill: (id: string, name: string) => void
-  onSaveWorkInfo: (data: WorkInfoData) => void
+  onSaveWorkInfo: (data: WorkInfoData) => Promise<void>
   onCancelWorkInfo: () => void
   onDepartmentChange: (value: string) => void
   onRoleChange: (value: string) => void
+  startDate: DateValue
+  onStartDateChange: (date: DateValue) => void
+  onSaveExperience: () => Promise<void>
 }
-
 export function ProfileSection({
   aboutMe,
   skills,
   workInfo,
   departmentOptions,
   roleOptions,
+  onSaveExperience,
   onSaveAboutMe,
   onCancelAboutMe,
   onSaveSkills,
@@ -57,62 +68,82 @@ export function ProfileSection({
   onCancelWorkInfo,
   onDepartmentChange,
   onRoleChange,
+  startDate,
+  onStartDateChange,
 }: ProfileSectionProps) {
   const [localDescription, setLocalDescription] = useState(aboutMe.description)
+  
+  const [isSavingAbout, setIsSavingAbout] = useState(false)
+  const [isSavingSkills, setIsSavingSkills] = useState(false)
+  const [isSavingWork, setIsSavingWork] = useState(false)
+
+  const handleSaveAbout = async () => {
+    setIsSavingAbout(true)
+    try {
+      await onSaveAboutMe({ description: localDescription })
+    } finally {
+      setIsSavingAbout(false)
+    }
+  }
+
+  const handleSaveSkillsAction = async () => {
+    setIsSavingSkills(true)
+    try {
+      await onSaveSkills(skills)
+    } finally {
+      setIsSavingSkills(false)
+    }
+  }
+
+  const handleSaveWorkAction = async () => {
+    setIsSavingWork(true)
+    try {
+      await onSaveWorkInfo(workInfo)
+      await onSaveExperience() 
+    } finally {
+      setIsSavingWork(false)
+    }
+  }
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      {/* Container para las 3 tarjetas pegadas */}
+    <div className="w-full max-w-2xl mx-auto space-y-0">
       <div className="flex flex-col">
         
-        {/* Acerca de mi - Primera tarjeta */}
+        {/* Acerca de mi */}
         <div className="bg-card rounded-t-xl border border-border p-4 sm:p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-1">
             <Info className="size-4 text-[#844484]" />
             <h3 className="font-semibold text-card-foreground">Acerca de mi</h3>
           </div>
-          <p className="text-sm text-muted-foreground mb-4">
-            Cuéntanos sobre ti
-          </p>
+          <p className="text-sm text-muted-foreground mb-4">Cuéntanos sobre ti</p>
 
           <Textarea
             value={localDescription}
             onChange={(e) => setLocalDescription(e.target.value)}
             placeholder="Escribe algo sobre ti..."
             className="min-h-[100px] resize-y mb-4"
+            disabled={isSavingAbout}
           />
 
           <div className="flex items-center gap-2">
             <Button
-              onClick={() => onSaveAboutMe({ description: localDescription })}
+              onClick={handleSaveAbout}
+              disabled={isSavingAbout}
               className="bg-[#844484] hover:bg-[#8C37F7] text-white transition-colors"
             >
               <Save className="size-4 mr-1" />
-              Guardar
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setLocalDescription(aboutMe.description)
-                onCancelAboutMe()
-              }}
-              className="text-muted-foreground hover:text-card-foreground"
-            >
-              <X className="size-4 mr-1" />
-              Cancelar
+              {isSavingAbout ? "Guardando..." : "Guardar"}
             </Button>
           </div>
         </div>
 
-        {/* Habilidades - Segunda tarjeta (sin bordes redondeados) */}
+        {/* Habilidades */}
         <div className="bg-card border-x border-b border-border p-4 sm:p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-1">
             <Briefcase className="size-4 text-[#844484]" />
             <h3 className="font-semibold text-card-foreground">Habilidades</h3>
           </div>
-          <p className="text-sm text-muted-foreground mb-4">
-            Agrega tus habilidades profesionales
-          </p>
+          <p className="text-sm text-muted-foreground mb-4">Agrega tus habilidades profesionales</p>
 
           <div className="space-y-3 mb-4">
             {skills.skills.map((skill) => (
@@ -122,23 +153,25 @@ export function ProfileSection({
                   onChange={(e) => onUpdateSkill(skill.id, e.target.value)}
                   placeholder="Nombre de la habilidad"
                   className="flex-1"
+                  disabled={isSavingSkills}
                 />
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => onRemoveSkill(skill.id)}
+                  disabled={isSavingSkills}
                   className="text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
-                  aria-label="Eliminar habilidad"
                 >
                   <X className="size-4" />
-                </Button>
+                </Button> 
               </div>
             ))}
           </div>
 
           <button
             onClick={onAddSkill}
-            className="flex items-center gap-2 text-sm text-[#844484] hover:text-[#8C37F7] transition-colors mb-4"
+            disabled={isSavingSkills}
+            className="flex items-center gap-2 text-sm text-[#844484] hover:text-[#8C37F7] transition-colors mb-4 disabled:opacity-50"
           >
             <span className="flex items-center justify-center size-6 rounded-full border-2 border-dashed border-current">
               <Plus className="size-3" />
@@ -148,46 +181,31 @@ export function ProfileSection({
 
           <div className="flex items-center gap-2">
             <Button
-              onClick={() => onSaveSkills(skills)}
+              onClick={handleSaveSkillsAction}
+              disabled={isSavingSkills}
               className="bg-[#844484] hover:bg-[#8C37F7] text-white transition-colors"
             >
               <Save className="size-4 mr-1" />
-              Guardar
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={onCancelSkills}
-              className="text-muted-foreground hover:text-card-foreground"
-            >
-              <X className="size-4 mr-1" />
-              Cancelar
+              {isSavingSkills ? "Guardando..." : "Guardar"}
             </Button>
           </div>
         </div>
 
-        {/* Información Laboral - Tercera tarjeta */}
+        {/* Información Laboral y Fecha */}
         <div className="bg-card rounded-b-xl border-x border-b border-border p-4 sm:p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-1">
             <Building className="size-4 text-[#844484]" />
-            <h3 className="font-semibold text-card-foreground">
-              Información Laboral
-            </h3>
+            <h3 className="font-semibold text-card-foreground">Información Laboral</h3>
           </div>
-          <p className="text-sm text-muted-foreground mb-4">
-            Selecciona tu departamento y rol
-          </p>
+          <p className="text-sm text-muted-foreground mb-4">Selecciona tu departamento, rol y fecha de inicio</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div className="space-y-2">
-              <Label
-                htmlFor="departamento"
-                className="text-sm font-medium text-card-foreground"
-              >
-                Departamento
-              </Label>
+              <Label className="text-sm font-medium text-card-foreground">Departamento</Label>
               <Select
                 value={workInfo.departamento}
                 onValueChange={onDepartmentChange}
+                disabled={isSavingWork}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Selecciona un departamento" />
@@ -203,13 +221,12 @@ export function ProfileSection({
             </div>
 
             <div className="space-y-2">
-              <Label
-                htmlFor="rol"
-                className="text-sm font-medium text-card-foreground"
+              <Label className="text-sm font-medium text-card-foreground">Rol</Label>
+              <Select 
+                value={workInfo.rol} 
+                onValueChange={onRoleChange}
+                disabled={isSavingWork}
               >
-                Rol
-              </Label>
-              <Select value={workInfo.rol} onValueChange={onRoleChange}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Selecciona un rol" />
                 </SelectTrigger>
@@ -224,23 +241,111 @@ export function ProfileSection({
             </div>
           </div>
 
+          {/* Integración del DateRangeSelector */}
+          <div className="mb-6">
+             <DateRangeSelector 
+                startDate={startDate}
+                onStartDateChange={onStartDateChange}
+                disabled={isSavingWork}
+             />
+          </div>
+
           <div className="flex items-center gap-2">
             <Button
-              onClick={() => onSaveWorkInfo(workInfo)}
+              onClick={handleSaveWorkAction}
+              disabled={isSavingWork}
               className="bg-[#844484] hover:bg-[#8C37F7] text-white transition-colors"
             >
               <Save className="size-4 mr-1" />
-              Guardar
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={onCancelWorkInfo}
-              className="text-muted-foreground hover:text-card-foreground"
-            >
-              <X className="size-4 mr-1" />
-              Cancelar
+              {isSavingWork ? "Guardando..." : "Guardar"} 
             </Button>
           </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// --- COMPONENTE INTERNO: DateRangeSelector ---
+
+const MONTHS = [
+  { value: "01", label: "Enero" }, { value: "02", label: "Febrero" },
+  { value: "03", label: "Marzo" }, { value: "04", label: "Abril" },
+  { value: "05", label: "Mayo" }, { value: "06", label: "Junio" },
+  { value: "07", label: "Julio" }, { value: "08", label: "Agosto" },
+  { value: "09", label: "Septiembre" }, { value: "10", label: "Octubre" },
+  { value: "11", label: "Noviembre" }, { value: "12", label: "Diciembre" },
+]
+
+interface DateRangeSelectorProps {
+  startDate?: DateValue
+  onStartDateChange?: (date: DateValue) => void
+  minYear?: number
+  maxYear?: number
+  startLabel?: string
+  monthPlaceholder?: string
+  yearPlaceholder?: string
+  disabled?: boolean
+  className?: string
+}
+
+export function DateRangeSelector({
+  startDate,
+  onStartDateChange,
+  minYear = 2019,
+  maxYear = 2035,
+  startLabel = "Fecha de inicio en la empresa",
+  monthPlaceholder = "Mes",
+  yearPlaceholder = "Año",
+  disabled = false,
+  className,
+}: DateRangeSelectorProps) {
+  const years = React.useMemo(() => {
+    const yearList: string[] = []
+    for (let year = minYear; year <= maxYear; year++) {
+      yearList.push(year.toString())
+    }
+    return yearList
+  }, [minYear, maxYear])
+
+  const handleStartMonthChange = (month: string) => {
+    onStartDateChange?.({ month, year: startDate?.year || "" })
+  }
+
+  const handleStartYearChange = (year: string) => {
+    onStartDateChange?.({ month: startDate?.month || "", year })
+  }
+
+  return (
+    <div className={cn("flex flex-col gap-4", className)}>
+      <div className="flex flex-col gap-2">
+        <label className="text-sm font-medium text-foreground">{startLabel}</label>
+        <div className="flex gap-3">
+          <Select value={startDate?.month} onValueChange={handleStartMonthChange} disabled={disabled}>
+            <SelectTrigger className="w-full min-w-[140px] bg-white border-gray-300">
+              <SelectValue placeholder={monthPlaceholder} />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              {MONTHS.map((m) => (
+                <SelectItem key={m.value} value={m.value} className="hover:bg-[#8B5A8B]/10">
+                  {m.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={startDate?.year} onValueChange={handleStartYearChange} disabled={disabled}>
+            <SelectTrigger className="w-full min-w-[100px] bg-white border-gray-300">
+              <SelectValue placeholder={yearPlaceholder} />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              {years.map((y) => (
+                <SelectItem key={y} value={y} className="hover:bg-[#8B5A8B]/10">
+                  {y}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </div>

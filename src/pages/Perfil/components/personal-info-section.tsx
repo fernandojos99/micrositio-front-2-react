@@ -4,7 +4,7 @@ import { useState } from "react"
 import { User, Mail, Phone, Edit3, Save, X, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui-shadcn2/button"
 import { Input } from "@/components/ui-shadcn/input"
-import { useToast } from "./../hooks/use-toast"
+import { useToast } from "@/hooks/use-toast"
 // import type { Empleado, User as UserType } from "./../types/profile"
 import type {  User as UserType } from "./../types/profile"
 import { Empleado } from "@/services/empleadosService"
@@ -186,7 +186,7 @@ export function PersonalInfoSection({
         </div>
 
         {/* Teléfono */}
-        {empleado?.celular && (
+{/*         {empleado?.celular && (
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Phone className="size-3.5" />
@@ -196,7 +196,7 @@ export function PersonalInfoSection({
               {empleado.celular}
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   )

@@ -9,7 +9,7 @@ export interface Empleado {
   correo: string;
   numero_empleado: string;
   activo: boolean;
-  created_at?: string;
+  fecha_ingreso?: string;
   updated_at?: string;
   infopersonal?:string;
   departamento?:string;
@@ -35,11 +35,13 @@ export interface ActualizarEmpleadoData {
   correo?: string;
   numero_empleado?: string;
   activo?: boolean;
+  fecha_ingreso?:string;
 
   // 🔽 nuevos campos
   cargo?: string;
   departamento?: string;
   infopersonal?: string;
+  habilidades?: string[]; // Si quieres actualizar habilidades junto con el empleado
 }
 
 
@@ -49,7 +51,7 @@ export interface EmpleadoResumen {
   apellido_paterno: string;
   apellido_materno?: string;
   correo: string;
-  created_at?: string;
+  fecha_ingreso?: string;
   cargo: string;
   departamento: string;
   infopersonal:string;
@@ -63,7 +65,7 @@ const mapEmpleadoResumen = (emp: any): EmpleadoResumen => ({
   apellido_paterno: emp.apellido_paterno,
   apellido_materno: emp.apellido_materno,
   correo: emp.correo,
-  created_at: emp.created_at,
+  fecha_ingreso: emp.fecha_ingreso,
   infopersonal:emp.infopersonal,
 
   // 🔥 aquí está la lógica importante
@@ -71,6 +73,21 @@ const mapEmpleadoResumen = (emp: any): EmpleadoResumen => ({
   departamento: emp.departamento ?? "",
   skills: emp.skills  ?? [], // Convertir array a string si es necesario
 });
+
+
+// Nota: Todo esto lo pude haber agregado a la interface Empleado, pero lo hice aparte para no mezclar responsabilidades.
+//  Empleado es para el CRUD básico, y EmpleadoResumen es para la vista de resumen que incluye
+export interface Habilidad {
+  id_habilidad: number;
+  nombre_habilidad: string;
+  // Añade aquí otros campos que devuelva tu tabla 'habilidad' si existen
+}
+
+export interface HabilidadResponse {
+  success: boolean;
+  message: string;
+  data: Habilidad[];
+}
 
 
 /**
@@ -273,6 +290,24 @@ export const actualizarEmpleado = async (empleadoData: ActualizarEmpleadoData): 
 
 
 
+// Es casi lo mismo que arriba pero lo usare par actualizar solo habilidades , esto con el objetivo de 
+// no romper lo que ya funciona .
+
+
+
+
+/**
+ * Actualiza los datos de un empleado existente
+ * @param {ActualizarEmpleadoData} empleadoData - Datos a actualizar (debe incluir el id)
+ * @returns {Promise<Empleado>} El empleado actualizado
+ */
+/* export const actualizarEmpleadoInfoPersonal = async (empleadoData: ActualizarEmpleadoData): Promise<Empleado> => {
+    console.log('actualizarEmpleado - Datos recibidos:', JSON.stringify(empleadoData, null, 2));
+    console.log('actualizarEmpleado - Tipo de ID:', typeof empleadoData.id);
+  
+  const response = await apiClient.patch('/empleados/infopersonal', empleadoData);
+  return response.data;
+}; */
 
 
 
@@ -308,3 +343,21 @@ export const obtenerEmpleadosSinUsuario = async (): Promise<Empleado[]> => {
 };
 
 
+
+/**
+ * Obtiene las habilidades asociadas a un empleado específico
+ * @param {number} id - ID del empleado
+ * @returns {Promise<Habilidad[]>} Lista de habilidades del empleado
+ */
+export const obtenerHabilidadesPorEmpleado = async (id: number): Promise<Habilidad[]> => {
+  try {
+    // Consumimos el endpoint: habilidad/empleado/:id
+    const response = await apiClient.get<HabilidadResponse>(`/habilidad/empleado/${id}`);
+    
+    // Basado en tu lógica anterior, el array viene en response.data.data
+    return response.data.data || [];
+  } catch (error) {
+    console.error(`Error al obtener habilidades para el empleado ${id}:`, error);
+    return [];
+  }
+};

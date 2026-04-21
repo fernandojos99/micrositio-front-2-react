@@ -37,6 +37,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { AppProvider } from './contexts/AppContext';
 import AppRoutes from './routes/AppRoutes';
 import { UIProvider } from './contexts/UIContext';
+import { Toaster } from './components/ui-shadcn2/toaster';
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
       <UIProvider>
         <AuthProvider>
           <AppProvider>
+            <Toaster />
             <Router>
               <AppRoutes />
             </Router>

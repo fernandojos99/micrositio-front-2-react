@@ -79,6 +79,8 @@ export function ProfileCard({
   const [isExpanded, setIsExpanded] = useState(false)
   const colors = colorClasses[accentColor]
 
+  // console.log("miembros fecha" ,memberSince)
+
   return (
     <div className="w-full bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
 

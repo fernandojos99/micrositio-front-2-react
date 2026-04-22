@@ -143,41 +143,54 @@ const Equipo: React.FC = () => {
   };
 
 
+  
+
 
 /**Mapea de resumen empleado a ProfileCardProps para poder 
  * construir las cartas perfiles
  */
-const mapToProfileCard = (emp: EmpleadoResumen, index: number): ProfileCardProps => ({
-  avatarUrl: `https://api.dicebear.com/9.x/adventurer/svg?seed=${index + 1}`,
+const mapToProfileCard = (emp: EmpleadoResumen, index: number): ProfileCardProps => {
 
-  name: `${emp.nombre_pila ?? ""} ${emp.apellido_paterno ?? ""} ${emp.apellido_materno ?? ""}`.trim(),
+  // 🔥 DEBUG
+  // console.log("──────────────");
+  // console.log("Fecha original (backend):", emp.fecha_ingreso);
 
-  role: emp.cargo ?? "",
+  const date = emp.fecha_ingreso
+  ? new Date(emp.fecha_ingreso + "T00:00:00")
+  : null;
 
-  email: emp.correo ?? "",
+  // console.log("Date parseada:", date);
+  // console.log("Mes (getMonth):", date ? date.getMonth() + 1 : null);
 
-  badge: emp.departamento ?? "",
-
-  projectsCompleted: emp.projectsCompleted,
-    
-  projectsActive: emp.projectsActive,
-
-  // 🔥 aquí el formato mes + año
-  memberSince: emp.fecha_ingreso
-  ? new Date(emp.fecha_ingreso)
-      .toLocaleDateString("es-MX", {
+  const formattedDate = date
+    ? date.toLocaleDateString("es-MX", {
         year: "numeric",
         month: "long",
-      })
-      .replace(/^./, (c) => c.toUpperCase())
-  : "",
+      }).replace(/^./, (c) => c.toUpperCase())
+    : "";
 
-  aboutMe: emp.infopersonal  ?? "",
-  skills: emp.skills ?? [],
+  // console.log("Fecha formateada FINAL:", formattedDate);
 
-  accentColor: ["cyan", "blue", "green", "purple", "orange", "rose"][index % 6] as any,
-});
+  return {
+    avatarUrl: `https://api.dicebear.com/9.x/adventurer/svg?seed=${index + 1}`,
 
+    name: `${emp.nombre_pila ?? ""} ${emp.apellido_paterno ?? ""} ${emp.apellido_materno ?? ""}`.trim(),
+
+    role: emp.cargo ?? "",
+    email: emp.correo ?? "",
+    badge: emp.departamento ?? "",
+
+    projectsCompleted: emp.projectsCompleted,
+    projectsActive: emp.projectsActive,
+
+    memberSince: formattedDate,
+
+    aboutMe: emp.infopersonal ?? "",
+    skills: emp.skills ?? [],
+
+    accentColor: ["cyan", "blue", "green", "purple", "orange", "rose"][index % 6] as any,
+  };
+};
 
 
 
@@ -192,7 +205,7 @@ useEffect(() => {
   const fetchData = async () => {
     try {
       const empleados = await obtenerEmpleadosResumen();
-      console.log(empleados)
+      // console.log(empleados)
 
       const mappedUsers = empleados.map(mapToProfileCard);
 
@@ -319,7 +332,7 @@ useEffect(() => {
           <Button
             variant="primary"
             icon={<UserPlus size={16} />}
-            onClick={() => console.log('Añadir nuevo miembro')}
+            onClick={() => // console.log('Añadir nuevo miembro')}
           >
             Añadir Miembro
           </Button>
@@ -347,7 +360,7 @@ useEffect(() => {
             
             {users.map((user) => (
               <ProfileCard
-              key={user.name}
+              key={user.email}
               avatarUrl={user.avatarUrl}
               name={user.name}
               role={user.role}

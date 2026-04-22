@@ -31,23 +31,24 @@ import type {
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast"
 import React from "react"
+//import { Value } from "@radix-ui/react-select"
 
 const departmentOptions = [
-  { value: "tecnologia", label: "Tecnología" },
-  { value: "marketing", label: "Marketing" },
-  { value: "ventas", label: "Ventas" },
-  { value: "recursos-humanos", label: "Recursos Humanos" },
-  { value: "finanzas", label: "Finanzas" },
+  { value: "Dirección General", label: "Dirección General" },
+  { value: "Experimentos", label: "Experimentos" },
+  { value: "Investigación", label: "Investigación" },
+  { value: "Portafolio", label: "Portafolio" },
 ]
 
 const roleOptions = [
-  { value: "desarrollador", label: "Desarrollador" },
-  { value: "disenador", label: "Diseñador" },
-  { value: "gerente", label: "Gerente" },
-  { value: "analista", label: "Analista" },
-  { value: "coordinador", label: "Coordinador" },
+  { value: "Desarrollador", label: "Desarrollador" },
+  { value: "Diseñador", label: "Diseñador" },
+  { value: "Gerente", label: "Gerente" },
+  { value: "Analista", label: "Analista" },
+  { value: "Director", label: "Director" },
+  { value: "Consultor", label: "Consultor" },
+  { value: "Administrador de proyectos", label: "Administrador de proyectos" },
 ]
-
 export default function ProfilePage() {
 
   // Consumimos contexto de Auth para obtener el user y empleado
@@ -86,7 +87,7 @@ export default function ProfilePage() {
         obtenerHabilidadesPorEmpleado(idEmpleado)
       ]);
 
-      console.log("Esto contiene un empleado",empleadoRes)
+      // console.log("Esto contiene un empleado",empleadoRes)
       setEmpleado(empleadoRes);
       setAboutMe({ description: empleadoRes.infopersonal ?? "" });
 
@@ -106,7 +107,7 @@ export default function ProfilePage() {
 
 
       //  Cargamos las fechas si vienen del backend
-      console.log("La fecha de ingreso es ",empleadoRes.fecha_ingreso)
+      // console.log("La fecha de ingreso es ",empleadoRes.fecha_ingreso)
       if (empleadoRes.fecha_ingreso) {
         const [year, month] = empleadoRes.fecha_ingreso.split("-") // asume formato "YYYY-MM"
         setStartDate({ month, year })
@@ -131,7 +132,7 @@ export default function ProfilePage() {
   const handleSaveEmail = useCallback(async (correo: string) => {
     if (!empleado) return
     try {
-      console.log(empleado.id)
+      // console.log(empleado.id)
       const updated = await actualizarEmpleado({
         id:Number( empleado.id),
         correo,
@@ -148,7 +149,7 @@ const handleSaveAlias = useCallback(async (alias: string) => {
   if (!user) return
   
   try {
-    console.log("Enviando actualización de alias...")
+    // console.log("Enviando actualización de alias...")
     // le puse la palabra any porque el backend devuelve un objeto con { success, message, data: { alias, ... } }
     // y no coincide con el tipo Usuario que espera el contexto, así que hacemos un cast temporal para evitar errores de tipos
     const response = await actualizarUsuario(user.id, { alias })as any;
@@ -157,7 +158,7 @@ const handleSaveAlias = useCallback(async (alias: string) => {
     // response tiene { success, message, data: { alias, ... } }
     
     if (response && response.success && response.data) {
-      console.log("Actualización exitosa en BD:", response.data.alias)
+      // console.log("Actualización exitosa en BD:", response.data.alias)
       
       if (updateUser) {
         updateUser({ 
@@ -190,12 +191,12 @@ const handleSaveAlias = useCallback(async (alias: string) => {
 
   // Modificar contrasenia
   const handleChangePassword = useCallback(async (data: PasswordChangeData) => {
-    console.log("almenos entro a lafuncion cambiar contrasenia")
+    // console.log("almenos entro a lafuncion cambiar contrasenia")
     if (!user ) return
     
     try {
       await cambiarPasswordUsuario(user.id, data)
-      console.log("si la cambio")
+      // console.log("si la cambio")
     } catch (error) {
       console.error("❌ Error cambiando contraseña:", error)
     }
@@ -242,7 +243,6 @@ const handleSaveAboutMe = useCallback(async (data: AboutMeData) => {
         // Agregamos 'habilidades' al objeto que se envía
         await actualizarEmpleado({
           id: Number(empleado.id),
-          infopersonal: aboutMe.description, // Mantenemos lo que ya existe
           // @ts-ignore (Si tu interfaz ActualizarEmpleadoData aún no tiene el campo)
           habilidades: habilidadesValidas 
         });
@@ -262,7 +262,7 @@ const handleSaveAboutMe = useCallback(async (data: AboutMeData) => {
           variant: "destructive",
         });
       }
-}, [empleado, aboutMe.description]); // Añadimos dependencias necesarias
+}, [empleado]); // Añadimos dependencias necesarias
 
 
   // handle para manejar la UI de las habilidades
@@ -296,8 +296,7 @@ const handleSaveWorkInfo = useCallback(async (data: WorkInfoData) => {
           id: Number(empleado.id),
           // Mapeamos los nombres de la UI a los nombres de la base de datos
           cargo: data.rol, 
-          departamento: data.departamento,
-          infopersonal: aboutMe.description // Mantenemos lo que ya existe
+          departamento: data.departamento // Mantenemos lo que ya existe
         });
 
         // 2. Actualizamos el estado local con la respuesta
@@ -319,7 +318,7 @@ const handleSaveWorkInfo = useCallback(async (data: WorkInfoData) => {
           });
           throw error; // Re-lanzamos para que el hijo capture el error si es necesario
         }
-}, [empleado, aboutMe.description]);
+}, [empleado]);
     
  
 
@@ -386,7 +385,7 @@ if (authLoading || loading || !mappedUserForUI || !empleado) {
 //     endDate: isCurrentPosition ? { month: "present", year: "present" } : endDate,
 //     isCurrentPosition,
 //   }
-//   console.log("Datos guardados:", data)
+//   // console.log("Datos guardados:", data)
 //   alert(JSON.stringify(data, null, 2))
 // }
 

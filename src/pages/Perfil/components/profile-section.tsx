@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import { useState } from "react"
 import { Info, Briefcase, Building, X, Plus, Save } from "lucide-react"
@@ -22,6 +20,7 @@ import type {
   DepartmentOption,
   RoleOption,
 } from "./../types/profile"
+import { toast } from "@/hooks/use-toast"
 
 // --- Interfaces adicionales para el Selector de Fecha ---
 export interface DateValue {
@@ -42,10 +41,12 @@ interface ProfileSectionProps {
   onAddSkill: () => void
   onRemoveSkill: (id: string) => void
   onUpdateSkill: (id: string, name: string) => void
+
   onSaveWorkInfo: (data: WorkInfoData) => Promise<void>
   onCancelWorkInfo: () => void
   onDepartmentChange: (value: string) => void
   onRoleChange: (value: string) => void
+  
   startDate: DateValue
   onStartDateChange: (date: DateValue) => void
   onSaveExperience: () => Promise<void>
@@ -56,36 +57,45 @@ export function ProfileSection({
   workInfo,
   departmentOptions,
   roleOptions,
-  onSaveExperience,
   onSaveAboutMe,
-  onCancelAboutMe,
+  // onCancelAboutMe,
   onSaveSkills,
-  onCancelSkills,
+  // onCancelSkills,
   onAddSkill,
   onRemoveSkill,
   onUpdateSkill,
   onSaveWorkInfo,
-  onCancelWorkInfo,
+  // onCancelWorkInfo,
   onDepartmentChange,
   onRoleChange,
+  
   startDate,
   onStartDateChange,
+  onSaveExperience,
 }: ProfileSectionProps) {
+
   const [localDescription, setLocalDescription] = useState(aboutMe.description)
-  
   const [isSavingAbout, setIsSavingAbout] = useState(false)
   const [isSavingSkills, setIsSavingSkills] = useState(false)
   const [isSavingWork, setIsSavingWork] = useState(false)
 
+
+  // Guarda el aboutMe
   const handleSaveAbout = async () => {
     setIsSavingAbout(true)
     try {
       await onSaveAboutMe({ description: localDescription })
+      toast({
+        title: "¡Éxito!",
+        description: "Actualizado correctamente.",
+        variant: "default", // o el estilo que tengas
+      });
     } finally {
       setIsSavingAbout(false)
     }
   }
 
+  // Guarda las habilidades
   const handleSaveSkillsAction = async () => {
     setIsSavingSkills(true)
     try {
@@ -95,6 +105,8 @@ export function ProfileSection({
     }
   }
 
+  
+  // Guarda el departamento, rol, fecha de inicio
   const handleSaveWorkAction = async () => {
     setIsSavingWork(true)
     try {
@@ -109,6 +121,10 @@ export function ProfileSection({
     <div className="w-full max-w-2xl mx-auto space-y-0">
       <div className="flex flex-col">
         
+
+
+
+
         {/* Acerca de mi */}
         <div className="bg-card rounded-t-xl border border-border p-4 sm:p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-1">
@@ -136,6 +152,12 @@ export function ProfileSection({
             </Button>
           </div>
         </div>
+
+
+
+
+
+
 
         {/* Habilidades */}
         <div className="bg-card border-x border-b border-border p-4 sm:p-6 shadow-sm">
@@ -169,6 +191,8 @@ export function ProfileSection({
           </div>
 
           <button
+          //
+            type="button"
             onClick={onAddSkill}
             disabled={isSavingSkills}
             className="flex items-center gap-2 text-sm text-[#844484] hover:text-[#8C37F7] transition-colors mb-4 disabled:opacity-50"
@@ -181,6 +205,7 @@ export function ProfileSection({
 
           <div className="flex items-center gap-2">
             <Button
+             type="button"
               onClick={handleSaveSkillsAction}
               disabled={isSavingSkills}
               className="bg-[#844484] hover:bg-[#8C37F7] text-white transition-colors"
@@ -191,8 +216,18 @@ export function ProfileSection({
           </div>
         </div>
 
+
+
+
+
+
+
         {/* Información Laboral y Fecha */}
+
+
         <div className="bg-card rounded-b-xl border-x border-b border-border p-4 sm:p-6 shadow-sm">
+
+        {/* Info laboral  */}
           <div className="flex items-center gap-2 mb-1">
             <Building className="size-4 text-[#844484]" />
             <h3 className="font-semibold text-card-foreground">Información Laboral</h3>
@@ -241,7 +276,9 @@ export function ProfileSection({
             </div>
           </div>
 
-          {/* Integración del DateRangeSelector */}
+
+          {/* Informacion de fecha de inicio */}
+
           <div className="mb-6">
              <DateRangeSelector 
                 startDate={startDate}
@@ -265,6 +302,18 @@ export function ProfileSection({
     </div>
   )
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 // --- COMPONENTE INTERNO: DateRangeSelector ---
 
@@ -315,6 +364,9 @@ export function DateRangeSelector({
   const handleStartYearChange = (year: string) => {
     onStartDateChange?.({ month: startDate?.month || "", year })
   }
+
+
+
 
   return (
     <div className={cn("flex flex-col gap-4", className)}>

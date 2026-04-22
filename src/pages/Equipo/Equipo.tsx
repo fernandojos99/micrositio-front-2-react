@@ -163,12 +163,14 @@ const mapToProfileCard = (emp: EmpleadoResumen, index: number): ProfileCardProps
   projectsActive: emp.projectsActive,
 
   // 🔥 aquí el formato mes + año
-  memberSince: emp.created_at
-    ? new Date(emp.created_at).toLocaleDateString("es-MX", {
+  memberSince: emp.fecha_ingreso
+  ? new Date(emp.fecha_ingreso)
+      .toLocaleDateString("es-MX", {
         year: "numeric",
         month: "long",
       })
-    : "",
+      .replace(/^./, (c) => c.toUpperCase())
+  : "",
 
   aboutMe: emp.infopersonal  ?? "",
   skills: emp.skills ?? [],

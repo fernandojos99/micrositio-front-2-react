@@ -4,12 +4,8 @@ import { useState, useCallback, useEffect } from "react"
 import { ProfileHeader } from "./components/profile-header"
 import { PersonalInfoSection } from "./components/personal-info-section"
 import { UserConfigSection } from "./components/user-config-section"
-import { ProfileSection } from "./components/profile-section"
-import { DateRangeSelector, type DateValue } from "./components/date-range-selector"
-import { Button } from "@/components/ui-shadcn2/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui-shadcn2/card"
-import { CalendarDays, Save } from "lucide-react"
-
+import { DateValue, ProfileSection } from "./components/profile-section"
+//import { DateRangeSelector, type DateValue } from "./components/date-range-selector"
 
 import {
   actualizarUsuario,
@@ -69,11 +65,7 @@ export default function ProfilePage() {
     month: "",
     year: "",
   })
-  const [endDate, setEndDate] = React.useState<DateValue>({
-    month: "",
-    year: "",
-  })
-  const [isCurrentPosition, setIsCurrentPosition] = React.useState(false)
+
 
 
   // Convertimos el id a número de forma segura para usar en los servicios
@@ -81,6 +73,7 @@ export default function ProfilePage() {
   const idEmpleado = user?.id_empleado;
 
 
+  // CARGANDO VALORES INICIALES 
   useEffect(() => {
   const loadData = async () => {
     if (!idEmpleado) return;
@@ -93,6 +86,7 @@ export default function ProfilePage() {
         obtenerHabilidadesPorEmpleado(idEmpleado)
       ]);
 
+      console.log("Esto contiene un empleado",empleadoRes)
       setEmpleado(empleadoRes);
       setAboutMe({ description: empleadoRes.infopersonal ?? "" });
 
@@ -111,14 +105,11 @@ export default function ProfilePage() {
       });
 
 
-         // 👇 Cargamos las fechas si vienen del backend
+      //  Cargamos las fechas si vienen del backend
+      console.log("La fecha de ingreso es ",empleadoRes.fecha_ingreso)
       if (empleadoRes.fecha_ingreso) {
         const [year, month] = empleadoRes.fecha_ingreso.split("-") // asume formato "YYYY-MM"
         setStartDate({ month, year })
-      }
-      if (empleadoRes.fecha_ingreso) {
-        const [year, month] = empleadoRes.fecha_ingreso.split("-")
-        setEndDate({ month, year })
       }
 
 
@@ -237,43 +228,44 @@ const handleSaveAboutMe = useCallback(async (data: AboutMeData) => {
 
 
   // Modificar info sobre las habilidades
-  // Modificar info sobre las habilidades
+
   const handleSaveSkills = useCallback(async (data: SkillsData) => {
-  if (!empleado) return;
+      if (!empleado) return;
 
-  try {
-    // 1. Limpiamos el arreglo (quitamos nombres vacíos)
-    const habilidadesValidas = data.skills
-      .map(s => s.name)
-      .filter(name => name.trim() !== "");
+      try {
+        // 1. Limpiamos el arreglo (quitamos nombres vacíos)
+        const habilidadesValidas = data.skills
+          .map(s => s.name)
+          .filter(name => name.trim() !== "");
 
-    // 2. Enviamos el arreglo al servidor
-    // Agregamos 'habilidades' al objeto que se envía
-    await actualizarEmpleado({
-      id: Number(empleado.id),
-      infopersonal: aboutMe.description, // Mantenemos lo que ya existe
-      // @ts-ignore (Si tu interfaz ActualizarEmpleadoData aún no tiene el campo)
-      habilidades: habilidadesValidas 
-    });
+        // 2. Enviamos el arreglo al servidor
+        // Agregamos 'habilidades' al objeto que se envía
+        await actualizarEmpleado({
+          id: Number(empleado.id),
+          infopersonal: aboutMe.description, // Mantenemos lo que ya existe
+          // @ts-ignore (Si tu interfaz ActualizarEmpleadoData aún no tiene el campo)
+          habilidades: habilidadesValidas 
+        });
 
-    // 3. Si la API responde bien, actualizamos el estado local
-    setSkills(data);
-    
-    toast({
-      title: "¡Éxito!",
-      description: "Habilidades actualizadas correctamente.",
-    });
-  } catch (error) {
-    console.error("Error al guardar habilidades:", error);
-    toast({
-      title: "Error",
-      description: "No se pudieron guardar los cambios.",
-      variant: "destructive",
-    });
-  }
+        // 3. Si la API responde bien, actualizamos el estado local
+        setSkills(data);
+        
+        toast({
+          title: "¡Éxito!",
+          description: "Habilidades actualizadas correctamente.",
+        });
+      } catch (error) {
+        console.error("Error al guardar habilidades:", error);
+        toast({
+          title: "Error",
+          description: "No se pudieron guardar los cambios.",
+          variant: "destructive",
+        });
+      }
 }, [empleado, aboutMe.description]); // Añadimos dependencias necesarias
 
 
+  // handle para manejar la UI de las habilidades
   const handleAddSkill = useCallback(() => {
     setSkills((prev) => ({
       skills: [...prev.skills, { id: Date.now().toString(), name: "" }],
@@ -290,45 +282,48 @@ const handleSaveAboutMe = useCallback(async (data: AboutMeData) => {
     }))
   }, [])
 
+
   // ???
+  // Modificar información laboral 
   //const handleSaveWorkInfo = useCallback(async(data: WorkInfoData) => setWorkInfo(data), [])
   //const handleSaveWorkInfo = useCallback((data: WorkInfoData) => setWorkInfo(data), [])
-  // Modificar información laboral en el Padre
 const handleSaveWorkInfo = useCallback(async (data: WorkInfoData) => {
-  if (!empleado) return;
+    if (!empleado) return;
 
-  try {
-      // 1. Llamada al servicio
-      const updated = await actualizarEmpleado({
-        id: Number(empleado.id),
-        // Mapeamos los nombres de la UI a los nombres de la base de datos
-        cargo: data.rol, 
-        departamento: data.departamento,
-        infopersonal: aboutMe.description // Mantenemos lo que ya existe
-      });
-
-      // 2. Actualizamos el estado local con la respuesta
-      setWorkInfo({
-        departamento: updated.departamento || "",
-        rol: updated.cargo || ""
-      });
-
-      toast({
-        title: "¡Éxito!",
-        description: "Información laboral actualizada.",
-      });
-      } catch (error) {
-        console.error("❌ Error actualizando info laboral:", error);
-        toast({
-          title: "Error",
-          description: "No se pudo guardar la información laboral.",
-          variant: "destructive",
+    try {
+        // 1. Llamada al servicio
+        const updated = await actualizarEmpleado({
+          id: Number(empleado.id),
+          // Mapeamos los nombres de la UI a los nombres de la base de datos
+          cargo: data.rol, 
+          departamento: data.departamento,
+          infopersonal: aboutMe.description // Mantenemos lo que ya existe
         });
-        throw error; // Re-lanzamos para que el hijo capture el error si es necesario
-      }
-    }, [empleado, aboutMe.description]);
-  
+
+        // 2. Actualizamos el estado local con la respuesta
+        setWorkInfo({
+          departamento: updated.departamento || "",
+          rol: updated.cargo || ""
+        });
+
+        toast({
+          title: "¡Éxito!",
+          description: "Información laboral actualizada.",
+        });
+        } catch (error) {
+          console.error("❌ Error actualizando info laboral:", error);
+          toast({
+            title: "Error",
+            description: "No se pudo guardar la información laboral.",
+            variant: "destructive",
+          });
+          throw error; // Re-lanzamos para que el hijo capture el error si es necesario
+        }
+}, [empleado, aboutMe.description]);
+    
  
+
+// Modificar la fecha de inicio del empleado
 const handleSaveExperience = useCallback(async () => {
   if (!empleado) return;
   try {
@@ -385,15 +380,15 @@ if (authLoading || loading || !mappedUserForUI || !empleado) {
 
 
  
-const handleSave = () => {
-  const data = {
-    startDate,
-    endDate: isCurrentPosition ? { month: "present", year: "present" } : endDate,
-    isCurrentPosition,
-  }
-  console.log("Datos guardados:", data)
-  alert(JSON.stringify(data, null, 2))
-}
+// const handleSave = () => {
+//   const data = {
+//     startDate,
+//     endDate: isCurrentPosition ? { month: "present", year: "present" } : endDate,
+//     isCurrentPosition,
+//   }
+//   console.log("Datos guardados:", data)
+//   alert(JSON.stringify(data, null, 2))
+// }
 
 
 

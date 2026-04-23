@@ -168,17 +168,7 @@ export function ProfileCard({
       {/* ================= CONTENIDO EXPANDIDO ================= */}
       {isExpanded && (
         <div className="p-4 border-t border-gray-100">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-            {/* Acerca de */}
-            <div>
-              <h3 className="text-sm font-semibold text-gray-800 mb-1">
-                Acerca de mi
-              </h3>
-              <p className="text-gray-600 text-xs">
-                {aboutMe}
-              </p>
-            </div>
+          <div className="flex flex-col gap-4">
 
             {/* Habilidades */}
             <div>
@@ -197,6 +187,20 @@ export function ProfileCard({
               </div>
             </div>
 
+
+
+
+            {/* Acerca de */}
+            <div>
+              <h3 className="text-sm font-semibold text-gray-800 mb-1">
+                Acerca de mi
+              </h3>
+              <p className="text-gray-600 text-xs">
+                {aboutMe}
+              </p>
+            </div>
+
+  
           </div>
         </div>
       )}

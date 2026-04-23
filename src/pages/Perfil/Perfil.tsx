@@ -169,12 +169,13 @@ const handleSaveAlias = useCallback(async (alias: string) => {
           name: response.data.alias 
         });
 
-        // Aprovechamos para usar el Toast que ya configuramos
-        toast({
+
+        // Se quito porque se unifico el boton de guardar y ahora salian muchos toast
+      /*toast({
           title: "¡Éxito!",
           description: "Alias actualizado correctamente.",
           variant: "default", // o el estilo que tengas
-        });
+        }); */
       }
     } else {
       throw new Error(response.message || "Error inesperado del servidor");
@@ -250,10 +251,12 @@ const handleSaveAboutMe = useCallback(async (data: AboutMeData) => {
         // 3. Si la API responde bien, actualizamos el estado local
         setSkills(data);
         
-        toast({
+        // Se quito porque se unifico el boton de guardar y ahora salian muchos toast
+        /*toast({
           title: "¡Éxito!",
           description: "Habilidades actualizadas correctamente.",
-        });
+        }); */
+        
       } catch (error) {
         console.error("Error al guardar habilidades:", error);
         toast({
@@ -304,11 +307,12 @@ const handleSaveWorkInfo = useCallback(async (data: WorkInfoData) => {
           departamento: updated.departamento || "",
           rol: updated.cargo || ""
         });
-
-        toast({
+        // se quito porque se unifico el boton de guardar y ahora salian muchos toast
+  /*       toast({
           title: "¡Éxito!",
           description: "Información laboral actualizada.",
-        });
+        }); */
+
         } catch (error) {
           console.error("❌ Error actualizando info laboral:", error);
           toast({
@@ -323,7 +327,8 @@ const handleSaveWorkInfo = useCallback(async (data: WorkInfoData) => {
  
 
 // Modificar la fecha de inicio del empleado
-const handleSaveExperience = useCallback(async () => {
+// Lo comente porque usaba el estado del padre 
+/* const handleSaveExperience2 = useCallback(async () => {
   if (!empleado) return;
   try {
     // Validamos que tengamos datos antes de enviar
@@ -336,10 +341,11 @@ const handleSaveExperience = useCallback(async () => {
       fecha_ingreso: fechaFormateada,
     });
 
-    toast({
-      title: "¡Éxito!",
-      description: "Fecha de experiencia actualizada.",
-    });
+    // Se quito porque se unifico el boton de guardar y ahora salian muchos toast
+   //   toast({
+   //   title: "¡Éxito!",
+   //   description: "Fecha de experiencia actualizada.",
+   // }); 
   } catch (error) {
     console.error("❌ Error actualizando fecha:", error);
     toast({
@@ -349,8 +355,34 @@ const handleSaveExperience = useCallback(async () => {
     });
     throw error; // Importante para que el 'catch' del hijo se entere
   }
-}, [empleado, startDate]);
+}, [empleado, startDate]); */
  
+
+
+
+const handleSaveExperience = useCallback(async (date: DateValue) => {
+  if (!empleado) return;
+
+  try {
+    const fechaFormateada = date.year && date.month 
+      ? `${date.year}-${date.month.padStart(2, '0')}-01`
+      : undefined;
+
+    await actualizarEmpleado({
+      id: Number(empleado.id),
+      fecha_ingreso: fechaFormateada,
+    });
+
+  } catch (error) {
+    console.error("❌ Error actualizando fecha:", error);
+    toast({
+      title: "Error",
+      description: "No se pudo guardar la fecha.",
+      variant: "destructive",
+    });
+    throw error;
+  }
+}, [empleado]);
 
 
 
@@ -379,26 +411,6 @@ if (authLoading || loading || !mappedUserForUI || !empleado) {
 
 
  
-// const handleSave = () => {
-//   const data = {
-//     startDate,
-//     endDate: isCurrentPosition ? { month: "present", year: "present" } : endDate,
-//     isCurrentPosition,
-//   }
-//   // console.log("Datos guardados:", data)
-//   alert(JSON.stringify(data, null, 2))
-// }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -442,18 +454,18 @@ return (
         departmentOptions={departmentOptions}
         roleOptions={roleOptions}
         onSaveAboutMe={handleSaveAboutMe}
-        onCancelAboutMe={() => {}}
+        //onCancelAboutMe={() => {}}
         onSaveSkills={handleSaveSkills}
-        onCancelSkills={() => {}}
-        onAddSkill={handleAddSkill}
-        onRemoveSkill={handleRemoveSkill}
-        onUpdateSkill={handleUpdateSkill}
+        //onCancelSkills={() => {}}
+        //onAddSkill={handleAddSkill}
+        //onRemoveSkill={handleRemoveSkill}
+        //onUpdateSkill={handleUpdateSkill}
         onSaveWorkInfo={handleSaveWorkInfo}
-        onCancelWorkInfo={() => {}}
-        onDepartmentChange={handleDepartmentChange}
-        onRoleChange={handleRoleChange}
+        //onCancelWorkInfo={() => {}}
+        //onDepartmentChange={handleDepartmentChange}
+        //onRoleChange={handleRoleChange}
         startDate={startDate}
-        onStartDateChange={setStartDate}
+        //onStartDateChange={setStartDate}
         onSaveExperience={handleSaveExperience}
       />
 

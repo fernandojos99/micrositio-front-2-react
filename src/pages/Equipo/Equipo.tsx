@@ -176,9 +176,9 @@ const mapToProfileCard = (emp: EmpleadoResumen, index: number): ProfileCardProps
 
         name: `${emp.nombre_pila ?? ""} ${emp.apellido_paterno ?? ""} ${emp.apellido_materno ?? ""}`.trim(),
 
-        role: emp.cargo || "No definido",
-        email: emp.correo || "No definido",
-        badge: emp.departamento || "No definido",
+        role: emp.cargo || "Pendiente",
+        email: emp.correo || "Pendiente",
+        badge: emp.departamento || "Pendiente",
 
         projectsCompleted: emp.projectsCompleted,
         projectsActive: emp.projectsActive,

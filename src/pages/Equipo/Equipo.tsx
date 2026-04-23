@@ -139,10 +139,10 @@ const mapToProfileCard = (emp: EmpleadoResumen, index: number): ProfileCardProps
       const colors = badgeColorMap[key as keyof typeof badgeColorMap] || defaultColor;
 
 
-      // 🔥 DEBUG
-      // console.log("──────────────");
+    
+      // Esto se hace para convertir la fecha de ingreso a un formato legible y mostrar solo el mes y año.
+      // ademas porque  restaba un mes por la zona horaria 
       // console.log("Fecha original (backend):", emp.fecha_ingreso);
-
       const date = emp.fecha_ingreso
       ? new Date(emp.fecha_ingreso + "T00:00:00")
       : null;
@@ -150,12 +150,22 @@ const mapToProfileCard = (emp: EmpleadoResumen, index: number): ProfileCardProps
       // console.log("Date parseada:", date);
       // console.log("Mes (getMonth):", date ? date.getMonth() + 1 : null);
 
-      const formattedDate = date
+/*       const formattedDate = date
         ? date.toLocaleDateString("es-MX", {
             year: "numeric",
             month: "long",
           }).replace(/^./, (c) => c.toUpperCase())
-        : "";
+        : ""; */
+        const formattedDate = date
+        ? date
+          .toLocaleDateString("es-MX", {
+            year: "numeric",
+            month: "long",
+          })
+          // Para quitar la palabra "de" ya que se agrega segun el entorno
+          .replace(" de ", " ")
+          .replace(/^./, (c) => c.toUpperCase())
+      : "";
 
       // console.log("Fecha formateada FINAL:", formattedDate);
 
@@ -166,9 +176,9 @@ const mapToProfileCard = (emp: EmpleadoResumen, index: number): ProfileCardProps
 
         name: `${emp.nombre_pila ?? ""} ${emp.apellido_paterno ?? ""} ${emp.apellido_materno ?? ""}`.trim(),
 
-        role: emp.cargo ?? "",
-        email: emp.correo ?? "",
-        badge: emp.departamento ?? "",
+        role: emp.cargo || "No definido",
+        email: emp.correo || "No definido",
+        badge: emp.departamento || "No definido",
 
         projectsCompleted: emp.projectsCompleted,
         projectsActive: emp.projectsActive,
@@ -215,6 +225,10 @@ const departments = Array.from(
 );
 
 
+
+/* 
+Filtrado de usuarios según búsqueda y departamento
+*/
 const filteredUsers = users.filter((user) => {
   const search = normalizeText(searchTerm);
   //console.log("texto normalizado," , search)

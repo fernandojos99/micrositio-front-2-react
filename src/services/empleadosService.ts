@@ -46,6 +46,7 @@ export interface ActualizarEmpleadoData {
 
 
 export interface EmpleadoResumen {
+  id_empleado: number; // 🔥 agregado
   skills: string[];
   nombre_pila: string;
   apellido_paterno: string;
@@ -61,6 +62,7 @@ export interface EmpleadoResumen {
 
 
 const mapEmpleadoResumen = (emp: any): EmpleadoResumen => ({
+  id_empleado: emp.id_empleado, // 🔥 agregado
   nombre_pila: emp.nombre_pila,
   apellido_paterno: emp.apellido_paterno,
   apellido_materno: emp.apellido_materno,
@@ -95,53 +97,7 @@ export interface HabilidadResponse {
  * @returns  regresa solo los campos especificados de la interface
  * 
  */
-/* export const obtenerEmpleadosResumen = async (): Promise<EmpleadoResumen[]> => {
-  const response = await apiClient.get('/empleados/todos');
-
-  return response.data.map(mapEmpleadoResumen);
-};
- */
-
-
-/* export const obtenerEmpleadosResumen = async (): Promise<any[]> => { 
-  const response = await apiClient.get('/empleados/todos');
-  const empleados = response.data;
-
-  const empleadosConHabilidades = await Promise.all(
-    empleados.map(async (empleado: any) => {
-      try {
-        const habilidadesResponse = await apiClient.get(
-          `/habilidad/empleado/${empleado.id_empleado}`
-        );
-
-        // 1. Accedemos al array que está en data.data (según tu imagen)
-        const listaHabilidades = habilidadesResponse.data.data || [];
-
-        // 2. Iteramos sobre el array para extraer solo el string de 'nombre_habilidad'
-        const skillsArray = listaHabilidades.map((h: any) => h.nombre_habilidad);
-
-        return {
-          ...mapEmpleadoResumen(empleado),
-          skills: skillsArray // Ahora contiene un array de strings: ["JavaScript", "React", ...]
-        };
-
-      } catch (error) {
-        console.error(`Error obteniendo habilidades para empleado ${empleado.id_empleado}:`, error);
-        return {
-          ...mapEmpleadoResumen(empleado),
-          skills: []
-        };
-      }
-    })
-  );
-
-  return empleadosConHabilidades;
-};
- */
-
-
-
-export const obtenerEmpleadosResumen = async (): Promise<any[]> => { 
+export const obtenerEmpleadosResumen = async (): Promise<EmpleadoResumen[]> => { 
   // 🔹 1. Obtener empleados y proyectos en paralelo
   const [empleadosRes, proyectosRes] = await Promise.all([
     apiClient.get('/empleados/todos'),
@@ -167,9 +123,7 @@ export const obtenerEmpleadosResumen = async (): Promise<any[]> => {
       try {
         // 🔹 Habilidades (esto sí sigue siendo por empleado)
         const habilidadesResponse = await apiClient.get(
-          // `/habilidad/empleado/${empleado.id_empleado}`
           `/habilidad/empleado/${empleado.id_empleado}`
-
         );
 
         const listaHabilidades = habilidadesResponse.data.data || [];
@@ -233,10 +187,6 @@ export const obtenerEmpleados = async (): Promise<Empleado[]> => {
  * @returns {Promise<Empleado>} Los datos del empleado
  */
 export const obtenerEmpleadoPorId = async (id: number): Promise<Empleado> => {
-  // // console.log('Obteniendo empleado por ID:', id);
-  // // console.log('Tipo de ID:', typeof id);
-  
-  // Para GET con body en axios, usar request con configuración específica
   const response = await apiClient.request({
     method: 'POST',
     url: '/empleados',
@@ -246,7 +196,6 @@ export const obtenerEmpleadoPorId = async (id: number): Promise<Empleado> => {
     }
   });
   
-  // console.log('Respuesta del servidor:', response.data);
   return response.data;
 };
 
@@ -260,65 +209,15 @@ export const crearEmpleado = async (empleadoData: CrearEmpleadoData): Promise<Em
   return response.data;
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**
  * Actualiza los datos de un empleado existente
  * @param {ActualizarEmpleadoData} empleadoData - Datos a actualizar (debe incluir el id)
  * @returns {Promise<Empleado>} El empleado actualizado
  */
 export const actualizarEmpleado = async (empleadoData: ActualizarEmpleadoData): Promise<Empleado> => {
-  // console.log('actualizarEmpleado - Datos recibidos:', JSON.stringify(empleadoData, null, 2));
-   // console.log('actualizarEmpleado - Tipo de ID:', typeof empleadoData.id);
-  
   const response = await apiClient.patch('/empleados/', empleadoData);
   return response.data;
 };
-
-
-
-// Es casi lo mismo que arriba pero lo usare par actualizar solo habilidades , esto con el objetivo de 
-// no romper lo que ya funciona .
-
-
-
-
-/**
- * Actualiza los datos de un empleado existente
- * @param {ActualizarEmpleadoData} empleadoData - Datos a actualizar (debe incluir el id)
- * @returns {Promise<Empleado>} El empleado actualizado
- */
-/* export const actualizarEmpleadoInfoPersonal = async (empleadoData: ActualizarEmpleadoData): Promise<Empleado> => {
-    // console.log('actualizarEmpleado - Datos recibidos:', JSON.stringify(empleadoData, null, 2));
-    // console.log('actualizarEmpleado - Tipo de ID:', typeof empleadoData.id);
-  
-  const response = await apiClient.patch('/empleados/infopersonal', empleadoData);
-  return response.data;
-}; */
-
-
-
-
-
-
-
-
-
-
-
 
 /**
  * Desactiva un empleado (eliminación lógica)
@@ -332,7 +231,6 @@ export const desactivarEmpleado = async (id: number): Promise<Empleado> => {
   return response.data;
 };
 
-
 /**
  * Obtiene todos los empleados que no estan relacionado con un usuario
  * @returns {Promise<Empleado[]>} Lista de todos los empleados
@@ -342,8 +240,6 @@ export const obtenerEmpleadosSinUsuario = async (): Promise<Empleado[]> => {
   return response.data;
 };
 
-
-
 /**
  * Obtiene las habilidades asociadas a un empleado específico
  * @param {number} id - ID del empleado
@@ -351,10 +247,7 @@ export const obtenerEmpleadosSinUsuario = async (): Promise<Empleado[]> => {
  */
 export const obtenerHabilidadesPorEmpleado = async (id: number): Promise<Habilidad[]> => {
   try {
-    // Consumimos el endpoint: habilidad/empleado/:id
     const response = await apiClient.get<HabilidadResponse>(`/habilidad/empleado/${id}`);
-    
-    // Basado en tu lógica anterior, el array viene en response.data.data
     return response.data.data || [];
   } catch (error) {
     console.error(`Error al obtener habilidades para el empleado ${id}:`, error);

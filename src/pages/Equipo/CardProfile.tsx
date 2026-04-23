@@ -3,53 +3,36 @@
 import { useState } from "react"
 import { ChevronDown, ChevronUp, Mail } from "lucide-react"
 
-type AccentColor = "cyan" | "blue" | "green" | "purple" | "orange" | "rose"
-
-const colorClasses: Record<AccentColor, {
+/**
+ * @type ColorConfig
+ * @description Define la estructura de estilos que se aplican dinámicamente
+ * al componente según el tema o color seleccionado.
+ */
+type ColorConfig = {
   avatarBorder: string
   badge: string
   button: string
   skill: string
-}> = {
-  cyan: {
-    avatarBorder: "bg-gradient-to-br from-cyan-400 to-cyan-500",
-    badge: "text-cyan-700 bg-cyan-100",
-    button: "bg-cyan-400 hover:bg-cyan-500",
-    skill: "text-cyan-700 bg-cyan-50 border-cyan-100",
-  },
-  blue: {
-    avatarBorder: "bg-gradient-to-br from-blue-400 to-blue-500",
-    badge: "text-blue-700 bg-blue-100",
-    button: "bg-blue-400 hover:bg-blue-500",
-    skill: "text-blue-700 bg-blue-50 border-blue-100",
-  },
-  green: {
-    avatarBorder: "bg-gradient-to-br from-green-400 to-green-500",
-    badge: "text-green-700 bg-green-100",
-    button: "bg-green-400 hover:bg-green-500",
-    skill: "text-green-700 bg-green-50 border-green-100",
-  },
-  purple: {
-    avatarBorder: "bg-gradient-to-br from-purple-400 to-purple-500",
-    badge: "text-purple-700 bg-purple-100",
-    button: "bg-purple-400 hover:bg-purple-500",
-    skill: "text-purple-700 bg-purple-50 border-purple-100",
-  },
-  orange: {
-    avatarBorder: "bg-gradient-to-br from-orange-400 to-orange-500",
-    badge: "text-orange-700 bg-orange-100",
-    button: "bg-orange-400 hover:bg-orange-500",
-    skill: "text-orange-700 bg-orange-50 border-orange-100",
-  },
-  rose: {
-    avatarBorder: "bg-gradient-to-br from-rose-400 to-rose-500",
-    badge: "text-rose-700 bg-rose-100",
-    button: "bg-rose-400 hover:bg-rose-500",
-    skill: "text-rose-700 bg-rose-50 border-rose-100",
-  },
 }
 
+/**
+ * @constant defaultColors
+ * @description Configuración de colores por defecto en caso de que
+ * no se proporcione un tema personalizado desde el componente padre.
+ */
+const defaultColors: ColorConfig = {
+  avatarBorder: "bg-gradient-to-br from-cyan-400 to-cyan-500",
+  badge: "text-cyan-700 bg-cyan-100",
+  button: "bg-cyan-400 hover:bg-cyan-500",
+  skill: "text-cyan-700 bg-cyan-50 border-cyan-100",
+}
+
+/**
+ * @interface ProfileCardProps
+ * @description Props que recibe el componente ProfileCard
+ */
 export interface ProfileCardProps {
+  id_empleado?:string
   avatarUrl?: string
   name?: string
   role?: string
@@ -57,12 +40,26 @@ export interface ProfileCardProps {
   badge?: string
   memberSince?: string
   aboutMe?: string
-  skills?: string []
-  accentColor?: AccentColor
+  skills?: string[]
+  accentColor?: ColorConfig
   projectsCompleted?: number
   projectsActive?: number
 }
 
+/**
+ * @component ProfileCard
+ * @description Componente visual que representa el perfil de un usuario
+ * mostrando información básica, estadísticas y detalles expandibles.
+ * 
+ * Características:
+ * - Soporte para estilos dinámicos (theming)
+ * - Vista expandible (acerca de y habilidades)
+ * - Diseño responsive
+ * - Integración con Tailwind CSS
+ * 
+ * @param {ProfileCardProps} props - Propiedades del componente
+ * @returns {JSX.Element}
+ */
 export function ProfileCard({
   avatarUrl,
   name,
@@ -72,19 +69,28 @@ export function ProfileCard({
   memberSince,
   aboutMe,
   skills = [],
-  accentColor = "cyan",
+  accentColor,
   projectsCompleted,
   projectsActive,
 }: ProfileCardProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
-  const colors = colorClasses[accentColor]
 
-  // console.log("miembros fecha" ,memberSince)
+  /**
+   * @state isExpanded
+   * @description Controla si la tarjeta está expandida o contraída
+   */
+  const [isExpanded, setIsExpanded] = useState(false)
+
+  /**
+   * @constant colors
+   * @description Determina los estilos a utilizar.
+   * Si no se recibe `accentColor`, se usan los colores por defecto.
+   */
+  const colors = accentColor ?? defaultColors
 
   return (
     <div className="w-full bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
 
-      {/* Header */}
+      {/* ================= HEADER ================= */}
       <div className="p-4">
         <div className="flex flex-col sm:flex-row items-center gap-4">
 
@@ -97,9 +103,9 @@ export function ProfileCard({
             />
           </div>
 
-          {/* Info */}
+          {/* Información básica */}
           <div className="text-center sm:text-left space-y-1">
-            <h2 className="text-lg font-semibold text-gray-800 leading-tight">
+            <h2 className="text-lg font-semibold text-gray-800">
               {name}
             </h2>
 
@@ -107,6 +113,7 @@ export function ProfileCard({
               {role}
             </p>
 
+            {/* Email */}
             <div className="flex items-center justify-center sm:justify-start gap-2 text-gray-600 text-sm mt-2">
               <Mail className="w-4 h-4" />
 
@@ -118,16 +125,14 @@ export function ProfileCard({
               </a>
             </div>
 
-            <span
-              className={`inline-block mt-2 px-2 py-0.5 text-xs rounded ${colors.badge}`}
-            >
+            {/* Badge */}
+            <span className={`inline-block mt-2 px-2 py-0.5 text-xs rounded ${colors.badge}`}>
               {badge}
             </span>
           </div>
+        </div>
 
-        </div> {/* ✅ ESTE DIV FALTABA */}
-
-        {/* Projects */}
+        {/* ================= PROYECTOS ================= */}
         <div className="flex flex-wrap items-center gap-3 mt-4 pt-4 border-t">
           <span className="text-sm font-medium">Proyectos</span>
 
@@ -143,6 +148,7 @@ export function ProfileCard({
             </div>
           </div>
 
+          {/* Fecha de ingreso */}
           <div className="ml-auto w-full sm:w-auto text-center sm:text-right text-xs">
             <div className="text-gray-500">Miembro desde</div>
             <div className="font-semibold">{memberSince}</div>
@@ -150,7 +156,7 @@ export function ProfileCard({
         </div>
       </div>
 
-      {/* Toggle */}
+      {/* ================= BOTÓN EXPANDIR ================= */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className={`w-full py-2 text-xs text-white flex items-center justify-center gap-1 ${colors.button}`}
@@ -159,22 +165,22 @@ export function ProfileCard({
         {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
       </button>
 
-      {/* Expanded */}
+      {/* ================= CONTENIDO EXPANDIDO ================= */}
       {isExpanded && (
         <div className="p-4 border-t border-gray-100">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-            {/* About Me */}
+            {/* Acerca de */}
             <div>
               <h3 className="text-sm font-semibold text-gray-800 mb-1">
                 Acerca de mi
               </h3>
-              <p className="text-gray-600 text-xs leading-relaxed">
+              <p className="text-gray-600 text-xs">
                 {aboutMe}
               </p>
             </div>
 
-            {/* Skills */}
+            {/* Habilidades */}
             <div>
               <h3 className="text-sm font-semibold text-gray-800 mb-1">
                 Habilidades

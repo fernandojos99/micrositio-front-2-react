@@ -18,44 +18,75 @@ import styles from './Equipo.module.css';
 import { ProfileCard, ProfileCardProps } from './CardProfile';
 import { EmpleadoResumen, obtenerEmpleadosResumen } from '@/services/empleadosService';
 
-/**
- * Datos extendidos del equipo con información adicional
- * @constant equipoExtendido
- */
-const equipoExtendido = colaboradoresDisponibles.map((colaborador, index) => ({
-  ...colaborador,
-  role: ['Product Manager', 'UX Designer', 'Developer', 'Data Analyst', 'QA Engineer'][index],
-  department: ['Producto', 'Diseño', 'Desarrollo', 'Datos', 'Calidad'][index],
-  location: ['Madrid, España', 'Barcelona, España', 'Valencia, España', 'Sevilla, España', 'Bilbao, España'][index],
-  joinDate: ['2023-01-15', '2023-03-20', '2023-06-10', '2023-09-05', '2024-01-12'][index],
-  projectsCount: [8, 6, 12, 4, 7][index],
-  status: 'Activo' as const,
-  skills: [
-    ['Product Strategy', 'Agile', 'Analytics'],
-    ['UI/UX', 'Figma', 'User Research'],
-    ['React', 'TypeScript', 'Node.js'],
-    ['Python', 'SQL', 'Machine Learning'],
-    ['Testing', 'Automation', 'Quality Assurance']
-  ][index],
-  bio: [
-    'Especialista en estrategia de producto con 5+ años de experiencia en startups tecnológicas.',
-    'Diseñadora UX/UI apasionada por crear experiencias digitales intuitivas y accesibles.',
-    'Desarrollador full-stack con expertise en tecnologías modernas y arquitecturas escalables.',
-    'Analista de datos enfocado en convertir información en insights accionables para el negocio.',
-    'Ingeniera QA con experiencia en automatización y mejora continua de procesos de calidad.'
-  ][index]
-}));
+
 
 /**
  * Estadísticas del equipo
  * @constant teamStats
  */
 const teamStats = [
-  { label: 'Miembros Activos', value: equipoExtendido.length, icon: <Users size={20} /> },
-  { label: 'Proyectos Totales', value: equipoExtendido.reduce((sum, member) => sum + member.projectsCount, 0), icon: <Star size={20} /> },
-  { label: 'Departamentos', value: new Set(equipoExtendido.map(m => m.department)).size, icon: <Award size={20} /> },
+  // { label: 'Miembros Activos', value: equipoExtendido.length, icon: <Users size={20} /> },
+  { label: 'Miembros Activos', value: 100, icon: <Users size={20} /> },
+  { label: 'Proyectos Totales', value:120, icon: <Star size={20} /> },
+  { label: 'Departamentos', value: 4, icon: <Award size={20} /> },
   { label: 'Tasa de Retención', value: '96%', icon: <TrendingUp size={20} /> }
 ];
+
+
+
+// Arreglo de colores segun el badge(Departamento)
+const badgeColorMap = {
+  "Experimentos": {
+    avatarBorder: "bg-gradient-to-br from-blue-400 to-blue-500",
+    badge: "text-blue-700 bg-blue-100",
+    button: "bg-blue-500 hover:bg-blue-600",
+    skill: "text-blue-700 bg-blue-50 border-blue-200",
+  },
+  "Direccion General": {
+    avatarBorder: "bg-gradient-to-br from-purple-400 to-purple-500",
+    badge: "text-purple-700 bg-purple-100",
+    button: "bg-purple-500 hover:bg-purple-600",
+    skill: "text-purple-700 bg-purple-50 border-purple-200",
+  },
+  "Investigacion": {
+    avatarBorder: "bg-gradient-to-br from-green-400 to-green-500",
+    badge: "text-green-700 bg-green-100",
+    button: "bg-green-500 hover:bg-green-600",
+    skill: "text-green-700 bg-green-50 border-green-200",
+  },
+  "Portafolio": {
+    avatarBorder: "bg-gradient-to-br from-orange-400 to-orange-500",
+    badge: "text-orange-700 bg-orange-100",
+    button: "bg-orange-500 hover:bg-orange-600",
+    skill: "text-orange-700 bg-orange-50 border-orange-200",
+  },
+  "DepartamentoExtra": {
+    avatarBorder: "bg-gradient-to-br from-rose-400 to-rose-500",
+    badge: "text-rose-700 bg-rose-100",
+    button: "bg-rose-500 hover:bg-rose-600",
+    skill: "text-rose-700 bg-rose-50 border-rose-200",
+  },
+} as const;
+
+
+
+// Por si algun empleado no tiene definido el departamento
+const defaultColor = {
+  avatarBorder: "bg-gradient-to-br from-gray-400 to-gray-500",
+  badge: "text-gray-700 bg-gray-100",
+  button: "bg-gray-500 hover:bg-gray-600",
+  skill: "text-gray-700 bg-gray-50 border-gray-200",
+};
+
+
+// Normaliza texto: quita acentos y pasa a minúsculas
+const normalizeText = (str: string) =>
+  str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+
 
 /**
  * Componente Equipo
@@ -82,68 +113,12 @@ const teamStats = [
  * @returns {JSX.Element} Página del equipo
  */
 const Equipo: React.FC = () => {
-  // @state: Término de búsqueda
-  const [searchTerm, setSearchTerm] = useState('');
-  
-  // @state: Filtro de departamento
-  const [departmentFilter, setDepartmentFilter] = useState('');
-  
-  // @state: Miembro seleccionado para vista detallada
-  const [selectedMember, setSelectedMember] = useState<string | null>(null);
+ 
+// @state: término de búsqueda
+const [searchTerm, setSearchTerm] = useState("");
 
-  /**
-   * Filtra los miembros del equipo basado en búsqueda y filtros
-   * @function filteredTeam
-   * @returns {Array} Lista filtrada de miembros
-   */
-  const filteredTeam = equipoExtendido.filter(member => {
-    const matchesSearch = searchTerm === '' || 
-      member.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.department.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesDepartment = departmentFilter === '' || member.department === departmentFilter;
-    
-    return matchesSearch && matchesDepartment;
-  });
-
-  /**
-   * Obtiene la lista única de departamentos
-   * @function departments
-   * @returns {Array} Lista de departamentos únicos
-   */
-  const departments = Array.from(new Set(equipoExtendido.map(member => member.department)));
-
-  /**
-   * Formatea la fecha de ingreso
-   * @function formatJoinDate
-   * @param {string} dateString - Fecha en formato ISO
-   * @returns {string} Fecha formateada
-   */
-  const formatJoinDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long'
-    });
-  };
-
-  /**
-   * Genera las iniciales de un nombre
-   * @function getInitials
-   * @param {string} name - Nombre completo
-   * @returns {string} Iniciales
-   */
-  const getInitials = (name: string): string => {
-    return name
-      .split(' ')
-      .map(word => word.charAt(0))
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
-
-  
+// @state: filtro de departamento
+const [departmentFilter, setDepartmentFilter] = useState("");
 
 
 /**Mapea de resumen empleado a ProfileCardProps para poder 
@@ -151,45 +126,61 @@ const Equipo: React.FC = () => {
  */
 const mapToProfileCard = (emp: EmpleadoResumen, index: number): ProfileCardProps => {
 
-  // 🔥 DEBUG
-  // console.log("──────────────");
-  // console.log("Fecha original (backend):", emp.fecha_ingreso);
 
-  const date = emp.fecha_ingreso
-  ? new Date(emp.fecha_ingreso + "T00:00:00")
-  : null;
+      const departamento = emp.departamento ?? "";
 
-  // console.log("Date parseada:", date);
-  // console.log("Mes (getMonth):", date ? date.getMonth() + 1 : null);
+      //Normalizamos por si las palabras en el backend vienen con acentos 
+      const normalize = (str: string) =>
+      str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const key = normalize(departamento);  
 
-  const formattedDate = date
-    ? date.toLocaleDateString("es-MX", {
-        year: "numeric",
-        month: "long",
-      }).replace(/^./, (c) => c.toUpperCase())
-    : "";
 
-  // console.log("Fecha formateada FINAL:", formattedDate);
 
-  return {
-    avatarUrl: `https://api.dicebear.com/9.x/adventurer/svg?seed=${index + 1}`,
+      const colors = badgeColorMap[key as keyof typeof badgeColorMap] || defaultColor;
 
-    name: `${emp.nombre_pila ?? ""} ${emp.apellido_paterno ?? ""} ${emp.apellido_materno ?? ""}`.trim(),
 
-    role: emp.cargo ?? "",
-    email: emp.correo ?? "",
-    badge: emp.departamento ?? "",
+      // 🔥 DEBUG
+      // console.log("──────────────");
+      // console.log("Fecha original (backend):", emp.fecha_ingreso);
 
-    projectsCompleted: emp.projectsCompleted,
-    projectsActive: emp.projectsActive,
+      const date = emp.fecha_ingreso
+      ? new Date(emp.fecha_ingreso + "T00:00:00")
+      : null;
 
-    memberSince: formattedDate,
+      // console.log("Date parseada:", date);
+      // console.log("Mes (getMonth):", date ? date.getMonth() + 1 : null);
 
-    aboutMe: emp.infopersonal ?? "",
-    skills: emp.skills ?? [],
+      const formattedDate = date
+        ? date.toLocaleDateString("es-MX", {
+            year: "numeric",
+            month: "long",
+          }).replace(/^./, (c) => c.toUpperCase())
+        : "";
 
-    accentColor: ["cyan", "blue", "green", "purple", "orange", "rose"][index % 6] as any,
-  };
+      // console.log("Fecha formateada FINAL:", formattedDate);
+
+      return {
+
+        id_empleado: String(emp.id_empleado),
+        avatarUrl: `https://api.dicebear.com/9.x/adventurer/svg?seed=${index + 1}`,
+
+        name: `${emp.nombre_pila ?? ""} ${emp.apellido_paterno ?? ""} ${emp.apellido_materno ?? ""}`.trim(),
+
+        role: emp.cargo ?? "",
+        email: emp.correo ?? "",
+        badge: emp.departamento ?? "",
+
+        projectsCompleted: emp.projectsCompleted,
+        projectsActive: emp.projectsActive,
+
+        memberSince: formattedDate,
+
+        aboutMe: emp.infopersonal ?? "",
+        skills: emp.skills ?? [],
+
+        //accentColor: ["cyan", "blue", "green", "purple", "orange", "rose"][index % 6] as any,
+        accentColor: colors,
+      };
 };
 
 
@@ -218,50 +209,36 @@ useEffect(() => {
   fetchData();
 }, []);
   
- /*  const users: ProfileCardProps[] = [
-  {
 
-    avatarUrl: "https://api.dicebear.com/9.x/adventurer/svg?seed=1",
-    name: "Carlos Rodríguez",
-    role: "Senior Developer",
-    email: "carlos.rodriguez@empresa.com",
-    badge: "Desarrollo",
-    projectsCompleted: 45,
-    projectsActive: 5,
-    memberSince: "Enero/2024",
-    aboutMe: "Desarrollador con más de 10 años de experiencia...",
-    skills: ["React", "TypeScript", "Node.js", "AWS", "Docker"],
-    accentColor: "blue",
-  },
-  {
-    avatarUrl: "https://api.dicebear.com/9.x/adventurer/svg?seed=2",
-    name: "Ana López",
-    role: "UX Designer",
-    email: "ana.lopez@empresa.com",
-    badge: "Diseño",
-    projectsCompleted: 30,
-    projectsActive: 3,
-    memberSince: "Febrero/2024",
-    aboutMe: "Diseñadora enfocada en experiencia de usuario...",
-    skills: ["Figma", "UX Research", "Prototyping"],
-    accentColor: "purple",
-  },
-    {
-    avatarUrl: "https://api.dicebear.com/9.x/adventurer/svg?seed=2",
-    name: "Ana Lópezd",
-    role: "UX Designer",
-    email: "ana.lopez@empresa.com",
-    badge: "Diseño",
-    projectsCompleted: 30,
-    projectsActive: 3,
-    memberSince: "Febrero/2024",
-    aboutMe: "Diseñadora enfocada en experiencia de usuario...",
-    skills: ["Figma", "UX Research", "Prototyping"],
-    accentColor: "purple",
-  },
-];
- */
+const departments = Array.from(
+  new Set(users.map((u) => u.badge).filter(Boolean))
+);
 
+
+const filteredUsers = users.filter((user) => {
+  const search = normalizeText(searchTerm);
+  //console.log("texto normalizado," , search)
+
+  // Normalizamos campos del usuario
+  const name = normalizeText(user.name || "");
+  const role = normalizeText(user.role || "");
+  const dept = normalizeText(user.badge || "");
+  const skills = (user.skills || []).map(normalizeText);
+
+  // Coincidencia por texto
+  const matchesSearch =
+    search === "" ||
+    name.includes(search) ||
+    role.includes(search) ||
+    dept.includes(search) ||
+    skills.some((skill) => skill.includes(search));
+
+  // Coincidencia por departamento
+  const matchesDepartment =
+    departmentFilter === "" || user.badge === departmentFilter;
+
+  return matchesSearch && matchesDepartment;
+});
 
 
   return (
@@ -305,7 +282,7 @@ useEffect(() => {
               <Search size={20} className={styles['search-icon']} />
               <input
                 type="text"
-                placeholder="Buscar por nombre, rol o departamento..."
+                placeholder="Buscar por nombre, rol, departamento o habilidades..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className={styles['search-input']}
@@ -328,25 +305,9 @@ useEffect(() => {
             </div>
           </div>
 
-          {/* @component: Botón para añadir miembro 
-          <Button
-            variant="primary"
-            icon={<UserPlus size={16} />}
-            onClick={() => // console.log('Añadir nuevo miembro')}
-          >
-            Añadir Miembro
-          </Button>
-          */}
         </div>
 
-        {/* @section: Resultados de búsqueda */}
-        <div className={styles['results-info']}>
-          <p className={styles['results-text']}>
-            Mostrando {filteredTeam.length} de {equipoExtendido.length} miembros
-            {searchTerm && ` para "${searchTerm}"`}
-            {departmentFilter && ` en ${departmentFilter}`}
-          </p>
-        </div>
+     
 
         {/* @section: Lista de miembros del equipo */}
 
@@ -358,9 +319,10 @@ useEffect(() => {
          {/*   <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(260px,1fr))]">*/}
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2  items-start">
             
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
+              
               <ProfileCard
-              key={user.email}
+              key={user.id_empleado}
               avatarUrl={user.avatarUrl}
               name={user.name}
               role={user.role}

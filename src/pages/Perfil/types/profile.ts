@@ -16,7 +16,7 @@ export interface User {
   alias?: string
   name?: string
   email?: string
-  avatar?: string
+  image?: string
   role?: string
 }
 

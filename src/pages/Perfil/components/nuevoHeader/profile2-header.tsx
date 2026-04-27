@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useRef, useCallback } from "react"
 import { User, Briefcase, Camera, Loader2, Check, X, ZoomIn } from "lucide-react"
 
@@ -8,12 +6,12 @@ interface UserType {
   name?: string
   email?: string
   role?: string
-  avatar?: string
+  image?: string
 }
 
 interface Empleado {
   nombre_pila: string
-  apellido_paterno: string
+  apellido_paterno?: string
   apellido_materno?: string
   correo: string
 }
@@ -195,7 +193,7 @@ export function ProfileHeader({
   }
 
   // Imagen actual a mostrar
-  const currentAvatar = previewUrl || user?.avatar
+  const currentAvatar = previewUrl || user?.image
 
   if (loading) {
     return (

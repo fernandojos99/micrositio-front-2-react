@@ -470,7 +470,8 @@ return (
         onSaveExperience={handleSaveExperience}
       />
 
-      <Home/>
+      {/*Este es el nuevo header  */}
+      <Home initialUser={user}/>
 
     </div>
   </main>

@@ -4,7 +4,7 @@ import { login as loginService, verifyToken, setToken, removeToken, BackendUser 
 /**
  * Interfaz para definir un usuario (adaptada para el frontend)
  */
-interface User {
+export interface User {
   id: string;
   name: string;
   email: string;
@@ -18,6 +18,7 @@ interface User {
   id_empleado: number | null;
   activo: boolean;
   proyectosIds?: number[];
+  image?: string; // URL de la imagen del usuario
 }
 
 /**

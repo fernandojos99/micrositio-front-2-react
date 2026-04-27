@@ -31,6 +31,7 @@ import type {
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast"
 import React from "react"
+import Home from "./components/nuevoHeader/app"
 //import { Value } from "@radix-ui/react-select"
 
 const departmentOptions = [
@@ -468,6 +469,8 @@ return (
         //onStartDateChange={setStartDate}
         onSaveExperience={handleSaveExperience}
       />
+
+      <Home/>
 
     </div>
   </main>

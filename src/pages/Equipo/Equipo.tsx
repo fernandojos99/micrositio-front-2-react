@@ -172,7 +172,8 @@ const mapToProfileCard = (emp: EmpleadoResumen, index: number): ProfileCardProps
       return {
 
         id_empleado: String(emp.id_empleado),
-        avatarUrl: `https://api.dicebear.com/9.x/adventurer/svg?seed=${index + 1}`,
+        //avatarUrl: `https://api.dicebear.com/9.x/adventurer/svg?seed=${index + 1}`,
+        avatarUrl: emp.image || `https://api.dicebear.com/9.x/adventurer/svg?seed=${index + 1}`,
 
         name: `${emp.nombre_pila ?? ""} ${emp.apellido_paterno ?? ""} ${emp.apellido_materno ?? ""}`.trim(),
 

@@ -8,7 +8,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  avatar?: string;
+  //avatar?: string;
   projects: string[];
   joinDate: string;
   role?: string;
@@ -67,7 +67,8 @@ const transformBackendUser = (backendUser: BackendUser): User => {
     projects: [], // Se puede poblar después con nombres de proyectos
     joinDate: new Date().toISOString().split('T')[0], // Fecha temporal
     role: backendUser.tipo,
-    avatar: undefined // Sin foto de avatar
+    //image: undefined // Sin foto de avatar
+    image:backendUser.image || undefined
   };
   
   // console.log('🔍 AuthContext - Usuario transformado:', transformedUser);

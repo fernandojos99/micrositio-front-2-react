@@ -59,9 +59,9 @@ export function ProfileHeader({ user, empleado, loading }: ProfileHeaderProps) {
           {/* Avatar */}
           <div className="relative">
             <div className="size-24 rounded-full border-4 border-white/30 bg-white/20 flex items-center justify-center overflow-hidden shadow-lg">
-              {user?.avatar ? (
+              {user?.image ? (
                 <img
-                  src={user.avatar}
+                  src={user.image }
                   alt={user.name || "Avatar"}
                   className="size-full object-cover"
                 />

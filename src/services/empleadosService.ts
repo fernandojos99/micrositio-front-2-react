@@ -58,6 +58,7 @@ export interface EmpleadoResumen {
   infopersonal:string;
   projectsActive?: number;
   projectsCompleted?: number;
+  image?: string | null; // URL de la imagen del usuario, puede ser null si no tiene
 }
 
 
@@ -118,50 +119,108 @@ export const obtenerEmpleadosResumen = async (): Promise<EmpleadoResumen[]> => {
   });
 
   // 🔹 3. Mapear empleados
+  // const empleadosConInfo = await Promise.all(
+  //   empleados.map(async (empleado: any) => {
+  //     try {
+  //       // 🔹 Habilidades (esto sí sigue siendo por empleado)
+  //       const habilidadesResponse = await apiClient.get(
+  //         `/habilidad/empleado/${empleado.id_empleado}`
+  //       );
+
+  //       const listaHabilidades = habilidadesResponse.data.data || [];
+  //       const skillsArray = listaHabilidades.map(
+  //         (h: any) => h.nombre_habilidad
+  //       );
+
+  //       // 🔹 Obtener proyectos ya agrupados
+  //       const proyectosDelEmpleado =
+  //         proyectosPorLider[empleado.id_empleado] || [];
+
+  //       // 🔹 Contadores optimizados (una sola pasada)
+  //       let projectsCompleted = 0;
+  //       let projectsActive = 0;
+
+  //       for (const p of proyectosDelEmpleado) {
+  //         if (p.estado === 'COMPLETADO') projectsCompleted++;
+  //         else if (p.estado === 'ACTIVO') projectsActive++;
+  //       }
+
+  //       return {
+  //         ...mapEmpleadoResumen(empleado),
+  //         skills: skillsArray,
+  //         projectsCompleted,
+  //         projectsActive
+  //       };
+
+  //     } catch (error) {
+  //       console.error(
+  //         `Error obteniendo info para empleado ${empleado.id_empleado}:`,
+  //         error
+  //       );
+
+  //       return {
+  //         ...mapEmpleadoResumen(empleado),
+  //         skills: [],
+  //         projectsCompleted: 0,
+  //         projectsActive: 0
+  //       };
+  //     }
+  //   })
+  // );
+
+
   const empleadosConInfo = await Promise.all(
     empleados.map(async (empleado: any) => {
       try {
-        // 🔹 Habilidades (esto sí sigue siendo por empleado)
-        const habilidadesResponse = await apiClient.get(
-          `/habilidad/empleado/${empleado.id_empleado}`
-        );
-
+        // 🔹 Habilidades y usuario en paralelo
+        const [habilidadesResponse, usuarioResponse] = await Promise.all([
+          apiClient.get(`/habilidad/empleado/${empleado.id_empleado}`),
+          apiClient.get(`/usuarios/empleado/${empleado.id_empleado}`).catch(() => ({ data: [] }))
+          // El catch es por si el empleado no tiene usuario asignado
+        ]);
+  
         const listaHabilidades = habilidadesResponse.data.data || [];
-        const skillsArray = listaHabilidades.map(
-          (h: any) => h.nombre_habilidad
-        );
+        const skillsArray = listaHabilidades.map((h: any) => h.nombre_habilidad);
+  
+        // 🔹 Extraer imagen del usuario (puede ser array o un solo objeto)
+        // const usuarios = Array.isArray(usuarioResponse.data)
+        //   ? usuarioResponse.data
+        //   : [usuarioResponse.data];
+        const usuarios = usuarioResponse.data?.data || [];
 
-        // 🔹 Obtener proyectos ya agrupados
-        const proyectosDelEmpleado =
-          proyectosPorLider[empleado.id_empleado] || [];
+          console.log(`Empleado ${empleado.id_empleado} - usuarioResponse.data:`, usuarioResponse.data)
+          console.log(`Empleado ${empleado.id_empleado} - imageUrl:`, usuarios[0]?.image)
 
-        // 🔹 Contadores optimizados (una sola pasada)
+        const imageUrl = usuarios[0]?.image || null;
+  
+        // 🔹 Proyectos ya agrupados
+        const proyectosDelEmpleado = proyectosPorLider[empleado.id_empleado] || [];
+  
         let projectsCompleted = 0;
         let projectsActive = 0;
-
+  
         for (const p of proyectosDelEmpleado) {
           if (p.estado === 'COMPLETADO') projectsCompleted++;
           else if (p.estado === 'ACTIVO') projectsActive++;
         }
-
+  
         return {
           ...mapEmpleadoResumen(empleado),
           skills: skillsArray,
           projectsCompleted,
-          projectsActive
+          projectsActive,
+          image: imageUrl  // 👈 nuevo campo
         };
-
+  
       } catch (error) {
-        console.error(
-          `Error obteniendo info para empleado ${empleado.id_empleado}:`,
-          error
-        );
-
+        console.error(`Error obteniendo info para empleado ${empleado.id_empleado}:`, error);
+  
         return {
           ...mapEmpleadoResumen(empleado),
           skills: [],
           projectsCompleted: 0,
-          projectsActive: 0
+          projectsActive: 0,
+          image: null  // 👈 fallback
         };
       }
     })

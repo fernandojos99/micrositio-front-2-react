@@ -31,7 +31,7 @@ import type {
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast"
 import React from "react"
-import Home from "./components/nuevoHeader/app"
+import Header from "./components/nuevoHeader/app"
 //import { Value } from "@radix-ui/react-select"
 
 const departmentOptions = [
@@ -60,7 +60,7 @@ export default function ProfilePage() {
   const [skills, setSkills] = useState<SkillsData>({ skills: [] })
   const [workInfo, setWorkInfo] = useState<WorkInfoData>({ departamento: "", rol: "" })
   const [aboutMe, setAboutMe] = useState<AboutMeData>({ description: "" })
-
+  const [imagen, setImagen] = useState<string>(user?.image || "");
 
   // Estos useState son para los valores de fecha 
   const [startDate, setStartDate] = React.useState<DateValue>({
@@ -126,8 +126,30 @@ export default function ProfilePage() {
 
 
 
+
+// Sincronizar imagen si el user del contexto cambia (ej: al recargar)
+useEffect(() => {
+  if (user?.image) setImagen(user.image);
+}, [user?.image]);
+
+
+
+
+
+
   /* FUNCIONES PARA MODIFICAR LAS VARIABLES Y MANDARLAS A LOS COMPONENTES
 */
+
+
+
+  // Función para que el hijo (Header) pueda actualizar la imagen en el padre
+  const handleImageChange = useCallback((nuevaUrl: string) => {
+    setImagen(nuevaUrl);
+    if (updateUser && user) {
+      updateUser({ ...user, image: nuevaUrl });
+    }
+  }, [user, updateUser]);
+
 
   // Modificar email 
   const handleSaveEmail = useCallback(async (correo: string) => {
@@ -409,7 +431,8 @@ if (authLoading || loading || !mappedUserForUI || !empleado) {
   return <div className="p-6 text-center">Cargando perfil...</div>
 }
 
-
+console.log("empleado completo:", empleado)
+console.log("apellido_materno:", JSON.stringify(empleado?.apellido_materno))
 
  
 
@@ -421,10 +444,16 @@ return (
     <div className="max-w-2xl mx-auto space-y-6">
       
       {/* ✅ Ahora usamos mappedUserForUI que cumple con el contrato de tipos */}
-      <ProfileHeader 
-        user={mappedUserForUI} 
-        empleado={empleado} 
-        loading={loading} 
+      {/*Este es el nuevo header  */}
+      {/* <Header initialUser={user}/> */}
+      <Header
+        initialUser={user}
+        correo={empleado?.correo || ""}
+        tipo={user?.tipo || "VISITANTE"}
+        //alias={user?.alias || ""}
+        empleado={empleado}
+        imagen={imagen}
+        onImageChange={handleImageChange}
       />
 
       <div className="flex flex-col gap-6">
@@ -470,8 +499,6 @@ return (
         onSaveExperience={handleSaveExperience}
       />
 
-      {/*Este es el nuevo header  */}
-      <Home initialUser={user}/>
 
     </div>
   </main>

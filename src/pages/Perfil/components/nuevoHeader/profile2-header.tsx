@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import { User, Briefcase, Camera, Loader2, Check, X, ZoomIn } from "lucide-react"
 
 // Tipos locales para evitar dependencias externas
@@ -145,6 +145,8 @@ export function ProfileHeader({
       // Crear preview y guardar pendientes
       const url = URL.createObjectURL(resizedBlob)
       setPreviewUrl(url)
+      //
+      setCurrentAvatar(url) // Actualizar avatar mostrado inmediatamente
       setPendingFile(file)
       setPendingBlob(resizedBlob)
     } catch (error) {
@@ -190,10 +192,22 @@ export function ProfileHeader({
     setPreviewUrl(null)
     setPendingFile(null)
     setPendingBlob(null)
+    setCurrentAvatar(user?.image || null) // Revertir al avatar original del usuario
   }
 
   // Imagen actual a mostrar
-  const currentAvatar = previewUrl || user?.image
+  //const currentAvatar = previewUrl || user?.image
+
+    // DESPUÉS (estado que escucha cambios del padre)
+    const [currentAvatar, setCurrentAvatar] = useState<string | null>(user?.image || null)
+
+    // Agregar este useEffect para sincronizar cuando el padre actualice user.image
+    useEffect(() => {
+    if (!previewUrl && user?.image) {
+        setCurrentAvatar(user.image)
+    }
+    }, [user?.image])
+
 
   if (loading) {
     return (

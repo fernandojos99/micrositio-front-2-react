@@ -1047,14 +1047,16 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
                 minWidth: 80,
                 textAlign: 'center',
                 letterSpacing: 0.5,
-                boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
+                // ya no es necesario ya lo puse en el CCS
+                // boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
               }}
             >
-              <option value="EN PLANEACION">EN PLANEACION</option>
-              <option value="EN VALIDACION">EN VALIDACION</option>
+              <option value="EN PLANEACION">EN PLANEACIÓN</option>
+              <option value="EN VALIDACION">EN VALIDACIÓN</option>
               <option value="EN ANALISIS">EN ANALISIS</option>
               <option value="CANCELADO">CANCELADO</option>
               <option value="TERMINADO">TERMINADO</option>
+              <option value="EN EJECUCION">EN EJECUCIÓN</option>
             </select>
           </div>
           {/* @section: Información básica */}

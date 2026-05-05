@@ -512,3 +512,26 @@
     justify-content: center;
   }
 }
+
+
+/* @section: Status badge select con soporte dark mode */
+/* Add to manage night and day mode to "Estado de la Testing Card" */
+.testing-status-badge {
+  background-color: var(--theme-bg-secondary);
+  color: var(--theme-text-primary);
+  border: 1px solid var(--theme-border);
+  cursor: pointer;
+  appearance: auto;
+}
+
+.testing-status-badge:focus {
+  outline: none;
+  border-color: var(--color-primary-purple);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary-purple) 10%, transparent);
+}
+
+/* Opciones del select en dark mode */
+.testing-status-badge option {
+  background-color: var(--theme-bg-secondary);
+  color: var(--theme-text-primary);
+}

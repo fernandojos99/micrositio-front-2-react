@@ -353,7 +353,8 @@ function DateRangeSelector({
           onValueChange={(m) => onStartDateChange?.({ ...startDate, month: m })} 
           disabled={disabled}
         >
-          <SelectTrigger className="w-full bg-white"><SelectValue placeholder="Mes" /></SelectTrigger>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Mes" /></SelectTrigger>
           <SelectContent>
             {MONTHS.map((m) => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}
           </SelectContent>
@@ -364,7 +365,7 @@ function DateRangeSelector({
           onValueChange={(y) => onStartDateChange?.({ ...startDate, year: y })} 
           disabled={disabled}
         >
-          <SelectTrigger className="w-full bg-white"><SelectValue placeholder="Año" /></SelectTrigger>
+          <SelectTrigger className="w-full"><SelectValue placeholder="Año" /></SelectTrigger>
           <SelectContent>
             {years.map((y) => <SelectItem key={y} value={y}>{y}</SelectItem>)}
           </SelectContent>

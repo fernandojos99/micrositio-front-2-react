@@ -445,6 +445,11 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
     );
   };
 
+
+
+
+
+  
   // Funciones para manejar URLs
   const addDocumentationUrl = async (url: string) => {
     try {

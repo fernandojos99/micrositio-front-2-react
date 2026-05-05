@@ -8,6 +8,7 @@
   --theme-text-tertiary: var(--color-text-tertiary);
   --theme-border: var(--color-border-light);
   --theme-border-hover: var(--color-border-medium);
+  /* --input-text-color: #1e293b;  */
 }
 
 /* Tema Oscuro */
@@ -33,4 +34,10 @@
   --theme-text-tertiary: var(--color-text-tertiary);
   --theme-border: var(--color-border-light);
   --theme-border-hover: var(--color-border-medium);
+  /* --input-text-color: #000000; oscuro normal */
+  /* input {
+    color: #000;
+    background-color: #fff;
+  } */
+
 }

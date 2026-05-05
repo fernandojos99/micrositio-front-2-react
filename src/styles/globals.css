@@ -90,4 +90,9 @@
   --z-tooltip: 1070;
 
 
+  
+  /* input {
+    color: var(--input-text-color);
+  } */
+
 }

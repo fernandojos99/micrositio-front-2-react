@@ -1,13 +1,6 @@
-"use client"
-
 import { useState } from "react"
 import { ChevronDown, ChevronUp, Mail } from "lucide-react"
 
-/**
- * @type ColorConfig
- * @description Define la estructura de estilos que se aplican dinámicamente
- * al componente según el tema o color seleccionado.
- */
 type ColorConfig = {
   avatarBorder: string
   badge: string
@@ -15,24 +8,15 @@ type ColorConfig = {
   skill: string
 }
 
-/**
- * @constant defaultColors
- * @description Configuración de colores por defecto en caso de que
- * no se proporcione un tema personalizado desde el componente padre.
- */
 const defaultColors: ColorConfig = {
-  avatarBorder: "bg-gradient-to-br from-cyan-400 to-cyan-500",
-  badge: "text-cyan-700 bg-cyan-100",
-  button: "bg-cyan-400 hover:bg-cyan-500",
-  skill: "text-cyan-700 bg-cyan-50 border-cyan-100",
+  avatarBorder: "bg-gradient-to-br from-purple-500 to-violet-600 dark:from-purple-700 dark:to-violet-800",
+  badge: "text-cyan-700 bg-cyan-100 dark:bg-purple-900/50 dark:text-purple-200",
+  button: "bg-purple-600 hover:bg-purple-700 dark:bg-purple-800 dark:hover:bg-purple-900",
+  skill: "text-cyan-700 bg-cyan-50 border-cyan-100 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800",
 }
 
-/**
- * @interface ProfileCardProps
- * @description Props que recibe el componente ProfileCard
- */
 export interface ProfileCardProps {
-  id_empleado?:string
+  id_empleado?: string
   avatarUrl?: string
   name?: string
   role?: string
@@ -46,20 +30,6 @@ export interface ProfileCardProps {
   projectsActive?: number
 }
 
-/**
- * @component ProfileCard
- * @description Componente visual que representa el perfil de un usuario
- * mostrando información básica, estadísticas y detalles expandibles.
- * 
- * Características:
- * - Soporte para estilos dinámicos (theming)
- * - Vista expandible (acerca de y habilidades)
- * - Diseño responsive
- * - Integración con Tailwind CSS
- * 
- * @param {ProfileCardProps} props - Propiedades del componente
- * @returns {JSX.Element}
- */
 export function ProfileCard({
   avatarUrl,
   name,
@@ -73,22 +43,11 @@ export function ProfileCard({
   projectsCompleted,
   projectsActive,
 }: ProfileCardProps) {
-
-  /**
-   * @state isExpanded
-   * @description Controla si la tarjeta está expandida o contraída
-   */
   const [isExpanded, setIsExpanded] = useState(false)
-
-  /**
-   * @constant colors
-   * @description Determina los estilos a utilizar.
-   * Si no se recibe `accentColor`, se usan los colores por defecto.
-   */
   const colors = accentColor ?? defaultColors
 
   return (
-    <div className="w-full bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+    <div className="w-full bg-white dark:bg-[#1e1b3a] rounded-xl shadow-md border border-gray-100 dark:border-purple-900/40 overflow-hidden">
 
       {/* ================= HEADER ================= */}
       <div className="p-4">
@@ -105,21 +64,20 @@ export function ProfileCard({
 
           {/* Información básica */}
           <div className="text-center sm:text-left space-y-1">
-            <h2 className="text-lg font-semibold text-gray-800">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
               {name}
             </h2>
 
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-white">
               {role}
             </p>
 
             {/* Email */}
-            <div className="flex items-center justify-center sm:justify-start gap-2 text-gray-600 text-sm mt-2">
+            <div className="flex items-center justify-center sm:justify-start gap-2 text-gray-600 dark:text-white text-sm mt-2">
               <Mail className="w-4 h-4" />
-
               <a
                 href={`mailto:${email}`}
-                className="hover:text-blue-600 transition-colors cursor-pointer break-all"
+                className="hover:text-purple-400 transition-colors cursor-pointer break-all"
               >
                 {email}
               </a>
@@ -133,25 +91,27 @@ export function ProfileCard({
         </div>
 
         {/* ================= PROYECTOS ================= */}
-        <div className="flex flex-wrap items-center gap-3 mt-4 pt-4 border-t">
-          <span className="text-sm font-medium">Proyectos</span>
+        <div className="flex flex-wrap items-center gap-3 mt-4 pt-4 border-t border-gray-100 dark:border-purple-900/40">
+          <span className="text-sm font-medium text-gray-700 dark:text-white">
+            Proyectos
+          </span>
 
           <div className="flex gap-2">
-            <div className="px-3 py-1 border rounded text-center text-xs">
-              <div className="font-semibold">{projectsCompleted}</div>
-              <div className="text-gray-500">Concluidos</div>
+            <div className="px-3 py-1 border border-gray-200 dark:border-purple-800 dark:bg-purple-950/40 rounded text-center text-xs">
+              <div className="font-semibold text-gray-800 dark:text-white">{projectsCompleted}</div>
+              <div className="text-gray-500 dark:text-white">Concluidos</div>
             </div>
 
-            <div className="px-3 py-1 border rounded text-center text-xs">
-              <div className="font-semibold">{projectsActive}</div>
-              <div className="text-gray-500">Activos</div>
+            <div className="px-3 py-1 border border-gray-200 dark:border-purple-800 dark:bg-purple-950/40 rounded text-center text-xs">
+              <div className="font-semibold text-gray-800 dark:text-white">{projectsActive}</div>
+              <div className="text-gray-500 dark:text-white">Activos</div>
             </div>
           </div>
 
           {/* Fecha de ingreso */}
           <div className="ml-auto w-full sm:w-auto text-center sm:text-right text-xs">
-            <div className="text-gray-500">Miembro desde</div>
-            <div className="font-semibold">{memberSince}</div>
+            <div className="text-gray-500 dark:text-white">Miembro desde</div>
+            <div className="font-semibold text-gray-800 dark:text-white">{memberSince}</div>
           </div>
         </div>
       </div>
@@ -159,7 +119,7 @@ export function ProfileCard({
       {/* ================= BOTÓN EXPANDIR ================= */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className={`w-full py-2 text-xs text-white flex items-center justify-center gap-1 ${colors.button}`}
+        className={`w-full py-2 text-xs text-white flex items-center justify-center gap-1 transition-colors ${colors.button}`}
       >
         {isExpanded ? "Cerrar" : "Ver más"}
         {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -167,12 +127,12 @@ export function ProfileCard({
 
       {/* ================= CONTENIDO EXPANDIDO ================= */}
       {isExpanded && (
-        <div className="p-4 border-t border-gray-100">
+        <div className="p-4 border-t border-gray-100 dark:border-purple-900/40 dark:bg-[#1a1730]">
           <div className="flex flex-col gap-4">
 
             {/* Habilidades */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-800 mb-1">
+              <h3 className="text-sm font-semibold text-gray-800 dark:text-white mb-1">
                 Habilidades
               </h3>
               <div className="flex flex-wrap gap-1">
@@ -187,20 +147,16 @@ export function ProfileCard({
               </div>
             </div>
 
-
-
-
             {/* Acerca de */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-800 mb-1">
+              <h3 className="text-sm font-semibold text-gray-800 dark:text-white mb-1">
                 Acerca de mi
               </h3>
-              <p className="text-gray-600 text-xs">
+              <p className="text-gray-600 dark:text-white text-xs">
                 {aboutMe}
               </p>
             </div>
 
-  
           </div>
         </div>
       )}

@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { 
   Users, 
-  Mail, 
+/*   Mail, 
   Calendar, 
   MapPin, 
-  Briefcase,
+  Briefcase, */
   Search,
   Filter,
-  UserPlus,
+  //UserPlus,
   Star,
   Award,
   TrendingUp
 } from 'lucide-react';
-import { colaboradoresDisponibles } from '../../data/mockData';
-import Button from '../../components/ui/Button/Button';
+/* import { colaboradoresDisponibles } from '../../data/mockData';
+import Button from '../../components/ui/Button/Button'; */
 import styles from './Equipo.module.css';
 import { ProfileCard, ProfileCardProps } from './CardProfile';
 import { EmpleadoResumen, obtenerEmpleadosResumen } from '@/services/empleadosService';

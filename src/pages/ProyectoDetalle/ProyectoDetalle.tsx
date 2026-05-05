@@ -259,13 +259,31 @@ const ProyectoDetalle: React.FC = () => {
    * @param {string} fecha - Fecha en formato ISO string
    * @returns {string} Fecha formateada en español
    */
+  // Restaba un dia por fecha UTC 
+  // const formatearFecha = (fecha: string) => {
+  //   return new Date(fecha).toLocaleDateString('es-ES', {
+  //     year: 'numeric',
+  //     month: 'long',
+  //     day: 'numeric'
+  //   });
+  // };
+
   const formatearFecha = (fecha: string) => {
-    return new Date(fecha).toLocaleDateString('es-ES', {
+    const [year, month, day] = fecha.split('T')[0].split('-');
+    
+    const fechaLocal = new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day)
+    );
+  
+    return fechaLocal.toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
   };
+
 
   /**
    * Maneja la actualización de datos del proyecto

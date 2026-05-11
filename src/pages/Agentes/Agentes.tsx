@@ -245,6 +245,10 @@ const Agentes: React.FC = () => {
           </div>
         </div>
         
+
+
+
+        
         {agentesFiltrados.length === 0 ? (
           <div className="flex flex-col items-center justify-center mt-12">
             <Bot className="h-16 w-16 text-gray-400 mb-4" />
@@ -276,6 +280,7 @@ const Agentes: React.FC = () => {
                   className={styles['agente-card']}
                   onClick={() => handleAgenteClick(agente.id_agente)}
                 >
+                {/*Esto renderiza las tarjetas de los agente   */}
                 <FeatureCard
                   key={agente.id_agente}
                   nombre={agente.nombre}

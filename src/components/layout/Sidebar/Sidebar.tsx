@@ -7,7 +7,8 @@ import {
   Users,
   ChevronLeft,
   ChevronRight,
-  BookOpen
+  BookOpen,
+  MessageCircle ,
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 import { useAuth } from '@/contexts/AuthContext';
@@ -45,6 +46,11 @@ const menuItems: MenuItem[] = [
     path: '/libro-digital',
     name: 'Libro Digital',
     icon: <BookOpen size={20} />
+  },
+  {
+    path: '/transcripts',
+    name: 'Transcripts',
+    icon: <MessageCircle size={20} />
   },
 ];
 

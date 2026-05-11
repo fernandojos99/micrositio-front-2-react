@@ -35,8 +35,8 @@ import Assistant from '../pages/Assistant';
 import LibroDigital from '../pages/LibroDigital/LibroDigital';
 import Administracion from '../pages/Administracion/Administracion';
 import Busqueda from '../pages/Busqueda/Busqueda';
-import { GraphTotal } from '../pages/ProyectoDetalle/components/graph/GraphTotal';
 import GraphImprovedTotal from '@/pages/ProyectoDetalle/components/graphImproved/GraphImprovedTotal';
+import TranscriptProcessor from '@/pages/Transcripts/page';
 
 
 function AppRoutes() {
@@ -63,7 +63,7 @@ function AppRoutes() {
             path="proyecto/grafica/:idProyecto" 
             element={<GraphImprovedTotal />}
           />
-
+          <Route path="transcripts" element={<TranscriptProcessor/>} />
 
           {/* Rutas alternativas que ya tenías */}
           <Route path="/proyecto/:proyectoId" element={<ProyectoDetalle />} />

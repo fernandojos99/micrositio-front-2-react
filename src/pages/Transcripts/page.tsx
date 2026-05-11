@@ -966,6 +966,7 @@
                  onClick={handleSubmit}
                  disabled={
                    isLoading ||
+                   !projectName.trim() ||
                    (!transcript.trim() &&
                      !docxFile)
                  }
@@ -978,7 +979,7 @@
                  style={{
                    background:
                      "var(--theme-bg-tertiary)",
-   
+
                    color:
                      "var(--theme-text-primary)",
                  }}

@@ -331,6 +331,35 @@
        setLambdaResponse(null)
    
        try {
+
+            /* ======================================================================
+       BUILD VARIABLES PAYLOAD
+       - variables      → string CSV → string[]
+       - variablesWithMeaning → {variable, meaning}[] (filter empty rows)
+       ====================================================================== */
+
+        const variablesPayload = variables.trim()
+        ? {
+            variables: variables
+              .split(",")
+              .map((v) => v.trim())
+              .filter(Boolean),
+          }
+        : variablesWithMeaning.some(
+              (v) => v.variable.trim() || v.meaning.trim()
+            )
+          ? {
+              variablesConSignificado: variablesWithMeaning
+                .filter(
+                  (v) => v.variable.trim() || v.meaning.trim()
+                )
+                .map(({ variable, meaning }) => ({
+                  variable: variable.trim(),
+                  meaning: meaning.trim(),
+                })),
+            }
+          : {}
+
          let result: ApiResponse
    
          /* ======================================================================
@@ -355,6 +384,16 @@
              templateId
            )
    
+
+                 // Append variables as JSON string so the server can parse it
+            if (Object.keys(variablesPayload).length > 0) {
+              formData.append(
+                "variables",
+                JSON.stringify(variablesPayload)
+              )
+            }
+
+
            const res = await fetch(
              `${BASE_URL}/api/process-file`,
              {
@@ -371,81 +410,68 @@
    
            result = await res.json()
          }
-   
-         /* ======================================================================
-            PROCESS TEXT
-            ====================================================================== */
-   
-         else {
-           const cleanedTranscript =
-             cleanTranscript(transcript)
-   
-           const res = await fetch(
-             `${BASE_URL}/api/process-text`,
-             {
-               method: "POST",
-               headers: {
-                 "Content-Type":
-                   "application/json",
-               },
-   
-               body: JSON.stringify({
-                 proyecto:
-                   projectName || "Proyecto1",
-   
-                 templateId: templateId,
-   
-                 transcript:
-                   cleanedTranscript,
-               }),
-             }
-           )
-   
-           if (!res.ok) {
-             throw new Error(
-               `Error: ${res.status} ${res.statusText}`
-             )
-           }
-   
-           result = await res.json()
-         }
-   
-         /* ======================================================================
-            SAVE RESPONSE
-            ====================================================================== */
-   
-         setResponse(result)
-   
-         /* ======================================================================
-            AUTO FETCH LAMBDA
-            ====================================================================== */
-   
-         if (result.id) {
-           const lambdaRes = await fetch(
-             `${LAMBDA_URL}/${result.id}`
-           )
-   
-           if (lambdaRes.ok) {
-             const lambdaData =
-               await lambdaRes.json()
-   
-             setLambdaResponse(
-               lambdaData?.data
-                 ?.resumen_estructurado ?? null
-             )
-           }
-         }
-       } catch (err) {
-         setError(
-           err instanceof Error
-             ? err.message
-             : "Error desconocido"
-         )
-       } finally {
-         setIsLoading(false)
-       }
-     }
-   
+    /* ======================================================================
+       PROCESS TEXT
+       ====================================================================== */
+
+        else {
+          const cleanedTranscript = cleanTranscript(transcript)
+    
+          const res = await fetch(`${BASE_URL}/api/process-text`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              proyecto: projectName || "Proyecto1",
+              templateId: templateId,
+              transcript: cleanedTranscript,
+              ...variablesPayload,
+            }),
+          })
+    
+          if (!res.ok) {
+            throw new Error(`Error: ${res.status} ${res.statusText}`)
+          }
+    
+          result = await res.json()
+        }
+    
+        /* ======================================================================
+          SAVE RESPONSE
+          ====================================================================== */
+    
+        setResponse(result)
+    
+        /* ======================================================================
+          AUTO FETCH LAMBDA
+          ====================================================================== */
+    
+        if (result.id) {
+          const lambdaRes = await fetch(`${LAMBDA_URL}/${result.id}`)
+    
+          if (lambdaRes.ok) {
+            const lambdaData = await lambdaRes.json()
+    
+            setLambdaResponse(
+              lambdaData?.data?.resumen_estructurado ?? null
+            )
+          }
+        }
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Error desconocido"
+        )
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+
+
+
+
+
      /* ==========================================================================
         RENDER
         ========================================================================== */

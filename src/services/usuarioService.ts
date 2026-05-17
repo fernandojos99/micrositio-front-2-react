@@ -108,7 +108,7 @@ export const actualizarTipoUsuario = async (id: string, tipo: string): Promise<U
 
 // ✅ ÚNICO CAMBIO: se agrega el tercer argumento con Content-Type: undefined
 export const subirImagenUsuario = async (formData: FormData): Promise<UploadResponse> => {
-  const response = await apiClient.post('/upload', formData, {
+  const response = await apiClient.post('usuarios/upload', formData, {
     headers: {
       'Content-Type': undefined,
     },

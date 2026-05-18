@@ -736,7 +736,7 @@
                   TEMPLATE
                   ========================================================== */}
    
-               <div className="space-y-2">
+{/*                <div className="space-y-2">
                  <Label>
                    Template
                  </Label>
@@ -751,11 +751,13 @@
                    }
                  />
                </div>
-   
+    */}
+
+
                {/* ==========================================================
                   PPTX DISABLED
                   ========================================================== */}
-   
+  {/*  
                <div
                  className="
                    space-y-2
@@ -805,11 +807,11 @@
                    </p>
                  </div>
                </div>
-   
+   */} 
                {/* ==========================================================
                   VARIABLES
                   ========================================================== */}
-   
+ {/*   
                <div
                  className={cn(
                    `
@@ -853,12 +855,12 @@
                      isVariablesDisabled
                    }
                  />
-               </div>
+               </div> */}
    
                {/* ==========================================================
                   VARIABLES WITH MEANING
                   ========================================================== */}
-   
+   {/* 
                <div
                  className={cn(
                    `
@@ -897,9 +899,11 @@
                            items-end
                          "
                        >
-                         {/* VARIABLE */}
+    */}                     
+    
+                        {/* VARIABLE */}
    
-                         <div className="space-y-1">
+                        {/*  <div className="space-y-1">
                            {index === 0 && (
                              <Label className="text-sm opacity-70">
                                Variable
@@ -920,9 +924,9 @@
                              }
                            />
                          </div>
-   
+ */}   
                          {/* SIGNIFICADO */}
-   
+   {/* 
                          <div className="space-y-1">
                            {index === 0 && (
                              <Label className="text-sm opacity-70">
@@ -943,10 +947,10 @@
                                )
                              }
                            />
-                         </div>
+                         </div> */}
    
                          {/* DELETE */}
-   
+{/*    
                          <Button
                            variant="ghost"
                            size="icon"
@@ -967,9 +971,9 @@
                      )
                    )}
                  </div>
-   
+ */}   
                  {/* ADD VARIABLE */}
-   
+   {/* 
                  <Button
                    variant="outline"
                    size="sm"
@@ -982,7 +986,7 @@
                    <Plus className="size-4 mr-2" />
                    Agregar variable
                  </Button>
-               </div>
+               </div> */}
    
                {/* ==========================================================
                   SUBMIT

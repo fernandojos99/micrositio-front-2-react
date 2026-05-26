@@ -52,6 +52,13 @@ const menuItems: MenuItem[] = [
     name: 'Transcripts',
     icon: <MessageCircle size={20} />
   },
+
+  // Descomentar cuando me aprueben el subirlo
+/*     {
+    path: '/chatAgente',
+    name: 'Chat Agente',
+    icon: <Bot size={20} />
+   }, */
 ];
 
 const Sidebar: React.FC = () => {

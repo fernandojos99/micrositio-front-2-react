@@ -37,6 +37,7 @@ import Administracion from '../pages/Administracion/Administracion';
 import Busqueda from '../pages/Busqueda/Busqueda';
 import GraphImprovedTotal from '@/pages/ProyectoDetalle/components/graphImproved/GraphImprovedTotal';
 import TranscriptProcessor from '@/pages/Transcripts/page';
+import Chat from '@/pages/ChatAgente/chat';
 
 
 function AppRoutes() {
@@ -64,6 +65,10 @@ function AppRoutes() {
             element={<GraphImprovedTotal />}
           />
           <Route path="transcripts" element={<TranscriptProcessor/>} />
+          <Route path="chatAgente" element={<Chat/>} />
+
+
+
 
           {/* Rutas alternativas que ya tenías */}
           <Route path="/proyecto/:proyectoId" element={<ProyectoDetalle />} />

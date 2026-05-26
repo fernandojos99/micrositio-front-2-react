@@ -1,10 +1,15 @@
 import axios from 'axios';
 
+export const API_BASE_URL =
+'https://micrositio-iris-backend.onrender.com';
+
+
 const apiClient = axios.create({
 
 
 
-baseURL:       'https://micrositio-iris-backend.onrender.com', //'http://localhost:3000',//
+
+baseURL:       API_BASE_URL, //'http://localhost:3000',//
 //baseURL:      'http://localhost:3000',//
 
   headers: {

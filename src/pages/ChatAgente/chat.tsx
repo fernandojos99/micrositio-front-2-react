@@ -5,10 +5,13 @@ import {
   useState
 } from 'react';
 
+import { API_BASE_URL } from '@/apiClient';
+
 import './chat.css';
 
-const API_URL =
-  'http://localhost:3000/api/chat/stream';
+//const API_URL =
+//  'http://localhost:3000/api/chat/stream';
+const API_URL = `${API_BASE_URL}/api/chat/stream`;
 
 type MessageRole =
   | 'user'

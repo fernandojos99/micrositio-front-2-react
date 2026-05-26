@@ -5,13 +5,9 @@ import {
   useState
 } from 'react';
 
-import { API_BASE_URL } from '@/apiClient';
+import { fetchStream } from '@/apiClient';
 
 import './chat.css';
-
-//const API_URL =
-//  'http://localhost:3000/api/chat/stream';
-const API_URL = `${API_BASE_URL}/api/chat/stream`;
 
 type MessageRole =
   | 'user'
@@ -219,23 +215,26 @@ export default function Chat() {
 
       try {
         const response =
-          await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-              'Content-Type':
-                'application/json',
-              Accept:
-                'text/event-stream'
-            },
-            body: JSON.stringify({
-              message:
-                userMessage,
-              thread_id:
-                threadIdRef.current
-            }),
-            signal:
-              controller.signal
-          });
+          await fetchStream(
+            '/api/chat/stream',
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type':
+                  'application/json',
+                Accept:
+                  'text/event-stream'
+              },
+              body: JSON.stringify({
+                message:
+                  userMessage,
+                thread_id:
+                  threadIdRef.current
+              }),
+              signal:
+                controller.signal
+            }
+          );
 
         if (!response.ok) {
           throw new Error(

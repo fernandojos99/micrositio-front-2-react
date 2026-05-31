@@ -1,17 +1,16 @@
-// Chat.tsx
+"use client";
+
+import { useEffect, useRef, useState, useCallback } from "react";
 import {
-  useEffect,
-  useRef,
-  useState
-} from 'react';
+  deleteSession as deleteSessionApi,
+  fetchSessions as fetchSessionsApi,
+  fetchSessionMessages as fetchSessionMessagesApi,
+  streamMessage as streamMessageApi,
+} from "../../services/chatService";
+import type { Session } from "../../services/chatService";
+import "./chat.css";
 
-import { fetchStream } from '@/apiClient';
-
-import './chat.css';
-
-type MessageRole =
-  | 'user'
-  | 'assistant';
+type MessageRole = "user" | "assistant";
 
 interface Message {
   role: MessageRole;
@@ -23,147 +22,242 @@ interface ParsedChunkItem {
 }
 
 interface ParsedSSEData {
+  type?: string;
+  thread_id?: string;
   token?: string;
   data?: {
     chunk?: {
-      content?:
-        | string
-        | ParsedChunkItem[]
-        | string[];
+      content?: string | ParsedChunkItem[] | string[];
     };
   };
 }
 
 export default function Chat() {
-  const [messages, setMessages] =
-    useState<Message[]>([
-      {
-        role: 'assistant',
-        content: 'Hola, soy tu agente.'
-      }
-    ]);
+  // Sessions state
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [sessionsLoading, setSessionsLoading] = useState(true);
+  const [selectedSession, setSelectedSession] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sessionPreviews, setSessionPreviews] = useState<Record<string, string>>({});
 
-  const [input, setInput] =
-    useState<string>('');
+  // Chat state
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: "assistant",
+      content: "Hola, soy tu agente.",
+    },
+  ]);
+  const [messagesLoading, setMessagesLoading] = useState(false);
+  const [input, setInput] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const [loading, setLoading] =
-    useState<boolean>(false);
+  // Refs
+  const threadIdRef = useRef<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const previewsFetchedRef = useRef<Set<string>>(new Set());
 
-  const threadIdRef =
-    useRef<string>(
-      crypto.randomUUID()
-    );
-
-  const abortControllerRef =
-    useRef<AbortController | null>(
-      null
-    );
-
-  const bottomRef =
-    useRef<HTMLDivElement | null>(
-      null
-    );
-
+  // Fetch sessions on mount
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({
-      behavior: 'smooth'
-    });
+    fetchSessions();
+  }, []);
+
+  // Auto-scroll to bottom
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const appendTokenToLastMessage = (
-    token: string
-  ): void => {
+  const fetchSessions = async () => {
+    try {
+      setSessionsLoading(true);
+      const data = await fetchSessionsApi();
+      setSessions(data.sessions);
+      loadPreviewsOnce(data.sessions);
+    } catch (error) {
+      console.error("Error fetching sessions:", error);
+    } finally {
+      setSessionsLoading(false);
+    }
+  };
+
+  const loadPreviewsOnce = async (sessionList: Session[]) => {
+    const missing = sessionList.filter((s) => !previewsFetchedRef.current.has(s.thread_id));
+    if (missing.length === 0) return;
+    const results = await Promise.allSettled(
+      missing.map((s) => fetchSessionMessagesApi(s.thread_id))
+    );
+    const updates: Record<string, string> = {};
+    for (let i = 0; i < missing.length; i++) {
+      const res = results[i];
+      if (res.status === "fulfilled" && res.value.messages) {
+        const preview = extractPreview(res.value.messages);
+        if (preview) {
+          updates[missing[i].thread_id] = preview;
+          previewsFetchedRef.current.add(missing[i].thread_id);
+        }
+      }
+    }
+    if (Object.keys(updates).length > 0) {
+      setSessionPreviews((prev) => ({ ...prev, ...updates }));
+    }
+  };
+
+  const mapRole = (role: string): "user" | "assistant" => {
+    const userRoles = ["user", "User", "human", "Human"];
+    return userRoles.includes(role) ? "user" : "assistant";
+  };
+
+  const extractPreview = (rawMessages: { role: string; content: string }[]): string => {
+    const firstUser = rawMessages.find((m) => mapRole(m.role) === "user");
+    if (!firstUser || !firstUser.content) return "";
+    const cleaned = firstUser.content.replace(/\s+/g, " ").trim();
+    const words = cleaned.split(" ");
+    return words.length > 5 ? words.slice(0, 5).join(" ") + "..." : cleaned;
+  };
+
+  const fetchSessionMessages = async (threadId: string) => {
+    try {
+      setMessagesLoading(true);
+      const data = await fetchSessionMessagesApi(threadId);
+
+      if (data.messages && Array.isArray(data.messages)) {
+        const formattedMessages: Message[] = data.messages.map(
+          (msg: { role: string; content: string }) => ({
+            role: mapRole(msg.role),
+            content: msg.content || "",
+          })
+        );
+
+        if (formattedMessages.length > 0) {
+          setMessages(formattedMessages);
+        } else {
+          setMessages([
+            {
+              role: "assistant",
+              content: "Hola, soy tu agente.",
+            },
+          ]);
+        }
+
+        setSessionPreviews((prev) => {
+          if (prev[threadId]) return prev;
+          const preview = extractPreview(data.messages);
+          if (preview) return { ...prev, [threadId]: preview };
+          return prev;
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      setMessages([
+        {
+          role: "assistant",
+          content: "Error al cargar los mensajes de esta sesion.",
+        },
+      ]);
+    } finally {
+      setMessagesLoading(false);
+    }
+  };
+
+  const handleSelectSession = (threadId: string) => {
+    setSelectedSession(threadId);
+    threadIdRef.current = threadId;
+    fetchSessionMessages(threadId);
+    setSidebarOpen(false);
+  };
+
+  const handleNewChat = () => {
+    setSelectedSession(null);
+    threadIdRef.current = null;
+    setMessages([
+      {
+        role: "assistant",
+        content: "Hola, soy tu agente.",
+      },
+    ]);
+    setSidebarOpen(false);
+  };
+
+  const handleDeleteSession = async (e: React.MouseEvent, threadId: string) => {
+    e.stopPropagation();
+    if (!window.confirm("¿Eliminar esta sesión?")) return;
+    try {
+      await deleteSessionApi(threadId);
+      setSessions((prev) => prev.filter((s) => s.thread_id !== threadId));
+      setSessionPreviews((prev) => {
+        const next = { ...prev };
+        delete next[threadId];
+        return next;
+      });
+      previewsFetchedRef.current.delete(threadId);
+      if (selectedSession === threadId) {
+        setSelectedSession(null);
+        threadIdRef.current = null;
+        setMessages([
+          {
+            role: "assistant",
+            content: "Hola, soy tu agente.",
+          },
+        ]);
+      }
+    } catch (error) {
+      console.error("Error deleting session:", error);
+    }
+  };
+
+  const appendTokenToLastMessage = useCallback((token: string): void => {
     if (!token) return;
 
     setMessages((prev) => {
       const updated = [...prev];
+      const lastIndex = updated.length - 1;
+      const lastMessage = updated[lastIndex];
 
-      const lastIndex =
-        updated.length - 1;
-
-      const lastMessage =
-        updated[lastIndex];
-
-      if (
-        !lastMessage ||
-        lastMessage.role !==
-          'assistant'
-      ) {
+      if (!lastMessage || lastMessage.role !== "assistant") {
         return prev;
       }
 
       updated[lastIndex] = {
         ...lastMessage,
-        content:
-          lastMessage.content +
-          token
+        content: lastMessage.content + token,
       };
 
       return updated;
     });
-  };
+  }, []);
 
-  const parseSSEEvent = (
-    event: string
-  ): string => {
-    const lines =
-      event.split('\n');
-
+  const parseSSEEvent = (event: string): string => {
+    const lines = event.split("\n");
     const dataLines: string[] = [];
 
     for (const line of lines) {
-      if (
-        !line ||
-        line.startsWith(':')
-      ) {
+      if (!line || line.startsWith(":")) {
         continue;
       }
 
-      if (
-        line.startsWith('data:')
-      ) {
-        dataLines.push(
-          line.replace(
-            /^data:\s?/,
-            ''
-          )
-        );
+      if (line.startsWith("data:")) {
+        dataLines.push(line.replace(/^data:\s?/, ""));
       }
     }
 
-    return dataLines.join('\n');
+    return dataLines.join("\n");
   };
 
-  const extractToken = (
-    parsed: ParsedSSEData
-  ): string => {
-    if (
-      typeof parsed.token ===
-      'string'
-    ) {
+  const extractToken = (parsed: ParsedSSEData): string => {
+    if (typeof parsed.token === "string") {
       return parsed.token;
     }
 
-    const chunkContent =
-      parsed?.data?.chunk
-        ?.content;
+    const chunkContent = parsed?.data?.chunk?.content;
 
-    if (
-      typeof chunkContent ===
-      'string'
-    ) {
+    if (typeof chunkContent === "string") {
       return chunkContent;
     }
 
-    if (
-      Array.isArray(chunkContent)
-    ) {
+    if (Array.isArray(chunkContent)) {
       return chunkContent
         .map((item) => {
-          if (
-            typeof item ===
-            'string'
-          ) {
+          if (typeof item === "string") {
             return item;
           }
 
@@ -171,256 +265,165 @@ export default function Chat() {
             return item.text;
           }
 
-          return '';
+          return "";
         })
-        .join('');
+        .join("");
     }
 
-    return '';
+    return "";
   };
 
-  const sendMessage =
-    async (): Promise<void> => {
-      if (
-        !input.trim() ||
-        loading
-      ) {
-        return;
+  const sendMessage = async (): Promise<void> => {
+    if (!input.trim() || loading) {
+      return;
+    }
+
+    const userMessage = input;
+    setInput("");
+
+    setMessages((prev) => [
+      ...prev,
+      { role: "user", content: userMessage },
+      { role: "assistant", content: "" },
+    ]);
+
+    setLoading(true);
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    try {
+      // Build request body - only include thread_id if we have one
+      const requestBody: { message: string; thread_id?: string } = {
+        message: userMessage,
+      };
+
+      if (threadIdRef.current) {
+        requestBody.thread_id = threadIdRef.current;
       }
 
-      const userMessage =
-        input;
+      const response = await streamMessageApi(requestBody, controller.signal);
 
-      setInput('');
+      if (!response.body) {
+        throw new Error("No response body");
+      }
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'user',
-          content: userMessage
-        },
-        {
-          role: 'assistant',
-          content: ''
-        }
-      ]);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let buffer = "";
 
-      setLoading(true);
+      while (true) {
+        const { value, done } = await reader.read();
 
-      const controller =
-        new AbortController();
-
-      abortControllerRef.current =
-        controller;
-
-      try {
-        const response =
-          await fetchStream(
-            '/api/chat/stream',
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type':
-                  'application/json',
-                Accept:
-                  'text/event-stream'
-              },
-              body: JSON.stringify({
-                message:
-                  userMessage,
-                thread_id:
-                  threadIdRef.current
-              }),
-              signal:
-                controller.signal
-            }
-          );
-
-        if (!response.ok) {
-          throw new Error(
-            `HTTP ${response.status}`
-          );
+        if (done) {
+          break;
         }
 
-        if (!response.body) {
-          throw new Error(
-            'No response body'
-          );
-        }
+        buffer += decoder.decode(value, { stream: true });
 
-        const reader =
-          response.body.getReader();
+        const events = buffer.split("\n\n");
+        buffer = events.pop() || "";
 
-        const decoder =
-          new TextDecoder(
-            'utf-8'
-          );
-
-        let buffer = '';
-
-        while (true) {
-          const {
-            value,
-            done
-          } =
-            await reader.read();
-
-          if (done) {
-            break;
+        for (const event of events) {
+          if (!event.trim()) {
+            continue;
           }
 
-          buffer +=
-            decoder.decode(value, {
-              stream: true
-            });
+          const data = parseSSEEvent(event);
 
-          const events =
-            buffer.split(
-              '\n\n'
-            );
+          if (!data) {
+            continue;
+          }
 
-          buffer =
-            events.pop() || '';
+          if (data === "[DONE]") {
+            setLoading(false);
+            // Refresh sessions list to include the new session if it was created
+            fetchSessions();
+            return;
+          }
 
-          for (const event of events) {
-            if (
-              !event.trim()
-            ) {
+          try {
+            const parsed: ParsedSSEData = JSON.parse(data);
+
+            if (parsed.type === "thread_id" && parsed.thread_id) {
+              threadIdRef.current = parsed.thread_id;
+              setSelectedSession(parsed.thread_id);
+              setSessionPreviews((prev) => {
+                if (prev[parsed.thread_id!]) return prev;
+                const preview = userMessage.replace(/\s+/g, " ").trim().split(" ").slice(0, 5).join(" ") + (userMessage.split(" ").length > 5 ? "..." : "");
+                return { ...prev, [parsed.thread_id!]: preview };
+              });
               continue;
             }
 
-            const data =
-              parseSSEEvent(
-                event
-              );
+            const token = extractToken(parsed);
 
-            if (!data) {
-              continue;
+            if (token) {
+              appendTokenToLastMessage(token);
             }
-
-            console.log(
-              'RAW SSE DATA:',
-              data
-            );
-
-            if (
-              data ===
-              '[DONE]'
-            ) {
-              setLoading(false);
-              return;
-            }
-
-            try {
-              const parsed: ParsedSSEData =
-                JSON.parse(
-                  data
-                );
-
-              console.log(
-                'PARSED:',
-                parsed
-              );
-
-              const token =
-                extractToken(
-                  parsed
-                );
-
-              if (token) {
-                appendTokenToLastMessage(
-                  token
-                );
-              }
-            } catch (err) {
-              console.error(
-                'SSE JSON parse error:',
-                err,
-                data
-              );
-            }
+          } catch (err) {
+            console.error("SSE JSON parse error:", err, data);
           }
         }
-
-        if (buffer.trim()) {
-          const data =
-            parseSSEEvent(
-              buffer
-            );
-
-          if (
-            data &&
-            data !== '[DONE]'
-          ) {
-            try {
-              const parsed: ParsedSSEData =
-                JSON.parse(
-                  data
-                );
-
-              const token =
-                extractToken(
-                  parsed
-                );
-
-              if (token) {
-                appendTokenToLastMessage(
-                  token
-                );
-              }
-            } catch (err) {
-              console.error(
-                'Final buffer parse error:',
-                err
-              );
-            }
-          }
-        }
-      } catch (error) {
-        if (
-          error instanceof Error &&
-          error.name !==
-            'AbortError'
-        ) {
-          console.error(
-            'Streaming error:',
-            error
-          );
-
-          setMessages((prev) => [
-            ...prev,
-            {
-              role:
-                'assistant',
-              content:
-                'Error conectando con el servidor.'
-            }
-          ]);
-        }
-      } finally {
-        setLoading(false);
-
-        abortControllerRef.current =
-          null;
       }
-    };
 
-  const stopGeneration =
-    (): void => {
-      abortControllerRef.current?.abort();
+      // Process remaining buffer
+      if (buffer.trim()) {
+        const data = parseSSEEvent(buffer);
 
+        if (data && data !== "[DONE]") {
+          try {
+            const parsed: ParsedSSEData = JSON.parse(data);
+
+            if (parsed.type === "thread_id" && parsed.thread_id) {
+              threadIdRef.current = parsed.thread_id;
+              setSelectedSession(parsed.thread_id);
+              setSessionPreviews((prev) => {
+                if (prev[parsed.thread_id!]) return prev;
+                const preview = userMessage.replace(/\s+/g, " ").trim().split(" ").slice(0, 5).join(" ") + (userMessage.split(" ").length > 5 ? "..." : "");
+                return { ...prev, [parsed.thread_id!]: preview };
+              });
+            } else {
+              const token = extractToken(parsed);
+
+              if (token) {
+                appendTokenToLastMessage(token);
+              }
+            }
+          } catch (err) {
+            console.error("Final buffer parse error:", err);
+          }
+        }
+      }
+
+      // Refresh sessions after sending message
+      fetchSessions();
+    } catch (error) {
+      if (error instanceof Error && error.name !== "AbortError") {
+        console.error("Streaming error:", error);
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: "Error conectando con el servidor.",
+          },
+        ]);
+      }
+    } finally {
       setLoading(false);
-    };
+      abortControllerRef.current = null;
+    }
+  };
 
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLTextAreaElement>
-  ): void => {
-    if (
-      e.key === 'Enter' &&
-      !e.shiftKey
-    ) {
+  const stopGeneration = (): void => {
+    abortControllerRef.current?.abort();
+    setLoading(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>): void => {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-
       sendMessage();
     }
   };
@@ -429,108 +432,130 @@ export default function Chat() {
     <main
       className="chat-page"
       style={{
-        background:
-          'var(--theme-bg-primary)',
-        color:
-          'var(--theme-text-primary)'
+        background: "var(--theme-bg-primary)",
+        color: "var(--theme-text-primary)",
       }}
     >
-      <div
-        className="chat-container"
-        style={{
-          background:
-            'var(--theme-bg-secondary)',
-          border:
-            '1px solid var(--theme-border)'
-        }}
+      {/* Mobile sidebar toggle */}
+      <button
+        className="sidebar-toggle"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
       >
-        <div className="chat-messages">
-          {messages.map(
-            (
-              message,
-              index
-            ) => (
-              <div
-                key={index}
-                className={`chat-message ${
-                  message.role ===
-                  'user'
-                    ? 'user-message'
-                    : 'assistant-message'
-                }`}
-              >
-                <div className="chat-role">
-                  {message.role ===
-                  'user'
-                    ? 'Tú'
-                    : 'Agente'}
-                </div>
+        {sidebarOpen ? "Cerrar" : "Sesiones"}
+      </button>
 
-                <div className="chat-content">
-                  {
-                    message.content
-                  }
+      {/* Overlay for mobile */}
+      <div
+        className={`sidebar-overlay ${sidebarOpen ? "visible" : ""}`}
+        onClick={() => setSidebarOpen(false)}
+      />
 
-                  {loading &&
-                    index ===
-                      messages.length -
-                        1 && (
-                      <span className="chat-cursor">
-                        ▋
-                      </span>
-                    )}
-                </div>
-              </div>
-            )
-          )}
-
-          <div
-            ref={bottomRef}
-          />
+      {/* Sidebar */}
+      <aside className={`chat-sidebar ${sidebarOpen ? "open" : ""}`}>
+        <div className="sidebar-header">
+          <span className="sidebar-title">Historial</span>
+          <button className="new-chat-button" onClick={handleNewChat}>
+            + Nuevo
+          </button>
         </div>
 
-        <div
-          className="chat-input-container"
-          style={{
-            borderTop:
-              '1px solid var(--theme-border)'
-          }}
-        >
-          <textarea
-            value={input}
-            onChange={(e) =>
-              setInput(
-                e.target.value
-              )
-            }
-            onKeyDown={
-              handleKeyDown
-            }
-            placeholder="Escribe un mensaje..."
-            className="chat-textarea"
-            rows={1}
-          />
+        <div className="sessions-list">
+          {sessionsLoading ? (
+            <div className="sessions-loading">Cargando sesiones...</div>
+          ) : sessions.length === 0 ? (
+            <div className="sessions-empty">No hay sesiones</div>
+          ) : (
+            sessions.map((session) => (
+              <div
+                key={session.thread_id}
+                className={`session-item ${
+                  selectedSession === session.thread_id ? "active" : ""
+                }`}
+                onClick={() => handleSelectSession(session.thread_id)}
+              >
+                <div className="session-item-content">
+                  <div className="session-preview">
+                    {sessionPreviews[session.thread_id] || session.thread_id.slice(-8)}
+                  </div>
+                  {session.last_update && (
+                    <div className="session-date">
+                      {new Date(session.last_update).toLocaleDateString()}
+                    </div>
+                  )}
+                </div>
+                <button
+                  className="session-delete-btn"
+                  onClick={(e) => handleDeleteSession(e, session.thread_id)}
+                  title="Eliminar sesión"
+                >
+                  ✕
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </aside>
 
-          <div className="chat-buttons">
-            {!loading ? (
-              <button
-                onClick={
-                  sendMessage
-                }
-                className="chat-button"
-              >
-                Enviar
-              </button>
-            ) : (
-              <button
-                onClick={
-                  stopGeneration
-                }
-                className="chat-button stop-button"
-              >
-                Detener
-              </button>
-            )}
+      {/* Main chat area */}
+      <div className="chat-main">
+        <div className="chat-container">
+          {messagesLoading ? (
+            <div className="messages-loading">Cargando mensajes...</div>
+          ) : (
+            <div className="chat-messages">
+              {messages.map((message, index) => (
+                <div
+                  key={index}
+                  className={`chat-message ${
+                    message.role === "user"
+                      ? "user-message"
+                      : "assistant-message"
+                  }`}
+                >
+                  <div className="chat-role">
+                    {message.role === "user" ? "Tu" : "Agente"}
+                  </div>
+
+                  <div className="chat-content">
+                    {message.content}
+
+                    {loading && index === messages.length - 1 && (
+                      <span className="chat-cursor">|</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              <div ref={bottomRef} />
+            </div>
+          )}
+
+          <div className="chat-input-container">
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Escribe un mensaje..."
+              className="chat-textarea"
+              rows={1}
+              disabled={messagesLoading}
+            />
+
+            <div className="chat-buttons">
+              {!loading ? (
+                <button
+                  onClick={sendMessage}
+                  className="chat-button"
+                  disabled={messagesLoading}
+                >
+                  Enviar
+                </button>
+              ) : (
+                <button onClick={stopGeneration} className="chat-button stop-button">
+                  Detener
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

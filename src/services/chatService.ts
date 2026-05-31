@@ -1,0 +1,69 @@
+const CHAT_API_BASE = 'http://localhost:3001/api/chat';
+
+export interface Session {
+  thread_id: string;
+  last_checkpoint_id: string;
+  last_update: string | null;
+}
+
+export interface SessionsResponse {
+  sessions: Session[];
+  count: number;
+}
+
+function handle401() {
+  localStorage.removeItem('jwt_token');
+  localStorage.removeItem('auth_user');
+  window.dispatchEvent(new CustomEvent('auth:logout'));
+}
+
+function authHeaders(): HeadersInit {
+  const token = localStorage.getItem('jwt_token');
+  if (token) {
+    return { Authorization: `Bearer ${token}` };
+  }
+  return {};
+}
+
+export async function fetchSessions(): Promise<SessionsResponse> {
+  const response = await fetch(`${CHAT_API_BASE}/sessions`, {
+    headers: { ...authHeaders() },
+  });
+  if (response.status === 401) handle401();
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json();
+}
+
+export async function fetchSessionMessages(threadId: string) {
+  const response = await fetch(`${CHAT_API_BASE}/sessions/${threadId}/messages`, {
+    headers: { ...authHeaders() },
+  });
+  if (response.status === 401) handle401();
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json();
+}
+
+export async function deleteSession(threadId: string): Promise<void> {
+  const response = await fetch(`${CHAT_API_BASE}/sessions/${threadId}`, {
+    method: 'DELETE',
+    headers: { ...authHeaders() },
+  });
+  if (response.status === 401) handle401();
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+}
+
+export async function streamMessage(body: { message: string; thread_id?: string }, signal?: AbortSignal): Promise<Response> {
+  const response = await fetch(`${CHAT_API_BASE}/stream`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'text/event-stream',
+      ...authHeaders(),
+    },
+    body: JSON.stringify(body),
+    signal,
+  });
+  if (response.status === 401) handle401();
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response;
+}

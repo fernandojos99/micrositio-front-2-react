@@ -1,4 +1,6 @@
-const CHAT_API_BASE = 'http://localhost:3001/api/chat';
+//const CHAT_API_BASE = 'http://localhost:3001/api/chat';
+const CHAT_API_BASE = 'https://micrositio-iris-backend.onrender.com/api/chat';
+
 
 export interface Session {
   thread_id: string;

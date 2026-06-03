@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import {
   deleteSession as deleteSessionApi,
   fetchSessions as fetchSessionsApi,
@@ -56,6 +58,35 @@ export default function Chat() {
   const abortControllerRef = useRef<AbortController | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const previewsFetchedRef = useRef<Set<string>>(new Set());
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null); // <-- Nueva referencia para el textarea
+
+  // Función para ajustar la altura del textarea automáticamente
+  const adjustTextareaHeight = useCallback(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    // Restablecer altura a auto para obtener el scrollHeight real
+    textarea.style.height = "auto";
+
+    // Calcular altura máxima (50% de la altura de la ventana)
+    const maxHeight = window.innerHeight * 0.5;
+    const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+
+    textarea.style.height = `${newHeight}px`;
+    // Mostrar scrollbar solo si supera el máximo
+    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? "auto" : "hidden";
+  }, []);
+
+  // Efecto para ajustar altura cuando cambia el contenido del input
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [input, adjustTextareaHeight]);
+
+  // Opcional: reajustar al cambiar el tamaño de la ventana
+  useEffect(() => {
+    window.addEventListener("resize", adjustTextareaHeight);
+    return () => window.removeEventListener("resize", adjustTextareaHeight);
+  }, [adjustTextareaHeight]);
 
   // Fetch sessions on mount
   useEffect(() => {
@@ -119,17 +150,30 @@ export default function Chat() {
     try {
       setMessagesLoading(true);
       const data = await fetchSessionMessagesApi(threadId);
-
+  
       if (data.messages && Array.isArray(data.messages)) {
+        // 1. Mapear los mensajes al formato interno (rol + contenido)
         const formattedMessages: Message[] = data.messages.map(
           (msg: { role: string; content: string }) => ({
             role: mapRole(msg.role),
             content: msg.content || "",
           })
         );
-
-        if (formattedMessages.length > 0) {
-          setMessages(formattedMessages);
+  
+        // 2. Fusionar mensajes consecutivos del asistente en uno solo
+        const mergedMessages: Message[] = [];
+        for (const msg of formattedMessages) {
+          if (msg.role === "assistant" && mergedMessages.length > 0 && mergedMessages[mergedMessages.length - 1].role === "assistant") {
+            // Concatenar contenido con el último asistente
+            mergedMessages[mergedMessages.length - 1].content += msg.content;
+          } else {
+            mergedMessages.push({ ...msg });
+          }
+        }
+  
+        // 3. Usar los mensajes fusionados en lugar de los originales
+        if (mergedMessages.length > 0) {
+          setMessages(mergedMessages);
         } else {
           setMessages([
             {
@@ -138,7 +182,7 @@ export default function Chat() {
             },
           ]);
         }
-
+  
         setSessionPreviews((prev) => {
           if (prev[threadId]) return prev;
           const preview = extractPreview(data.messages);
@@ -517,10 +561,22 @@ export default function Chat() {
                   </div>
 
                   <div className="chat-content">
-                    {message.content}
-
-                    {loading && index === messages.length - 1 && (
-                      <span className="chat-cursor">|</span>
+                    {message.role === "assistant" ? (
+                      <>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {message.content}
+                        </ReactMarkdown>
+                        {loading && index === messages.length - 1 && (
+                          <span className="chat-cursor">|</span>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        {message.content}
+                        {loading && index === messages.length - 1 && (
+                          <span className="chat-cursor">|</span>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
@@ -532,6 +588,7 @@ export default function Chat() {
 
           <div className="chat-input-container">
             <textarea
+              ref={textareaRef} // Asignar la referencia
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -539,6 +596,10 @@ export default function Chat() {
               className="chat-textarea"
               rows={1}
               disabled={messagesLoading}
+              style={{
+                overflow: "hidden", // Se ajusta dinámicamente con JS
+                resize: "none",     // Evita que el usuario redimensione manualmente
+              }}
             />
 
             <div className="chat-buttons">

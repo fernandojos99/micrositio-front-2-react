@@ -16,8 +16,8 @@ export interface UrlLearningCard {
  * @returns {Promise<UrlLearningCard[]>} Lista de URLs de Learning Cards.
  */
 export const obtenerTodas = async (): Promise<UrlLearningCard[]> => {
-  const response = await apiClient.get('/url_learning_card/');
-  return response.data;
+  const response = await apiClient.get('/urls-learning-card/');
+  return response.data.data;
 };
 
 /**
@@ -26,8 +26,8 @@ export const obtenerTodas = async (): Promise<UrlLearningCard[]> => {
  * @returns {Promise<UrlLearningCard>} URL de Learning Card encontrada.
  */
 export const obtenerPorId = async (id_url_lc: string | number): Promise<UrlLearningCard> => {
-  const response = await apiClient.get('/url_learning_card/u', { params: { id_url_lc } });
-  return response.data;
+  const response = await apiClient.get(`/urls-learning-card/${id_url_lc}`);
+  return response.data.data;
 };
 
 /**
@@ -36,8 +36,8 @@ export const obtenerPorId = async (id_url_lc: string | number): Promise<UrlLearn
  * @returns {Promise<UrlLearningCard[]>} Lista de URLs asociadas a la Learning Card.
  */
 export const obtenerPorLearningCard = async (id_learning_card: string | number): Promise<UrlLearningCard[]> => {
-  const response = await apiClient.get('/url_learning_card/l', { params: { id_learning_card } });
-  return response.data;
+  const response = await apiClient.get('/urls-learning-card/', { params: { learningCardId: id_learning_card } });
+  return response.data.data;
 };
 
 /**
@@ -46,8 +46,8 @@ export const obtenerPorLearningCard = async (id_learning_card: string | number):
  * @returns {Promise<UrlLearningCard>} URL de Learning Card creada.
  */
 export const crear = async (data: Partial<UrlLearningCard>): Promise<UrlLearningCard> => {
-  const response = await apiClient.post('/url_learning_card/', data);
-  return response.data;
+  const response = await apiClient.post('/urls-learning-card/', data);
+  return response.data.data;
 };
 
 /**
@@ -57,8 +57,8 @@ export const crear = async (data: Partial<UrlLearningCard>): Promise<UrlLearning
  * @returns {Promise<UrlLearningCard>} URL de Learning Card actualizada.
  */
 export const actualizar = async (id_url_lc: string | number, data: Partial<UrlLearningCard>): Promise<UrlLearningCard> => {
-  const response = await apiClient.patch('/url_learning_card/', { id_url_lc, ...data });
-  return response.data;
+  const response = await apiClient.patch(`/urls-learning-card/${id_url_lc}`, data);
+  return response.data.data;
 };
 
 /**
@@ -67,6 +67,5 @@ export const actualizar = async (id_url_lc: string | number, data: Partial<UrlLe
  * @returns {Promise<void>}
  */
 export const eliminar = async (id_url_lc: string | number): Promise<void> => {
-  const response = await apiClient.delete('/url_learning_card/', { data: { id_url_lc } });
-  return response.data;
+  await apiClient.delete(`/urls-learning-card/${id_url_lc}`);
 };

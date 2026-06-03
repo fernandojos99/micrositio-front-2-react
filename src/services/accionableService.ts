@@ -17,7 +17,7 @@ export async function obtenerAccionablesPorLearningCard(
 ): Promise<Accionable[]> {
 
   const response = await apiClient.get(
-    `accionables/learning-card/${idLearningCard}/accionables`
+    `/accionables/learning-card/${idLearningCard}/accionables`
   );
 
   return response.data.data;
@@ -31,7 +31,7 @@ export async function obtenerAccionablesPorSecuencia(
 ): Promise<Accionable[]> {
 
   const response = await apiClient.get(
-    `accionables/secuencia/${idSecuencia}/accionables`
+    `/accionables/secuencia/${idSecuencia}/accionables`
   );
 
   return response.data.data;

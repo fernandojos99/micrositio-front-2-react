@@ -132,7 +132,7 @@ export const uploadFormatoDocument = async (file: File): Promise<FormatoDocument
   const formData = new FormData();
   formData.append('document', file);
 
-  const endpoint = '/formato/upload';
+  const endpoint = '/formatos/upload';
   console.log('[formatoDocumentService] Subiendo documento a:', endpoint);
   console.log('[formatoDocumentService] Archivo:', file.name);
 
@@ -159,7 +159,7 @@ export const uploadFormatoDocument = async (file: File): Promise<FormatoDocument
  */
 export const getFormatoDocuments = async (): Promise<FormatoDocument[]> => {
   try {
-    const endpoint = '/formato/';
+    const endpoint = '/formatos/';
     console.log('[formatoDocumentService] Llamando endpoint:', endpoint);
     //console.log('[formatoDocumentService] URL completa:', `http://localhost:3000${endpoint}`);
     
@@ -233,7 +233,7 @@ export const getFormatoDocuments = async (): Promise<FormatoDocument[]> => {
  * @returns {Promise<FormatoDocument>} Documento encontrado.
  */
 export const getFormatoDocumentById = async (documentId: string): Promise<FormatoDocument> => {
-  const endpoint = `/formato/${documentId}`;
+  const endpoint = `/formatos/${documentId}`;
   console.log('[formatoDocumentService] Obteniendo documento:', endpoint);
   
   const response = await apiClient.get<{ success: boolean; data: FormatoDocument }>(endpoint);
@@ -261,7 +261,7 @@ export const updateFormatoDocument = async (
       throw new Error('ID de documento inválido o vacío');
     }
 
-    const endpoint = `/formato/${documentId}`;
+    const endpoint = `/formatos/${documentId}`;
     console.log('[formatoDocumentService] Actualizando documento:', endpoint);
     console.log('[formatoDocumentService] Document ID:', documentId);
     console.log('[formatoDocumentService] Update data:', updateData);
@@ -309,7 +309,7 @@ export const deleteFormatoDocument = async (documentId: string): Promise<void> =
       throw new Error('ID de documento inválido o vacío');
     }
 
-    const endpoint = `/formato/${documentId}`;
+    const endpoint = `/formatos/${documentId}`;
     console.log('[formatoDocumentService] Eliminando documento:', endpoint);
     console.log('[formatoDocumentService] Document ID:', documentId);
     

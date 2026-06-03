@@ -17,8 +17,8 @@ export interface UrlFormato {
  * @returns {Promise<UrlFormato[]>} Lista de URLs de Formato.
  */
 export const obtenerTodas = async (): Promise<UrlFormato[]> => {
-  const response = await apiClient.get('/url_formato');
-  return response.data;
+  const response = await apiClient.get('/urls-formatos');
+  return response.data.data;
 };
 
 /**
@@ -27,8 +27,8 @@ export const obtenerTodas = async (): Promise<UrlFormato[]> => {
  * @returns {Promise<UrlFormato>} URL de Formato encontrada.
  */
 export const obtenerPorId = async (id_url_formato: string | number): Promise<UrlFormato> => {
-  const response = await apiClient.get(`/url_formato/${id_url_formato}`);
-  return response.data;
+  const response = await apiClient.get(`/urls-formatos/${id_url_formato}`);
+  return response.data.data;
 };
 
 /**
@@ -44,10 +44,10 @@ export const crear = async (data: Partial<UrlFormato>): Promise<UrlFormato> => {
   console.log('[urlFormatoService] Descripción:', data.descripcion);
   console.log('[urlFormatoService] =======================');
   
-  const response = await apiClient.post('/url_formato/crear', data);
+  const response = await apiClient.post('/urls-formatos', data);
   
   console.log('[urlFormatoService] Respuesta del backend:', response.data);
-  return response.data;
+  return response.data.data;
 };
 
 /**
@@ -65,10 +65,10 @@ export const actualizar = async (id_url_formato: string | number, data: Partial<
   console.log('[urlFormatoService] Descripción:', data.descripcion);
   console.log('[urlFormatoService] =======================');
   
-  const response = await apiClient.patch(`/url_formato/${id_url_formato}`, data);
+  const response = await apiClient.patch(`/urls-formatos/${id_url_formato}`, data);
   
   console.log('[urlFormatoService] Respuesta del backend:', response.data);
-  return response.data;
+  return response.data.data;
 };
 
 /**
@@ -77,6 +77,6 @@ export const actualizar = async (id_url_formato: string | number, data: Partial<
  * @returns {Promise<void>}
  */
 export const eliminar = async (id_url_formato: string | number): Promise<void> => {
-  const response = await apiClient.delete(`/url_formato/${id_url_formato}`);
-  return response.data;
+  const response = await apiClient.delete(`/urls-formatos/${id_url_formato}`);
+  return response.data.data;
 };

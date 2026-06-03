@@ -19,8 +19,8 @@ export interface LearningCard {
  * @returns {Promise<LearningCard[]>} Lista de Learning Cards.
  */
 export const obtenerTodos = async (): Promise<LearningCard[]> => {
-  const response = await apiClient.get('/learning_card/');
-  return response.data;
+  const response = await apiClient.get('/learning-cards/');
+  return response.data.data;
 };
 
 /**
@@ -29,8 +29,8 @@ export const obtenerTodos = async (): Promise<LearningCard[]> => {
  * @returns {Promise<LearningCard>} Learning Card encontrada.
  */
 export const obtenerPorId = async (id_learning_card: string | number): Promise<LearningCard> => {
-  const response = await apiClient.get(`/learning_card/l`, { params: { id_learning_card } });
-  return response.data;
+  const response = await apiClient.get(`/learning-cards/${id_learning_card}`);
+  return response.data.data;
 };
 
 /**
@@ -39,8 +39,8 @@ export const obtenerPorId = async (id_learning_card: string | number): Promise<L
  * @returns {Promise<LearningCard[]>} Lista de Learning Cards asociadas.
  */
 export const obtenerPorTestingCard = async (id_testing_card: string | number): Promise<LearningCard[]> => {
-  const response = await apiClient.get(`/learning_card/t`, { params: { id_testing_card } });
-  return response.data;
+  const response = await apiClient.get('/learning-cards', { params: { testingCardId: id_testing_card } });
+  return response.data.data;
 };
 
 /**
@@ -49,8 +49,8 @@ export const obtenerPorTestingCard = async (id_testing_card: string | number): P
  * @returns {Promise<LearningCard>} Learning Card creada.
  */
 export const crear = async (data: Partial<LearningCard>): Promise<LearningCard> => {
-  const response = await apiClient.post('/learning_card/', data);
-  return response.data;
+  const response = await apiClient.post('/learning-cards/', data);
+  return response.data.data;
 };
 
 /**
@@ -60,8 +60,8 @@ export const crear = async (data: Partial<LearningCard>): Promise<LearningCard> 
  * @returns {Promise<LearningCard>} Learning Card actualizada.
  */
 export const actualizar = async (id_learning_card: string | number, data: Partial<LearningCard>): Promise<LearningCard> => {
-  const response = await apiClient.patch('/learning_card/', { id_learning_card, ...data });
-  return response.data;
+  const response = await apiClient.patch(`/learning-cards/${id_learning_card}`, data);
+  return response.data.data;
 };
 
 /**
@@ -70,6 +70,6 @@ export const actualizar = async (id_learning_card: string | number, data: Partia
  * @returns {Promise<void>}
  */
 export const eliminar = async (id_learning_card: string | number): Promise<void> => {
-  const response = await apiClient.delete('/learning_card/', { data: { id_learning_card } });
-  return response.data;
+  const response = await apiClient.delete(`/learning-cards/${id_learning_card}`);
+  return response.data.data;
 };

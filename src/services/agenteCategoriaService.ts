@@ -9,8 +9,8 @@ export interface CategoriaAgente {
  * @returns {Promise<CategoriaAgente[]>} Lista de todas las categorías
  */
 export const obtenerCategoriasAgentes = async (): Promise<CategoriaAgente[]> => {
-  const response = await apiClient.get('/agente_categoria/categorias');
-  return response.data;
+  const response = await apiClient.get('/agentes-categorias/categorias');
+  return response.data.data;
 }
 
 

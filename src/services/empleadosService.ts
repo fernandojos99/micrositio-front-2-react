@@ -105,8 +105,8 @@ export const obtenerEmpleadosResumen = async (): Promise<EmpleadoResumen[]> => {
     apiClient.get('/proyectos')
   ]);
 
-  const empleados = empleadosRes.data;
-  const proyectos = proyectosRes.data || [];
+  const empleados = empleadosRes.data.data;
+  const proyectos = proyectosRes.data.data || [];
 
   // 🔹 2. Agrupar proyectos por id_lider
   const proyectosPorLider: Record<number, any[]> = {};
@@ -237,7 +237,7 @@ export const obtenerEmpleadosResumen = async (): Promise<EmpleadoResumen[]> => {
  */
 export const obtenerEmpleados = async (): Promise<Empleado[]> => {
   const response = await apiClient.get('/empleados/todos');
-  return response.data;
+  return response.data.data;
 };
 
 /**
@@ -246,16 +246,8 @@ export const obtenerEmpleados = async (): Promise<Empleado[]> => {
  * @returns {Promise<Empleado>} Los datos del empleado
  */
 export const obtenerEmpleadoPorId = async (id: number): Promise<Empleado> => {
-  const response = await apiClient.request({
-    method: 'POST',
-    url: '/empleados',
-    data: { id },
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
-  
-  return response.data;
+  const response = await apiClient.get(`/empleados/${id}`);
+  return response.data.data;
 };
 
 /**
@@ -264,8 +256,8 @@ export const obtenerEmpleadoPorId = async (id: number): Promise<Empleado> => {
  * @returns {Promise<Empleado>} El empleado creado
  */
 export const crearEmpleado = async (empleadoData: CrearEmpleadoData): Promise<Empleado> => {
-  const response = await apiClient.post('/empleados/', empleadoData);
-  return response.data;
+  const response = await apiClient.post('/empleados/create', empleadoData);
+  return response.data.data;
 };
 
 /**
@@ -274,8 +266,9 @@ export const crearEmpleado = async (empleadoData: CrearEmpleadoData): Promise<Em
  * @returns {Promise<Empleado>} El empleado actualizado
  */
 export const actualizarEmpleado = async (empleadoData: ActualizarEmpleadoData): Promise<Empleado> => {
-  const response = await apiClient.patch('/empleados/', empleadoData);
-  return response.data;
+  const { id, ...data } = empleadoData;
+  const response = await apiClient.patch(`/empleados/${id}`, data);
+  return response.data.data;
 };
 
 /**
@@ -284,10 +277,8 @@ export const actualizarEmpleado = async (empleadoData: ActualizarEmpleadoData): 
  * @returns {Promise<Empleado>} El empleado desactivado
  */
 export const desactivarEmpleado = async (id: number): Promise<Empleado> => {
-  const response = await apiClient.delete('/empleados/', {
-    data: { id }
-  });
-  return response.data;
+  const response = await apiClient.delete(`/empleados/${id}`);
+  return response.data.data;
 };
 
 /**
@@ -296,7 +287,7 @@ export const desactivarEmpleado = async (id: number): Promise<Empleado> => {
  */
 export const obtenerEmpleadosSinUsuario = async (): Promise<Empleado[]> => {
   const response = await apiClient.get('/empleados/sin-usuario');
-  return response.data;
+  return response.data.data;
 };
 
 /**

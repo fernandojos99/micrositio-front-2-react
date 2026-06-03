@@ -5,16 +5,16 @@ import apiClient from '../apiClient';
  */
 // Obtener todas las posiciones de nodos para una secuencia
 export const obtenerPosicionesSecuencia = async (id_secuencia: string | number) => {
-  const response = await apiClient.get(`/flow-positions/${id_secuencia}`);
-  return response.data;
+  const response = await apiClient.get(`/posiciones-flujo/secuencia/${id_secuencia}`);
+  return response.data.data;
 };
 
 /**
  * Servicio para obtener las posiciones de un nodo dado su id 
  */
 export const obtenerPosicionesPorId = async (id_nodo: string | number, node_type: 'testing' | 'learning', id_secuencia: number) => {
-  const response = await apiClient.get(`/flow-positions/${id_nodo}/${node_type}/${id_secuencia}`);
-  return response.data;
+  const response = await apiClient.get(`/posiciones-flujo/nodo/${id_nodo}/${node_type}/${id_secuencia}`);
+  return response.data.data;
 };
 
 
@@ -26,8 +26,8 @@ export const guardarPosicionNodo = async (posicionData: {
   position_x: number;
   position_y: number;
 }) => {
-  const response = await apiClient.post('/flow-positions', posicionData);
-  return response.data;
+  const response = await apiClient.post('/posiciones-flujo', posicionData);
+  return response.data.data;
 };
 
 // Guardar múltiples posiciones en lote
@@ -40,22 +40,22 @@ export const guardarPosicionesLote = async (posiciones: Array<{
 }>) => {
   // Intentar diferentes formatos según lo que espere tu backend
   try {
-    // Opción 1: endpoint /flow-positions/batch con array directo
-    const response = await apiClient.post('/flow-positions/batch', posiciones);
-    return response.data;
+    // Opción 1: endpoint /posiciones-flujo/batch con array directo
+    const response = await apiClient.post('/posiciones-flujo/batch', posiciones);
+    return response.data.data;
   } catch (error) {
     console.log('Fallo opción 1, intentando opción 2...');
     
     try {
-      // Opción 2: endpoint /flow-positions con array envuelto
-      const response = await apiClient.post('/flow-positions', { posiciones });
-      return response.data;
+      // Opción 2: endpoint /posiciones-flujo con array envuelto
+      const response = await apiClient.post('/posiciones-flujo', { posiciones });
+      return response.data.data;
     } catch (error2) {
       console.log('Fallo opción 2, intentando opción 3...');
       
-      // Opción 3: endpoint /flow-positions con array directo
-      const response = await apiClient.post('/flow-positions', posiciones);
-      return response.data;
+      // Opción 3: endpoint /posiciones-flujo con array directo
+      const response = await apiClient.post('/posiciones-flujo', posiciones);
+      return response.data.data;
     }
   }
 };
@@ -83,6 +83,6 @@ export const guardarPosicionesIndividual = async (posiciones: Array<{
 
 // Limpiar todas las posiciones de una secuencia
 export const limpiarPosicionesSecuencia = async (id_secuencia: string | number) => {
-  const response = await apiClient.delete(`/flow-positions/${id_secuencia}`);
-  return response.data;
+  const response = await apiClient.delete(`/posiciones-flujo/secuencia/${id_secuencia}`);
+  return response.data.data;
 };

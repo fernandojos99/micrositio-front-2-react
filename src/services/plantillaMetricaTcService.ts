@@ -24,8 +24,8 @@ export interface ActualizarPlantillaMetricaTcData {
  * @returns {Promise<PlantillaMetricaTc[]>} Lista de todas las plantillas métrica TC
  */
 export const obtenerPlantillasMetricaTc = async (): Promise<PlantillaMetricaTc[]> => {
-  const response = await apiClient.get('/plantilla-metrica-tc/');
-  return response.data;
+  const response = await apiClient.get('/plantillas-metricas-tc/');
+  return response.data.data;
 };
 
 /**
@@ -34,8 +34,8 @@ export const obtenerPlantillasMetricaTc = async (): Promise<PlantillaMetricaTc[]
  * @returns {Promise<PlantillaMetricaTc[]>} Lista de plantillas métrica TC del empleado
  */
 export const obtenerPlantillasMetricaTcPorEmpleado = async (idEmpleado: number): Promise<PlantillaMetricaTc[]> => {
-  const response = await apiClient.get(`/plantilla-metrica-tc/empleado/${idEmpleado}`);
-  return response.data;
+  const response = await apiClient.get(`/plantillas-metricas-tc/empleado/${idEmpleado}`);
+  return response.data.data;
 };
 
 /**
@@ -44,8 +44,8 @@ export const obtenerPlantillasMetricaTcPorEmpleado = async (idEmpleado: number):
  * @returns {Promise<PlantillaMetricaTc[]>} Lista de plantillas métrica TC de la métrica
  */
 export const obtenerPlantillasMetricaTcPorMetrica = async (idMetrica: number): Promise<PlantillaMetricaTc[]> => {
-  const response = await apiClient.get(`/plantilla-metrica-tc/metrica/${idMetrica}`);
-  return response.data;
+  const response = await apiClient.get(`/plantillas-metricas-tc/metrica/${idMetrica}`);
+  return response.data.data;
 };
 
 /**
@@ -54,8 +54,8 @@ export const obtenerPlantillasMetricaTcPorMetrica = async (idMetrica: number): P
  * @returns {Promise<PlantillaMetricaTc>} Los datos de la plantilla métrica TC
  */
 export const obtenerPlantillaMetricaTcPorId = async (id: string): Promise<PlantillaMetricaTc> => {
-  const response = await apiClient.get(`/plantilla-metrica-tc/${id}`);
-  return response.data;
+  const response = await apiClient.get(`/plantillas-metricas-tc/${id}`);
+  return response.data.data;
 };
 
 /**
@@ -64,8 +64,8 @@ export const obtenerPlantillaMetricaTcPorId = async (id: string): Promise<Planti
  * @returns {Promise<PlantillaMetricaTc>} La plantilla métrica TC creada
  */
 export const crearPlantillaMetricaTc = async (plantillaData: CrearPlantillaMetricaTcData): Promise<PlantillaMetricaTc> => {
-  const response = await apiClient.post('/plantilla-metrica-tc/', plantillaData);
-  return response.data;
+  const response = await apiClient.post('/plantillas-metricas-tc/', plantillaData);
+  return response.data.data;
 };
 
 /**
@@ -74,8 +74,9 @@ export const crearPlantillaMetricaTc = async (plantillaData: CrearPlantillaMetri
  * @returns {Promise<PlantillaMetricaTc>} La plantilla métrica TC actualizada
  */
 export const actualizarPlantillaMetricaTc = async (plantillaData: ActualizarPlantillaMetricaTcData): Promise<PlantillaMetricaTc> => {
-  const response = await apiClient.patch('/plantilla-metrica-tc/', plantillaData);
-  return response.data;
+  const { id, ...data } = plantillaData;
+  const response = await apiClient.patch(`/plantillas-metricas-tc/${id}`, data);
+  return response.data.data;
 };
 
 /**
@@ -84,8 +85,6 @@ export const actualizarPlantillaMetricaTc = async (plantillaData: ActualizarPlan
  * @returns {Promise<PlantillaMetricaTc>} La plantilla métrica TC eliminada
  */
 export const eliminarPlantillaMetricaTc = async (id: string): Promise<PlantillaMetricaTc> => {
-  const response = await apiClient.delete('/plantilla-metrica-tc/', {
-    data: { id }
-  });
-  return response.data;
+  const response = await apiClient.delete(`/plantillas-metricas-tc/${id}`);
+  return response.data.data;
 };

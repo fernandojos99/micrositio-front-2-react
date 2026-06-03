@@ -127,7 +127,7 @@ export const uploadDocument = async (
   const formData = new FormData();
   formData.append('document', file);
 
-  const endpoint = `/api/learning-card/${learningCardId}/documents`;
+  const endpoint = `/learning-cards/${learningCardId}/documentos`;
   //console.log('[learningCardDocumentService] Subiendo documento a:', endpoint);
   //console.log('[learningCardDocumentService] Archivo:', file.name);
 
@@ -157,7 +157,7 @@ export const getDocumentsByLearningCard = async (
   learningCardId: number
 ): Promise<LearningCardDocument[]> => {
   try {
-    const endpoint = `/api/learning-card/${learningCardId}/documents`;
+    const endpoint = `/learning-cards/${learningCardId}/documentos`;
     //console.log('[learningCardDocumentService] Llamando endpoint:', endpoint);
     //console.log('[learningCardDocumentService] URL completa:', `http://localhost:3000${endpoint}`);
     
@@ -222,7 +222,7 @@ export const getDocumentsByLearningCard = async (
  * @returns {Promise<LearningCardDocument>} Documento encontrado.
  */
 export const getDocumentById = async (documentId: string): Promise<LearningCardDocument> => {
-  const endpoint = `/api/learning-card/documents/${documentId}`;
+  const endpoint = `/learning-cards/documentos/${documentId}`;
   //console.log('[learningCardDocumentService] Obteniendo documento:', endpoint);
   
   const response = await apiClient.get<{ success: boolean; data: LearningCardDocument }>(endpoint);
@@ -246,7 +246,7 @@ export const deleteDocument = async (documentId: string): Promise<void> => {
       throw new Error('ID de documento inválido o vacío');
     }
 
-    const endpoint = `/api/learning-card/documents/${documentId}`;
+    const endpoint = `/learning-cards/documentos/${documentId}`;
     //console.log('[learningCardDocumentService] Eliminando documento:', endpoint);
     //console.log('[learningCardDocumentService] Document ID:', documentId);
     

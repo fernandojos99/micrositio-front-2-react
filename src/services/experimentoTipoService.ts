@@ -17,8 +17,8 @@ export interface ExperimentoTipo {
  * @returns {Promise<ExperimentoTipo[]>} Lista de tipos de experimento.
  */
 export const obtenerTodos = async (): Promise<ExperimentoTipo[]> => {
-  const response = await apiClient.get('/experimento_tipo');
-  return response.data;
+  const response = await apiClient.get('/experimentos-tipos');
+  return response.data.data;
 };
 
 /**
@@ -27,8 +27,8 @@ export const obtenerTodos = async (): Promise<ExperimentoTipo[]> => {
  * @returns {Promise<ExperimentoTipo>} Tipo de experimento encontrado.
  */
 export const obtenerPorId = async (id_experimento_tipo: number): Promise<ExperimentoTipo> => {
-  const response = await apiClient.get(`/experimento_tipo/${id_experimento_tipo}`);
-  return response.data;
+  const response = await apiClient.get(`/experimentos-tipos/${id_experimento_tipo}`);
+  return response.data.data;
 };
 
 /**
@@ -37,8 +37,8 @@ export const obtenerPorId = async (id_experimento_tipo: number): Promise<Experim
  * @returns {Promise<ExperimentoTipo>} Tipo de experimento creado.
  */
 export const crear = async (data: Partial<ExperimentoTipo>): Promise<ExperimentoTipo> => {
-  const response = await apiClient.post('/experimento_tipo', data);
-  return response.data;
+  const response = await apiClient.post('/experimentos-tipos', data);
+  return response.data.data;
 };
 
 /**
@@ -51,8 +51,8 @@ export const actualizar = async (
   id_experimento_tipo: number,
   data: Partial<ExperimentoTipo>
 ): Promise<ExperimentoTipo> => {
-  const response = await apiClient.patch(`/experimento_tipo/${id_experimento_tipo}`, data);
-  return response.data;
+  const response = await apiClient.patch(`/experimentos-tipos/${id_experimento_tipo}`, data);
+  return response.data.data;
 };
 
 /**
@@ -61,5 +61,5 @@ export const actualizar = async (
  * @returns {Promise<void>}
  */
 export const eliminar = async (id_experimento_tipo: number): Promise<void> => {
-  await apiClient.delete(`/experimento_tipo/${id_experimento_tipo}`);
+  await apiClient.delete(`/experimentos-tipos/${id_experimento_tipo}`);
 };

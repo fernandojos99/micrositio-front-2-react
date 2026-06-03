@@ -16,8 +16,8 @@ export interface UrlTestingCard {
  * @returns {Promise<UrlTestingCard[]>} Lista de URLs de Testing Cards.
  */
 export const obtenerTodas = async (): Promise<UrlTestingCard[]> => {
-  const response = await apiClient.get('/url_testing_card/');
-  return response.data;
+  const response = await apiClient.get('/urls-testing-card/');
+  return response.data.data;
 };
 
 /**
@@ -26,8 +26,8 @@ export const obtenerTodas = async (): Promise<UrlTestingCard[]> => {
  * @returns {Promise<UrlTestingCard>} URL de Testing Card encontrada.
  */
 export const obtenerPorId = async (id_url_tc: string | number): Promise<UrlTestingCard> => {
-  const response = await apiClient.get('/url_testing_card/u', { params: { id_url_tc } });
-  return response.data;
+  const response = await apiClient.get(`/urls-testing-card/${id_url_tc}`);
+  return response.data.data;
 };
 
 /**
@@ -36,8 +36,8 @@ export const obtenerPorId = async (id_url_tc: string | number): Promise<UrlTesti
  * @returns {Promise<UrlTestingCard[]>} Lista de URLs asociadas a la Testing Card.
  */
 export const obtenerPorTestingCard = async (id_testing_card: string | number): Promise<UrlTestingCard[]> => {
-  const response = await apiClient.get('/url_testing_card/t', { params: { id_testing_card } });
-  return response.data;
+  const response = await apiClient.get('/urls-testing-card/', { params: { testingCardId: id_testing_card } });
+  return response.data.data;
 };
 
 /**
@@ -46,8 +46,8 @@ export const obtenerPorTestingCard = async (id_testing_card: string | number): P
  * @returns {Promise<UrlTestingCard>} URL de Testing Card creada.
  */
 export const crear = async (data: Partial<UrlTestingCard>): Promise<UrlTestingCard> => {
-  const response = await apiClient.post('/url_testing_card/', data);
-  return response.data;
+  const response = await apiClient.post('/urls-testing-card/', data);
+  return response.data.data;
 };
 
 /**
@@ -57,8 +57,8 @@ export const crear = async (data: Partial<UrlTestingCard>): Promise<UrlTestingCa
  * @returns {Promise<UrlTestingCard>} URL de Testing Card actualizada.
  */
 export const actualizar = async (id_url_tc: string | number, data: Partial<UrlTestingCard>): Promise<UrlTestingCard> => {
-  const response = await apiClient.patch('/url_testing_card/', { id_url_tc, ...data });
-  return response.data;
+  const response = await apiClient.patch(`/urls-testing-card/${id_url_tc}`, data);
+  return response.data.data;
 };
 
 /**
@@ -67,6 +67,5 @@ export const actualizar = async (id_url_tc: string | number, data: Partial<UrlTe
  * @returns {Promise<void>}
  */
 export const eliminar = async (id_url_tc: string | number): Promise<void> => {
-  const response = await apiClient.delete('/url_testing_card/', { data: { id_url_tc } });
-  return response.data;
+  await apiClient.delete(`/urls-testing-card/${id_url_tc}`);
 };

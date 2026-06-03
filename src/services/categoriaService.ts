@@ -16,7 +16,7 @@ export interface Categoria {
  */
 export const obtenerTodas = async (): Promise<Categoria[]> => {
   const response = await apiClient.get('/categorias');
-  return response.data;
+  return response.data.data;
 };
 
 /**
@@ -25,8 +25,8 @@ export const obtenerTodas = async (): Promise<Categoria[]> => {
  * @returns {Promise<Categoria>} La categoría encontrada.
  */
 export const obtenerPorId = async (id_categoria: number): Promise<Categoria> => {
-  const response = await apiClient.post('/categoria', { id_categoria });
-  return response.data;
+  const response = await apiClient.get(`/categorias/${id_categoria}`);
+  return response.data.data;
 };
 
 /**
@@ -35,8 +35,8 @@ export const obtenerPorId = async (id_categoria: number): Promise<Categoria> => 
  * @returns {Promise<Categoria>} La categoría creada con sus campos autogenerados.
  */
 export const crear = async (data: Omit<Categoria, 'id_categoria' | 'created_at' | 'updated_at'>): Promise<Categoria> => {
-  const response = await apiClient.post('/categoria/crear', data);
-  return response.data;
+  const response = await apiClient.post('/categorias', data);
+  return response.data.data;
 };
 
 /**
@@ -49,8 +49,8 @@ export const actualizar = async (
   id_categoria: number,
   data: Partial<Omit<Categoria, 'id_categoria' | 'created_at' | 'updated_at'>>
 ): Promise<Categoria> => {
-  const response = await apiClient.patch('/categoria', { id_categoria, ...data });
-  return response.data;
+  const response = await apiClient.patch(`/categorias/${id_categoria}`, data);
+  return response.data.data;
 };
 
 /**
@@ -59,5 +59,5 @@ export const actualizar = async (
  * @returns {Promise<void>}
  */
 export const eliminar = async (id_categoria: number): Promise<void> => {
-  await apiClient.delete('/categoria', { data: { id_categoria } });
+  await apiClient.delete(`/categorias/${id_categoria}`);
 };

@@ -33,8 +33,8 @@ export interface PlantillaSecuenciaResponse {
  * @returns {Promise<PlantillaSecuenciaResponse>} Respuesta con lista de todas las plantillas secuencia
  */
 export const obtenerPlantillasSecuencia = async (): Promise<PlantillaSecuenciaResponse> => {
-  const response = await apiClient.get('/plantilla_secuencia/');
-  return response.data;
+  const response = await apiClient.get('/plantillas-secuencias/');
+  return response.data.data;
 };
 
 /**
@@ -43,8 +43,8 @@ export const obtenerPlantillasSecuencia = async (): Promise<PlantillaSecuenciaRe
  * @returns {Promise<PlantillaSecuencia>} Los datos de la plantilla secuencia
  */
 export const obtenerPlantillaSecuenciaPorId = async (id: string): Promise<PlantillaSecuencia> => {
-  const response = await apiClient.get(`/plantilla_secuencia/${id}`);
-  return response.data;
+  const response = await apiClient.get(`/plantillas-secuencias/${id}`);
+  return response.data.data;
 };
 
 /**
@@ -53,7 +53,7 @@ export const obtenerPlantillaSecuenciaPorId = async (id: string): Promise<Planti
  * @returns {Promise<PlantillaSecuencia>} Los datos de la plantilla secuencia
  */
 export const obtenerPlantillaSecuenciaPorIdSecuencia = async (id: number): Promise<PlantillaSecuencia> => {
-  const response = await apiClient.get(`/plantilla_secuencia/secuencia/${id}`);
+  const response = await apiClient.get(`/plantillas-secuencias/secuencia/${id}`);
   console.log('obtenerPlantillaSecuenciaPorIdSecuencia - response completa:', response.data);
   
   // El backend devuelve {success: true, data: PlantillaSecuencia}
@@ -64,7 +64,7 @@ export const obtenerPlantillaSecuenciaPorIdSecuencia = async (id: number): Promi
   
   // Fallback si no tiene la estructura esperada
   console.log('Usando response.data directamente como fallback');
-  return response.data;
+  return response.data.data;
 };
 
 /**
@@ -73,8 +73,8 @@ export const obtenerPlantillaSecuenciaPorIdSecuencia = async (id: number): Promi
  * @returns {Promise<PlantillaSecuencia>} La plantilla secuencia creada
  */
 export const crearPlantillaSecuencia = async (plantillaData: CrearPlantillaSecuenciaData): Promise<PlantillaSecuencia> => {
-  const response = await apiClient.post('/plantilla_secuencia/', plantillaData);
-  return response.data;
+  const response = await apiClient.post('/plantillas-secuencias/', plantillaData);
+  return response.data.data;
 };
 
 /**
@@ -87,8 +87,8 @@ export const actualizarPlantillaSecuencia = async (
   id: string, 
   plantillaData: Partial<CrearPlantillaSecuenciaData>
 ): Promise<PlantillaSecuencia> => {
-  const response = await apiClient.put(`/plantilla_secuencia/${id}`, plantillaData);
-  return response.data;
+  const response = await apiClient.put(`/plantillas-secuencias/${id}`, plantillaData);
+  return response.data.data;
 };
 
 /**
@@ -97,7 +97,7 @@ export const actualizarPlantillaSecuencia = async (
  * @returns {Promise<void>} Confirmación de eliminación
  */
 export const eliminarPlantillaSecuencia = async (id: string): Promise<void> => {
-  await apiClient.delete(`/plantilla_secuencia/${id}`);
+  await apiClient.delete(`/plantillas-secuencias/${id}`);
 };
 
 

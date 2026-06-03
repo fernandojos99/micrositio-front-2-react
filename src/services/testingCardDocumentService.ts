@@ -124,7 +124,7 @@ export const uploadDocument = async (
   formData.append('document', file);
 
   const response = await apiClient.post<DocumentUploadResponse>(
-    `/api/testing-card/${testingCardId}/documents`,
+    `/testing-cards/${testingCardId}/documentos`,
     formData,
     {
       headers: {
@@ -148,7 +148,7 @@ export const uploadDocument = async (
 export const getDocumentsByTestingCard = async (
   testingCardId: number
 ): Promise<TestingCardDocument[]> => {
-  const endpoint = `/api/testing-card/${testingCardId}/documents`;
+  const endpoint = `/testing-cards/${testingCardId}/documentos`;
   console.log('[testingCardDocumentService] Llamando endpoint:', endpoint);
   console.log('[testingCardDocumentService] URL completa:', `http://localhost:3000${endpoint}`);
   
@@ -168,7 +168,7 @@ export const getDocumentsByTestingCard = async (
  */
 export const deleteDocument = async (documentId: string): Promise<void> => {
   const response = await apiClient.delete<DocumentDeleteResponse>(
-    `/api/documents/${documentId}`
+    `/testing-cards/documentos/${documentId}`
   );
 
   if (!response.data.success) {

@@ -31,7 +31,7 @@ export interface ActualizarAgenteData {
  */
 export const obtenerAgentes = async (): Promise<Agente[]> => {
   const response = await apiClient.get('/agentes/');
-  return response.data;
+  return response.data.data;
 };
 
 /**
@@ -39,7 +39,7 @@ export const obtenerAgentes = async (): Promise<Agente[]> => {
  */
 export const listarPorCategoria = async (idCategoria: number): Promise<Agente[]> => {
   const response = await apiClient.get(`/agentes/categoria/${idCategoria}`);
-  return response.data;
+  return response.data.data;
 };
 
 /**
@@ -61,7 +61,7 @@ export const obtenerAgentePorId = async (idAgente: number): Promise<Agente> => {
   });
   
   // console.log('Respuesta del servidor:', response.data);
-  return response.data;
+  return response.data.data;
 };
 
 /**
@@ -71,7 +71,7 @@ export const obtenerAgentePorId = async (idAgente: number): Promise<Agente> => {
  */
 export const crearAgente = async (agenteData: CrearAgenteData): Promise<Agente> => {
   const response = await apiClient.post('/agentes/', agenteData);
-  return response.data;
+  return response.data.data;
 };
 
 /**
@@ -80,11 +80,9 @@ export const crearAgente = async (agenteData: CrearAgenteData): Promise<Agente> 
  * @returns {Promise<Agente>} El agente actualizado
  */
 export const actualizarAgente = async (agenteData: ActualizarAgenteData): Promise<Agente> => {
-  // console.log('actualizarAgente - Datos recibidos:', JSON.stringify(agenteData, null, 2));
-  // console.log('actualizarAgente - Tipo de ID:', typeof agenteData.id);
-  
-  const response = await apiClient.patch('/agentes/', agenteData);
-  return response.data;
+  const { id, ...data } = agenteData;
+  const response = await apiClient.patch(`/agentes/${id}`, data);
+  return response.data.data;
 };
 
 /**
@@ -93,8 +91,6 @@ export const actualizarAgente = async (agenteData: ActualizarAgenteData): Promis
  * @returns {Promise<Agente>} El agente eliminado
  */
 export const eliminarAgente = async (id: number): Promise<Agente> => {
-  const response = await apiClient.delete('/agentes/', {
-    data: { id }
-  });
-  return response.data;
+  const response = await apiClient.delete(`/agentes/${id}`);
+  return response.data.data;
 };

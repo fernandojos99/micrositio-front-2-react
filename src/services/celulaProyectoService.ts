@@ -15,8 +15,8 @@ export interface CelulaProyecto {
  * @returns {Promise<CelulaProyecto[]>} Lista de relaciones célula-proyecto.
  */
 export const obtenerTodos = async (): Promise<CelulaProyecto[]> => {
-  const response = await apiClient.get('/celula_proyecto');
-  return response.data;
+  const response = await apiClient.get('/celulas-proyecto');
+  return response.data.data;
 };
 
 /**
@@ -25,8 +25,8 @@ export const obtenerTodos = async (): Promise<CelulaProyecto[]> => {
  * @returns {Promise<CelulaProyecto[]>} Lista de relaciones célula-proyecto asociadas al empleado.
  */
 export const obtenerPorEmpleado = async (id_empleado: number): Promise<CelulaProyecto[]> => {
-  const response = await apiClient.post('/celula_proyecto/e', { id_empleado });
-  return response.data;
+  const response = await apiClient.get(`/celulas-proyecto?empleadoId=${id_empleado}`);
+  return response.data.data;
 };
 
 /**
@@ -35,8 +35,8 @@ export const obtenerPorEmpleado = async (id_empleado: number): Promise<CelulaPro
  * @returns {Promise<CelulaProyecto[]>} Lista de relaciones célula-proyecto asociadas al proyecto.
  */
 export const obtenerPorProyecto = async (id_proyecto: number): Promise<CelulaProyecto[]> => {
-  const response = await apiClient.get(`/celula_proyecto/p?id_proyecto=${id_proyecto}`);
-  return response.data;
+  const response = await apiClient.get(`/celulas-proyecto?proyectoId=${id_proyecto}`);
+  return response.data.data;
 };
 
 /**
@@ -51,12 +51,12 @@ export const crear = async (
   id_proyecto: number,
   activo: boolean = true
 ): Promise<CelulaProyecto[]> => {
-  const response = await apiClient.post('/celula_proyecto', {
+  const response = await apiClient.post('/celulas-proyecto', {
     id_empleados,
     id_proyecto,
     activo,
   });
-  return response.data;
+  return response.data.data;
 };
 
 /**
@@ -65,7 +65,7 @@ export const crear = async (
  * @returns {Promise<void>}
  */
 export const eliminar = async (id: number): Promise<void> => {
-  await apiClient.delete('/celula_proyecto', { data: { id } });
+  await apiClient.delete(`/celulas-proyecto/${id}`);
 };
 
 /**
@@ -75,6 +75,6 @@ export const eliminar = async (id: number): Promise<void> => {
  * @returns {Promise<CelulaProyecto>} La relación actualizada.
  */
 export const actualizarActivo = async (id: number, activo: boolean): Promise<CelulaProyecto> => {
-  const response = await apiClient.patch('/celula_proyecto', { id, activo });
-  return response.data;
+  const response = await apiClient.patch(`/celulas-proyecto/${id}`, { activo });
+  return response.data.data;
 };

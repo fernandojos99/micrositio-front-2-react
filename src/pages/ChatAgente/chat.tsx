@@ -53,36 +53,31 @@ export default function Chat() {
   const [input, setInput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
+  // UI state for desktop sidebar collapse (tab mode)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
+
   // Refs
   const threadIdRef = useRef<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const previewsFetchedRef = useRef<Set<string>>(new Set());
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null); // <-- Nueva referencia para el textarea
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  // Función para ajustar la altura del textarea automáticamente
+  // Adjust textarea height
   const adjustTextareaHeight = useCallback(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
-
-    // Restablecer altura a auto para obtener el scrollHeight real
     textarea.style.height = "auto";
-
-    // Calcular altura máxima (50% de la altura de la ventana)
     const maxHeight = window.innerHeight * 0.5;
     const newHeight = Math.min(textarea.scrollHeight, maxHeight);
-
     textarea.style.height = `${newHeight}px`;
-    // Mostrar scrollbar solo si supera el máximo
     textarea.style.overflowY = textarea.scrollHeight > maxHeight ? "auto" : "hidden";
   }, []);
 
-  // Efecto para ajustar altura cuando cambia el contenido del input
   useEffect(() => {
     adjustTextareaHeight();
   }, [input, adjustTextareaHeight]);
 
-  // Opcional: reajustar al cambiar el tamaño de la ventana
   useEffect(() => {
     window.addEventListener("resize", adjustTextareaHeight);
     return () => window.removeEventListener("resize", adjustTextareaHeight);
@@ -152,7 +147,6 @@ export default function Chat() {
       const data = await fetchSessionMessagesApi(threadId);
   
       if (data.messages && Array.isArray(data.messages)) {
-        // 1. Mapear los mensajes al formato interno (rol + contenido)
         const formattedMessages: Message[] = data.messages.map(
           (msg: { role: string; content: string }) => ({
             role: mapRole(msg.role),
@@ -160,18 +154,15 @@ export default function Chat() {
           })
         );
   
-        // 2. Fusionar mensajes consecutivos del asistente en uno solo
         const mergedMessages: Message[] = [];
         for (const msg of formattedMessages) {
           if (msg.role === "assistant" && mergedMessages.length > 0 && mergedMessages[mergedMessages.length - 1].role === "assistant") {
-            // Concatenar contenido con el último asistente
             mergedMessages[mergedMessages.length - 1].content += msg.content;
           } else {
             mergedMessages.push({ ...msg });
           }
         }
   
-        // 3. Usar los mensajes fusionados en lugar de los originales
         if (mergedMessages.length > 0) {
           setMessages(mergedMessages);
         } else {
@@ -251,21 +242,17 @@ export default function Chat() {
 
   const appendTokenToLastMessage = useCallback((token: string): void => {
     if (!token) return;
-
     setMessages((prev) => {
       const updated = [...prev];
       const lastIndex = updated.length - 1;
       const lastMessage = updated[lastIndex];
-
       if (!lastMessage || lastMessage.role !== "assistant") {
         return prev;
       }
-
       updated[lastIndex] = {
         ...lastMessage,
         content: lastMessage.content + token,
       };
-
       return updated;
     });
   }, []);
@@ -273,54 +260,33 @@ export default function Chat() {
   const parseSSEEvent = (event: string): string => {
     const lines = event.split("\n");
     const dataLines: string[] = [];
-
     for (const line of lines) {
-      if (!line || line.startsWith(":")) {
-        continue;
-      }
-
+      if (!line || line.startsWith(":")) continue;
       if (line.startsWith("data:")) {
         dataLines.push(line.replace(/^data:\s?/, ""));
       }
     }
-
     return dataLines.join("\n");
   };
 
   const extractToken = (parsed: ParsedSSEData): string => {
-    if (typeof parsed.token === "string") {
-      return parsed.token;
-    }
-
+    if (typeof parsed.token === "string") return parsed.token;
     const chunkContent = parsed?.data?.chunk?.content;
-
-    if (typeof chunkContent === "string") {
-      return chunkContent;
-    }
-
+    if (typeof chunkContent === "string") return chunkContent;
     if (Array.isArray(chunkContent)) {
       return chunkContent
         .map((item) => {
-          if (typeof item === "string") {
-            return item;
-          }
-
-          if (item?.text) {
-            return item.text;
-          }
-
+          if (typeof item === "string") return item;
+          if (item?.text) return item.text;
           return "";
         })
         .join("");
     }
-
     return "";
   };
 
   const sendMessage = async (): Promise<void> => {
-    if (!input.trim() || loading) {
-      return;
-    }
+    if (!input.trim() || loading) return;
 
     const userMessage = input;
     setInput("");
@@ -337,20 +303,16 @@ export default function Chat() {
     abortControllerRef.current = controller;
 
     try {
-      // Build request body - only include thread_id if we have one
       const requestBody: { message: string; thread_id?: string } = {
         message: userMessage,
       };
-
       if (threadIdRef.current) {
         requestBody.thread_id = threadIdRef.current;
       }
 
       const response = await streamMessageApi(requestBody, controller.signal);
 
-      if (!response.body) {
-        throw new Error("No response body");
-      }
+      if (!response.body) throw new Error("No response body");
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder("utf-8");
@@ -358,37 +320,22 @@ export default function Chat() {
 
       while (true) {
         const { value, done } = await reader.read();
-
-        if (done) {
-          break;
-        }
-
+        if (done) break;
         buffer += decoder.decode(value, { stream: true });
-
         const events = buffer.split("\n\n");
         buffer = events.pop() || "";
 
         for (const event of events) {
-          if (!event.trim()) {
-            continue;
-          }
-
+          if (!event.trim()) continue;
           const data = parseSSEEvent(event);
-
-          if (!data) {
-            continue;
-          }
-
+          if (!data) continue;
           if (data === "[DONE]") {
             setLoading(false);
-            // Refresh sessions list to include the new session if it was created
             fetchSessions();
             return;
           }
-
           try {
             const parsed: ParsedSSEData = JSON.parse(data);
-
             if (parsed.type === "thread_id" && parsed.thread_id) {
               threadIdRef.current = parsed.thread_id;
               setSelectedSession(parsed.thread_id);
@@ -399,26 +346,19 @@ export default function Chat() {
               });
               continue;
             }
-
             const token = extractToken(parsed);
-
-            if (token) {
-              appendTokenToLastMessage(token);
-            }
+            if (token) appendTokenToLastMessage(token);
           } catch (err) {
             console.error("SSE JSON parse error:", err, data);
           }
         }
       }
 
-      // Process remaining buffer
       if (buffer.trim()) {
         const data = parseSSEEvent(buffer);
-
         if (data && data !== "[DONE]") {
           try {
             const parsed: ParsedSSEData = JSON.parse(data);
-
             if (parsed.type === "thread_id" && parsed.thread_id) {
               threadIdRef.current = parsed.thread_id;
               setSelectedSession(parsed.thread_id);
@@ -429,23 +369,17 @@ export default function Chat() {
               });
             } else {
               const token = extractToken(parsed);
-
-              if (token) {
-                appendTokenToLastMessage(token);
-              }
+              if (token) appendTokenToLastMessage(token);
             }
           } catch (err) {
             console.error("Final buffer parse error:", err);
           }
         }
       }
-
-      // Refresh sessions after sending message
       fetchSessions();
     } catch (error) {
       if (error instanceof Error && error.name !== "AbortError") {
         console.error("Streaming error:", error);
-
         setMessages((prev) => [
           ...prev,
           {
@@ -472,6 +406,9 @@ export default function Chat() {
     }
   };
 
+  // Toggle desktop sidebar collapse (tab mode)
+  const toggleSidebarCollapse = () => setSidebarCollapsed((prev) => !prev);
+
   return (
     <main
       className="chat-page"
@@ -494,50 +431,67 @@ export default function Chat() {
         onClick={() => setSidebarOpen(false)}
       />
 
-      {/* Sidebar */}
-      <aside className={`chat-sidebar ${sidebarOpen ? "open" : ""}`}>
-        <div className="sidebar-header">
-          <span className="sidebar-title">Historial</span>
-          <button className="new-chat-button" onClick={handleNewChat}>
-            + Nuevo
-          </button>
-        </div>
-
-        <div className="sessions-list">
-          {sessionsLoading ? (
-            <div className="sessions-loading">Cargando sesiones...</div>
-          ) : sessions.length === 0 ? (
-            <div className="sessions-empty">No hay sesiones</div>
-          ) : (
-            sessions.map((session) => (
-              <div
-                key={session.thread_id}
-                className={`session-item ${
-                  selectedSession === session.thread_id ? "active" : ""
-                }`}
-                onClick={() => handleSelectSession(session.thread_id)}
-              >
-                <div className="session-item-content">
-                  <div className="session-preview">
-                    {sessionPreviews[session.thread_id] || session.thread_id.slice(-8)}
-                  </div>
-                  {session.last_update && (
-                    <div className="session-date">
-                      {new Date(session.last_update).toLocaleDateString()}
-                    </div>
-                  )}
-                </div>
+      {/* Sidebar: when collapsed, becomes a narrow tab with expand button */}
+      <aside className={`chat-sidebar ${sidebarOpen ? "open" : ""} ${sidebarCollapsed ? "collapsed" : ""}`}>
+        {sidebarCollapsed ? (
+          <div className="collapsed-expand-button" onClick={toggleSidebarCollapse}>
+            <span className="expand-icon">▶</span>
+          </div>
+        ) : (
+          <>
+            <div className="sidebar-header">
+              <span className="sidebar-title">Historial</span>
+              <div className="sidebar-header-actions">
+                <button className="new-chat-button" onClick={handleNewChat}>
+                  + Nuevo
+                </button>
                 <button
-                  className="session-delete-btn"
-                  onClick={(e) => handleDeleteSession(e, session.thread_id)}
-                  title="Eliminar sesión"
+                  className="sidebar-collapse-button"
+                  onClick={toggleSidebarCollapse}
+                  aria-label="Colapsar sidebar"
                 >
-                  ✕
+                  ◀
                 </button>
               </div>
-            ))
-          )}
-        </div>
+            </div>
+
+            <div className="sessions-list">
+              {sessionsLoading ? (
+                <div className="sessions-loading">Cargando sesiones...</div>
+              ) : sessions.length === 0 ? (
+                <div className="sessions-empty">No hay sesiones</div>
+              ) : (
+                sessions.map((session) => (
+                  <div
+                    key={session.thread_id}
+                    className={`session-item ${
+                      selectedSession === session.thread_id ? "active" : ""
+                    }`}
+                    onClick={() => handleSelectSession(session.thread_id)}
+                  >
+                    <div className="session-item-content">
+                      <div className="session-preview">
+                        {sessionPreviews[session.thread_id] || session.thread_id.slice(-8)}
+                      </div>
+                      {session.last_update && (
+                        <div className="session-date">
+                          {new Date(session.last_update).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      className="session-delete-btn"
+                      onClick={(e) => handleDeleteSession(e, session.thread_id)}
+                      title="Eliminar sesión"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </>
+        )}
       </aside>
 
       {/* Main chat area */}
@@ -588,7 +542,7 @@ export default function Chat() {
 
           <div className="chat-input-container">
             <textarea
-              ref={textareaRef} // Asignar la referencia
+              ref={textareaRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -597,8 +551,8 @@ export default function Chat() {
               rows={1}
               disabled={messagesLoading}
               style={{
-                overflow: "hidden", // Se ajusta dinámicamente con JS
-                resize: "none",     // Evita que el usuario redimensione manualmente
+                overflow: "hidden",
+                resize: "none",
               }}
             />
 

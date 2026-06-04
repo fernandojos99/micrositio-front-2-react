@@ -1,5 +1,7 @@
-//const CHAT_API_BASE = 'http://localhost:3001/api/chat';
-const CHAT_API_BASE = 'https://micrositio-iris-backend.onrender.com/api/chat';
+import { API_BASE_URL } from "@/apiClient";
+
+const CHAT_API_BASE = `${API_BASE_URL}/api/chat`;
+//const CHAT_API_BASE = 'https://micrositio-iris-backend.onrender.com/api/chat';
 
 
 export interface Session {
@@ -45,6 +47,7 @@ export async function fetchSessionMessages(threadId: string) {
   return response.json();
 }
 
+//delete session
 export async function deleteSession(threadId: string): Promise<void> {
   const response = await fetch(`${CHAT_API_BASE}/sessions/${threadId}`, {
     method: 'DELETE',

@@ -19,7 +19,48 @@
   flex-direction: column;
   background: var(--theme-bg-secondary);
   border-right: 1px solid var(--theme-border);
-  transition: background-color 0.3s, border-color 0.3s;
+  transition: width 0.3s ease, min-width 0.3s ease, background-color 0.3s, border-color 0.3s;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Collapsed sidebar (tab mode) */
+.chat-sidebar.collapsed {
+  width: 60px;
+  min-width: 60px;
+}
+
+/* Container for expand button when collapsed */
+.collapsed-expand-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  background: var(--theme-bg-secondary);
+}
+
+.collapsed-expand-button:hover {
+  background: var(--theme-bg-tertiary);
+}
+
+.expand-icon {
+  font-size: 20px;
+  color: var(--theme-text-primary);
+  transform: rotate(0deg);
+  transition: transform 0.2s;
+}
+
+.collapsed-expand-button:hover .expand-icon {
+  transform: scale(1.1);
+}
+
+/* Hide header and sessions when collapsed */
+.chat-sidebar.collapsed .sidebar-header,
+.chat-sidebar.collapsed .sessions-list {
+  display: none;
 }
 
 .sidebar-header {
@@ -27,6 +68,12 @@
   border-bottom: 1px solid var(--theme-border);
   display: flex;
   justify-content: space-between;
+  align-items: center;
+}
+
+.sidebar-header-actions {
+  display: flex;
+  gap: 8px;
   align-items: center;
 }
 
@@ -50,6 +97,21 @@
 
 .new-chat-button:hover {
   transform: translateY(-1px);
+}
+
+.sidebar-collapse-button {
+  background: transparent;
+  border: 1px solid var(--theme-border-hover);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--theme-text-primary);
+  transition: background-color 0.2s;
+}
+
+.sidebar-collapse-button:hover {
+  background: var(--theme-bg-tertiary);
 }
 
 .sessions-list {
@@ -142,6 +204,7 @@
   justify-content: center;
   align-items: center;
   padding: 24px;
+  transition: padding 0.3s ease;
 }
 
 .chat-container {
@@ -322,6 +385,7 @@
   cursor: pointer;
 }
 
+/* Mobile adjustments: off-canvas drawer, ignore collapsed state */
 @media (max-width: 768px) {
   .chat-page {
     flex-direction: column;
@@ -341,6 +405,20 @@
     left: 0;
   }
 
+  /* On mobile, we ignore the collapsed state (always behave as off-canvas full sidebar) */
+  .chat-sidebar.collapsed {
+    width: 100%;
+    max-width: 320px;
+    left: -100%;
+  }
+  .chat-sidebar.collapsed.open {
+    left: 0;
+  }
+  /* Show the expand button only on desktop, hide on mobile */
+  .collapsed-expand-button {
+    display: none;
+  }
+
   .sidebar-overlay {
     display: none;
     position: fixed;
@@ -355,6 +433,11 @@
 
   .sidebar-toggle {
     display: block;
+  }
+
+  /* Hide collapse button on mobile */
+  .sidebar-collapse-button {
+    display: none;
   }
 
   .chat-main {
@@ -375,7 +458,6 @@
     max-width: 100%;
   }
 }
-
 
 /* Markdown styling for assistant messages */
 .markdown-content {

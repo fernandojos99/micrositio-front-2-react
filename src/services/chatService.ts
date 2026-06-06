@@ -3,6 +3,11 @@ import { API_BASE_URL } from "@/apiClient";
 const CHAT_API_BASE = `${API_BASE_URL}/api/chat`;
 //const CHAT_API_BASE = 'https://micrositio-iris-backend.onrender.com/api/chat';
 
+export interface PingResponse {
+  status: string;
+  service: string;
+}
+
 
 export interface Session {
   thread_id: string;
@@ -71,4 +76,17 @@ export async function streamMessage(body: { message: string; thread_id?: string 
   if (response.status === 401) handle401();
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response;
+}
+
+
+
+export async function pingBackend(): Promise<PingResponse> {
+  const response = await fetch(`${CHAT_API_BASE}/ping`, {
+    headers: { ...authHeaders() },
+  });
+
+  if (response.status === 401) handle401();
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+  return response.json();
 }

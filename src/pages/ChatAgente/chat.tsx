@@ -1,23 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import {
   deleteSession as deleteSessionApi,
   fetchSessions as fetchSessionsApi,
   fetchSessionMessages as fetchSessionMessagesApi,
   streamMessage as streamMessageApi,
+  pingBackend,
 } from "../../services/chatService";
 import type { Session } from "../../services/chatService";
+import MessageList, { type Message } from "./MessageList";
+import ChatInput from "./ChatInput";
 import "./chat.css";
-
-type MessageRole = "user" | "assistant";
-
-interface Message {
-  role: MessageRole;
-  content: string;
-}
 
 interface ParsedChunkItem {
   text?: string;
@@ -34,64 +28,66 @@ interface ParsedSSEData {
   };
 }
 
+const INITIAL_MESSAGE: Message = {
+  role: "assistant",
+  content: "Hola, soy tu agente.",
+};
+
 export default function Chat() {
-  // Sessions state
+  // Sessions
   const [sessions, setSessions] = useState<Session[]>([]);
   const [sessionsLoading, setSessionsLoading] = useState(true);
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sessionPreviews, setSessionPreviews] = useState<Record<string, string>>({});
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  // Chat state
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "assistant",
-      content: "Hola, soy tu agente.",
-    },
-  ]);
+  // Chat
+  const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
   const [messagesLoading, setMessagesLoading] = useState(false);
-  const [input, setInput] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-
-  // UI state for desktop sidebar collapse (tab mode)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
 
   // Refs
   const threadIdRef = useRef<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const bottomRef = useRef<HTMLDivElement | null>(null);
   const previewsFetchedRef = useRef<Set<string>>(new Set());
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  // Adjust textarea height
-  const adjustTextareaHeight = useCallback(() => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    textarea.style.height = "auto";
-    const maxHeight = window.innerHeight * 0.5;
-    const newHeight = Math.min(textarea.scrollHeight, maxHeight);
-    textarea.style.height = `${newHeight}px`;
-    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? "auto" : "hidden";
+  // Manda ping cada 5 min mientras el componente esté montado para mantener el backend despierto
+  useEffect(() => {
+    const check = async () => {
+      try {
+        const data = await pingBackend();
+        console.log("Backend disponible");
+        console.log(data.status);
+        console.log(data.service);
+      } catch (err) {
+        console.error("Backend no disponible", err);
+      }
+    };
+
+    // Ping inicial al montar el componente
+    check();
+
+    // Ping cada 5 minutos
+    const id = setInterval(() => {
+      check();
+    }, 5 * 60 * 1000);
+
+    // Si quiero que se mande mientras esté visto
+    // const id = setInterval(() => {
+    //   if (document.visibilityState === "visible") {
+    //     check();
+    //   }
+    // }, 5 * 60 * 1000);
+
+    // Se ejecuta cuando el componente se desmonta
+    return () => clearInterval(id);
   }, []);
 
-  useEffect(() => {
-    adjustTextareaHeight();
-  }, [input, adjustTextareaHeight]);
-
-  useEffect(() => {
-    window.addEventListener("resize", adjustTextareaHeight);
-    return () => window.removeEventListener("resize", adjustTextareaHeight);
-  }, [adjustTextareaHeight]);
-
-  // Fetch sessions on mount
+  // ─── Sessions ────────────────────────────────────────────────────────────────
   useEffect(() => {
     fetchSessions();
   }, []);
-
-  // Auto-scroll to bottom
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
 
   const fetchSessions = async () => {
     try {
@@ -107,11 +103,15 @@ export default function Chat() {
   };
 
   const loadPreviewsOnce = async (sessionList: Session[]) => {
-    const missing = sessionList.filter((s) => !previewsFetchedRef.current.has(s.thread_id));
-    if (missing.length === 0) return;
+    const missing = sessionList.filter(
+      (s) => !previewsFetchedRef.current.has(s.thread_id)
+    );
+    if (!missing.length) return;
+
     const results = await Promise.allSettled(
       missing.map((s) => fetchSessionMessagesApi(s.thread_id))
     );
+
     const updates: Record<string, string> = {};
     for (let i = 0; i < missing.length; i++) {
       const res = results[i];
@@ -123,71 +123,73 @@ export default function Chat() {
         }
       }
     }
-    if (Object.keys(updates).length > 0) {
+    if (Object.keys(updates).length) {
       setSessionPreviews((prev) => ({ ...prev, ...updates }));
     }
   };
 
+  // ─── Helpers ─────────────────────────────────────────────────────────────────
   const mapRole = (role: string): "user" | "assistant" => {
-    const userRoles = ["user", "User", "human", "Human"];
-    return userRoles.includes(role) ? "user" : "assistant";
+    return ["user", "User", "human", "Human"].includes(role)
+      ? "user"
+      : "assistant";
   };
 
-  const extractPreview = (rawMessages: { role: string; content: string }[]): string => {
+  const extractPreview = (
+    rawMessages: { role: string; content: string }[]
+  ): string => {
     const firstUser = rawMessages.find((m) => mapRole(m.role) === "user");
-    if (!firstUser || !firstUser.content) return "";
+    if (!firstUser?.content) return "";
     const cleaned = firstUser.content.replace(/\s+/g, " ").trim();
     const words = cleaned.split(" ");
     return words.length > 5 ? words.slice(0, 5).join(" ") + "..." : cleaned;
   };
 
+  const makePreview = (text: string) => {
+    const words = text.replace(/\s+/g, " ").trim().split(" ");
+    return words.length > 5 ? words.slice(0, 5).join(" ") + "..." : words.join(" ");
+  };
+
+  // ─── Session actions ─────────────────────────────────────────────────────────
   const fetchSessionMessages = async (threadId: string) => {
     try {
       setMessagesLoading(true);
       const data = await fetchSessionMessagesApi(threadId);
-  
+
       if (data.messages && Array.isArray(data.messages)) {
-        const formattedMessages: Message[] = data.messages.map(
+        const formatted: Message[] = data.messages.map(
           (msg: { role: string; content: string }) => ({
             role: mapRole(msg.role),
             content: msg.content || "",
           })
         );
-  
-        const mergedMessages: Message[] = [];
-        for (const msg of formattedMessages) {
-          if (msg.role === "assistant" && mergedMessages.length > 0 && mergedMessages[mergedMessages.length - 1].role === "assistant") {
-            mergedMessages[mergedMessages.length - 1].content += msg.content;
+
+        // Merge consecutive assistant messages
+        const merged: Message[] = [];
+        for (const msg of formatted) {
+          const last = merged[merged.length - 1];
+          if (msg.role === "assistant" && last?.role === "assistant") {
+            merged[merged.length - 1] = {
+              ...last,
+              content: last.content + msg.content,
+            };
           } else {
-            mergedMessages.push({ ...msg });
+            merged.push({ ...msg });
           }
         }
-  
-        if (mergedMessages.length > 0) {
-          setMessages(mergedMessages);
-        } else {
-          setMessages([
-            {
-              role: "assistant",
-              content: "Hola, soy tu agente.",
-            },
-          ]);
-        }
-  
+
+        setMessages(merged.length ? merged : [INITIAL_MESSAGE]);
+
         setSessionPreviews((prev) => {
           if (prev[threadId]) return prev;
           const preview = extractPreview(data.messages);
-          if (preview) return { ...prev, [threadId]: preview };
-          return prev;
+          return preview ? { ...prev, [threadId]: preview } : prev;
         });
       }
     } catch (error) {
       console.error("Error fetching messages:", error);
       setMessages([
-        {
-          role: "assistant",
-          content: "Error al cargar los mensajes de esta sesion.",
-        },
+        { role: "assistant", content: "Error al cargar los mensajes de esta sesion." },
       ]);
     } finally {
       setMessagesLoading(false);
@@ -204,12 +206,7 @@ export default function Chat() {
   const handleNewChat = () => {
     setSelectedSession(null);
     threadIdRef.current = null;
-    setMessages([
-      {
-        role: "assistant",
-        content: "Hola, soy tu agente.",
-      },
-    ]);
+    setMessages([INITIAL_MESSAGE]);
     setSidebarOpen(false);
   };
 
@@ -228,187 +225,166 @@ export default function Chat() {
       if (selectedSession === threadId) {
         setSelectedSession(null);
         threadIdRef.current = null;
-        setMessages([
-          {
-            role: "assistant",
-            content: "Hola, soy tu agente.",
-          },
-        ]);
+        setMessages([INITIAL_MESSAGE]);
       }
     } catch (error) {
       console.error("Error deleting session:", error);
     }
   };
 
-  const appendTokenToLastMessage = useCallback((token: string): void => {
+  // ─── Streaming helpers ───────────────────────────────────────────────────────
+  const appendTokenToLastMessage = useCallback((token: string) => {
     if (!token) return;
     setMessages((prev) => {
       const updated = [...prev];
-      const lastIndex = updated.length - 1;
-      const lastMessage = updated[lastIndex];
-      if (!lastMessage || lastMessage.role !== "assistant") {
-        return prev;
-      }
-      updated[lastIndex] = {
-        ...lastMessage,
-        content: lastMessage.content + token,
-      };
+      const last = updated[updated.length - 1];
+      if (!last || last.role !== "assistant") return prev;
+      updated[updated.length - 1] = { ...last, content: last.content + token };
       return updated;
     });
   }, []);
 
   const parseSSEEvent = (event: string): string => {
-    const lines = event.split("\n");
-    const dataLines: string[] = [];
-    for (const line of lines) {
-      if (!line || line.startsWith(":")) continue;
-      if (line.startsWith("data:")) {
-        dataLines.push(line.replace(/^data:\s?/, ""));
-      }
-    }
-    return dataLines.join("\n");
+    return event
+      .split("\n")
+      .filter((l) => l.startsWith("data:"))
+      .map((l) => l.replace(/^data:\s?/, ""))
+      .join("\n");
   };
 
   const extractToken = (parsed: ParsedSSEData): string => {
     if (typeof parsed.token === "string") return parsed.token;
-    const chunkContent = parsed?.data?.chunk?.content;
-    if (typeof chunkContent === "string") return chunkContent;
-    if (Array.isArray(chunkContent)) {
-      return chunkContent
-        .map((item) => {
-          if (typeof item === "string") return item;
-          if (item?.text) return item.text;
-          return "";
-        })
+    const chunk = parsed?.data?.chunk?.content;
+    if (typeof chunk === "string") return chunk;
+    if (Array.isArray(chunk)) {
+      return chunk
+        .map((item) =>
+          typeof item === "string" ? item : (item as ParsedChunkItem)?.text ?? ""
+        )
         .join("");
     }
     return "";
   };
 
-  const sendMessage = async (): Promise<void> => {
-    if (!input.trim() || loading) return;
+  // ─── Send message ────────────────────────────────────────────────────────────
+  // Recibe el texto desde ChatInput (solo cuando el usuario presiona Enviar)
+  const sendMessage = useCallback(
+    async (userMessage: string): Promise<void> => {
+      if (!userMessage.trim() || loading) return;
 
-    const userMessage = input;
-    setInput("");
+      // Añadir mensaje de usuario + placeholder vacío del agente
+      setMessages((prev) => [
+        ...prev,
+        { role: "user", content: userMessage },
+        { role: "assistant", content: "" },
+      ]);
 
-    setMessages((prev) => [
-      ...prev,
-      { role: "user", content: userMessage },
-      { role: "assistant", content: "" },
-    ]);
+      setLoading(true);
 
-    setLoading(true);
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
 
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
+      try {
+        const requestBody: { message: string; thread_id?: string } = {
+          message: userMessage,
+          // thread_id mantiene el contexto de la conversación con el agente.
+          // Si es null, el backend crea un hilo nuevo; si ya existe, el agente
+          // recupera el historial completo de esa sesión.
+          ...(threadIdRef.current ? { thread_id: threadIdRef.current } : {}),
+        };
 
-    try {
-      const requestBody: { message: string; thread_id?: string } = {
-        message: userMessage,
-      };
-      if (threadIdRef.current) {
-        requestBody.thread_id = threadIdRef.current;
-      }
+        const response = await streamMessageApi(requestBody, controller.signal);
+        if (!response.body) throw new Error("No response body");
 
-      const response = await streamMessageApi(requestBody, controller.signal);
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let buffer = "";
 
-      if (!response.body) throw new Error("No response body");
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const events = buffer.split("\n\n");
+          buffer = events.pop() ?? "";
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-      let buffer = "";
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const events = buffer.split("\n\n");
-        buffer = events.pop() || "";
-
-        for (const event of events) {
-          if (!event.trim()) continue;
-          const data = parseSSEEvent(event);
-          if (!data) continue;
-          if (data === "[DONE]") {
-            setLoading(false);
-            fetchSessions();
-            return;
-          }
-          try {
-            const parsed: ParsedSSEData = JSON.parse(data);
-            if (parsed.type === "thread_id" && parsed.thread_id) {
-              threadIdRef.current = parsed.thread_id;
-              setSelectedSession(parsed.thread_id);
-              setSessionPreviews((prev) => {
-                if (prev[parsed.thread_id!]) return prev;
-                const preview = userMessage.replace(/\s+/g, " ").trim().split(" ").slice(0, 5).join(" ") + (userMessage.split(" ").length > 5 ? "..." : "");
-                return { ...prev, [parsed.thread_id!]: preview };
-              });
-              continue;
+          for (const event of events) {
+            if (!event.trim()) continue;
+            const data = parseSSEEvent(event);
+            if (!data) continue;
+            if (data === "[DONE]") {
+              setLoading(false);
+              fetchSessions();
+              return;
             }
-            const token = extractToken(parsed);
-            if (token) appendTokenToLastMessage(token);
-          } catch (err) {
-            console.error("SSE JSON parse error:", err, data);
-          }
-        }
-      }
-
-      if (buffer.trim()) {
-        const data = parseSSEEvent(buffer);
-        if (data && data !== "[DONE]") {
-          try {
-            const parsed: ParsedSSEData = JSON.parse(data);
-            if (parsed.type === "thread_id" && parsed.thread_id) {
-              threadIdRef.current = parsed.thread_id;
-              setSelectedSession(parsed.thread_id);
-              setSessionPreviews((prev) => {
-                if (prev[parsed.thread_id!]) return prev;
-                const preview = userMessage.replace(/\s+/g, " ").trim().split(" ").slice(0, 5).join(" ") + (userMessage.split(" ").length > 5 ? "..." : "");
-                return { ...prev, [parsed.thread_id!]: preview };
-              });
-            } else {
+            try {
+              const parsed: ParsedSSEData = JSON.parse(data);
+              if (parsed.type === "thread_id" && parsed.thread_id) {
+                threadIdRef.current = parsed.thread_id;
+                setSelectedSession(parsed.thread_id);
+                setSessionPreviews((prev) =>
+                  prev[parsed.thread_id!]
+                    ? prev
+                    : { ...prev, [parsed.thread_id!]: makePreview(userMessage) }
+                );
+                continue;
+              }
               const token = extractToken(parsed);
               if (token) appendTokenToLastMessage(token);
+            } catch (err) {
+              console.error("SSE JSON parse error:", err, data);
             }
-          } catch (err) {
-            console.error("Final buffer parse error:", err);
           }
         }
-      }
-      fetchSessions();
-    } catch (error) {
-      if (error instanceof Error && error.name !== "AbortError") {
-        console.error("Streaming error:", error);
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content: "Error conectando con el servidor.",
-          },
-        ]);
-      }
-    } finally {
-      setLoading(false);
-      abortControllerRef.current = null;
-    }
-  };
 
-  const stopGeneration = (): void => {
+        // Flush remaining buffer
+        if (buffer.trim()) {
+          const data = parseSSEEvent(buffer);
+          if (data && data !== "[DONE]") {
+            try {
+              const parsed: ParsedSSEData = JSON.parse(data);
+              if (parsed.type === "thread_id" && parsed.thread_id) {
+                threadIdRef.current = parsed.thread_id;
+                setSelectedSession(parsed.thread_id);
+                setSessionPreviews((prev) =>
+                  prev[parsed.thread_id!]
+                    ? prev
+                    : { ...prev, [parsed.thread_id!]: makePreview(userMessage) }
+                );
+              } else {
+                const token = extractToken(parsed);
+                if (token) appendTokenToLastMessage(token);
+              }
+            } catch (err) {
+              console.error("Final buffer parse error:", err);
+            }
+          }
+        }
+
+        fetchSessions();
+      } catch (error) {
+        if (error instanceof Error && error.name !== "AbortError") {
+          console.error("Streaming error:", error);
+          setMessages((prev) => [
+            ...prev,
+            { role: "assistant", content: "Error conectando con el servidor." },
+          ]);
+        }
+      } finally {
+        setLoading(false);
+        abortControllerRef.current = null;
+      }
+    },
+    [loading, appendTokenToLastMessage]
+  );
+
+  const stopGeneration = useCallback(() => {
     abortControllerRef.current?.abort();
     setLoading(false);
-  };
+  }, []);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>): void => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
-
-  // Toggle desktop sidebar collapse (tab mode)
   const toggleSidebarCollapse = () => setSidebarCollapsed((prev) => !prev);
 
+  // ─── Render ──────────────────────────────────────────────────────────────────
   return (
     <main
       className="chat-page"
@@ -425,14 +401,18 @@ export default function Chat() {
         {sidebarOpen ? "Cerrar" : "Sesiones"}
       </button>
 
-      {/* Overlay for mobile */}
+      {/* Mobile overlay */}
       <div
         className={`sidebar-overlay ${sidebarOpen ? "visible" : ""}`}
         onClick={() => setSidebarOpen(false)}
       />
 
-      {/* Sidebar: when collapsed, becomes a narrow tab with expand button */}
-      <aside className={`chat-sidebar ${sidebarOpen ? "open" : ""} ${sidebarCollapsed ? "collapsed" : ""}`}>
+      {/* Sidebar */}
+      <aside
+        className={`chat-sidebar ${sidebarOpen ? "open" : ""} ${
+          sidebarCollapsed ? "collapsed" : ""
+        }`}
+      >
         {sidebarCollapsed ? (
           <div className="collapsed-expand-button" onClick={toggleSidebarCollapse}>
             <span className="expand-icon">▶</span>
@@ -471,7 +451,8 @@ export default function Chat() {
                   >
                     <div className="session-item-content">
                       <div className="session-preview">
-                        {sessionPreviews[session.thread_id] || session.thread_id.slice(-8)}
+                        {sessionPreviews[session.thread_id] ||
+                          session.thread_id.slice(-8)}
                       </div>
                       {session.last_update && (
                         <div className="session-date">
@@ -497,81 +478,26 @@ export default function Chat() {
       {/* Main chat area */}
       <div className="chat-main">
         <div className="chat-container">
-          {messagesLoading ? (
-            <div className="messages-loading">Cargando mensajes...</div>
-          ) : (
-            <div className="chat-messages">
-              {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`chat-message ${
-                    message.role === "user"
-                      ? "user-message"
-                      : "assistant-message"
-                  }`}
-                >
-                  <div className="chat-role">
-                    {message.role === "user" ? "Tu" : "Agente"}
-                  </div>
+          {/* 
+            MessageList recibe solo messages/loading → memo la protege de
+            re-renders causados por cualquier otra cosa (incluyendo el input).
+          */}
+          <MessageList
+            messages={messages}
+            loading={loading}
+            messagesLoading={messagesLoading}
+          />
 
-                  <div className="chat-content">
-                    {message.role === "assistant" ? (
-                      <>
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {message.content}
-                        </ReactMarkdown>
-                        {loading && index === messages.length - 1 && (
-                          <span className="chat-cursor">|</span>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        {message.content}
-                        {loading && index === messages.length - 1 && (
-                          <span className="chat-cursor">|</span>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-              ))}
-
-              <div ref={bottomRef} />
-            </div>
-          )}
-
-          <div className="chat-input-container">
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Escribe un mensaje..."
-              className="chat-textarea"
-              rows={1}
-              disabled={messagesLoading}
-              style={{
-                overflow: "hidden",
-                resize: "none",
-              }}
-            />
-
-            <div className="chat-buttons">
-              {!loading ? (
-                <button
-                  onClick={sendMessage}
-                  className="chat-button"
-                  disabled={messagesLoading}
-                >
-                  Enviar
-                </button>
-              ) : (
-                <button onClick={stopGeneration} className="chat-button stop-button">
-                  Detener
-                </button>
-              )}
-            </div>
-          </div>
+          {/* 
+            ChatInput maneja su propio estado local de texto → nunca provoca
+            re-renders en MessageList mientras el usuario escribe.
+          */}
+          <ChatInput
+            onSend={sendMessage}
+            onStop={stopGeneration}
+            loading={loading}
+            disabled={messagesLoading}
+          />
         </div>
       </div>
     </main>

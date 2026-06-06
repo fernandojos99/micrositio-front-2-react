@@ -21,6 +21,7 @@ interface ParsedSSEData {
   type?: string;
   thread_id?: string;
   token?: string;
+  titulo?: string;  // ← Añadido: el backend puede enviar título durante el stream
   data?: {
     chunk?: {
       content?: string | ParsedChunkItem[] | string[];
@@ -39,7 +40,6 @@ export default function Chat() {
   const [sessionsLoading, setSessionsLoading] = useState(true);
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sessionPreviews, setSessionPreviews] = useState<Record<string, string>>({});
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Chat
@@ -50,7 +50,6 @@ export default function Chat() {
   // Refs
   const threadIdRef = useRef<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const previewsFetchedRef = useRef<Set<string>>(new Set());
 
   // Manda ping cada 5 min mientras el componente esté montado para mantener el backend despierto
   useEffect(() => {
@@ -94,37 +93,10 @@ export default function Chat() {
       setSessionsLoading(true);
       const data = await fetchSessionsApi();
       setSessions(data.sessions);
-      loadPreviewsOnce(data.sessions);
     } catch (error) {
       console.error("Error fetching sessions:", error);
     } finally {
       setSessionsLoading(false);
-    }
-  };
-
-  const loadPreviewsOnce = async (sessionList: Session[]) => {
-    const missing = sessionList.filter(
-      (s) => !previewsFetchedRef.current.has(s.thread_id)
-    );
-    if (!missing.length) return;
-
-    const results = await Promise.allSettled(
-      missing.map((s) => fetchSessionMessagesApi(s.thread_id))
-    );
-
-    const updates: Record<string, string> = {};
-    for (let i = 0; i < missing.length; i++) {
-      const res = results[i];
-      if (res.status === "fulfilled" && res.value.messages) {
-        const preview = extractPreview(res.value.messages);
-        if (preview) {
-          updates[missing[i].thread_id] = preview;
-          previewsFetchedRef.current.add(missing[i].thread_id);
-        }
-      }
-    }
-    if (Object.keys(updates).length) {
-      setSessionPreviews((prev) => ({ ...prev, ...updates }));
     }
   };
 
@@ -133,21 +105,6 @@ export default function Chat() {
     return ["user", "User", "human", "Human"].includes(role)
       ? "user"
       : "assistant";
-  };
-
-  const extractPreview = (
-    rawMessages: { role: string; content: string }[]
-  ): string => {
-    const firstUser = rawMessages.find((m) => mapRole(m.role) === "user");
-    if (!firstUser?.content) return "";
-    const cleaned = firstUser.content.replace(/\s+/g, " ").trim();
-    const words = cleaned.split(" ");
-    return words.length > 5 ? words.slice(0, 5).join(" ") + "..." : cleaned;
-  };
-
-  const makePreview = (text: string) => {
-    const words = text.replace(/\s+/g, " ").trim().split(" ");
-    return words.length > 5 ? words.slice(0, 5).join(" ") + "..." : words.join(" ");
   };
 
   // ─── Session actions ─────────────────────────────────────────────────────────
@@ -179,12 +136,6 @@ export default function Chat() {
         }
 
         setMessages(merged.length ? merged : [INITIAL_MESSAGE]);
-
-        setSessionPreviews((prev) => {
-          if (prev[threadId]) return prev;
-          const preview = extractPreview(data.messages);
-          return preview ? { ...prev, [threadId]: preview } : prev;
-        });
       }
     } catch (error) {
       console.error("Error fetching messages:", error);
@@ -216,12 +167,6 @@ export default function Chat() {
     try {
       await deleteSessionApi(threadId);
       setSessions((prev) => prev.filter((s) => s.thread_id !== threadId));
-      setSessionPreviews((prev) => {
-        const next = { ...prev };
-        delete next[threadId];
-        return next;
-      });
-      previewsFetchedRef.current.delete(threadId);
       if (selectedSession === threadId) {
         setSelectedSession(null);
         threadIdRef.current = null;
@@ -321,11 +266,6 @@ export default function Chat() {
               if (parsed.type === "thread_id" && parsed.thread_id) {
                 threadIdRef.current = parsed.thread_id;
                 setSelectedSession(parsed.thread_id);
-                setSessionPreviews((prev) =>
-                  prev[parsed.thread_id!]
-                    ? prev
-                    : { ...prev, [parsed.thread_id!]: makePreview(userMessage) }
-                );
                 continue;
               }
               const token = extractToken(parsed);
@@ -345,11 +285,6 @@ export default function Chat() {
               if (parsed.type === "thread_id" && parsed.thread_id) {
                 threadIdRef.current = parsed.thread_id;
                 setSelectedSession(parsed.thread_id);
-                setSessionPreviews((prev) =>
-                  prev[parsed.thread_id!]
-                    ? prev
-                    : { ...prev, [parsed.thread_id!]: makePreview(userMessage) }
-                );
               } else {
                 const token = extractToken(parsed);
                 if (token) appendTokenToLastMessage(token);
@@ -451,8 +386,7 @@ export default function Chat() {
                   >
                     <div className="session-item-content">
                       <div className="session-preview">
-                        {sessionPreviews[session.thread_id] ||
-                          session.thread_id.slice(-8)}
+                        {session.titulo || session.thread_id.slice(-8)}
                       </div>
                       {session.last_update && (
                         <div className="session-date">

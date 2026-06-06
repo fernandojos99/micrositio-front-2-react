@@ -11,6 +11,7 @@ export interface PingResponse {
 
 export interface Session {
   thread_id: string;
+  titulo: string | null;
   last_checkpoint_id: string;
   last_update: string | null;
 }
@@ -18,6 +19,11 @@ export interface Session {
 export interface SessionsResponse {
   sessions: Session[];
   count: number;
+}
+
+export interface SessionMessagesResponse {
+  titulo?: string | null;
+  messages: { role: string; content: string }[];
 }
 
 function handle401() {
@@ -43,7 +49,7 @@ export async function fetchSessions(): Promise<SessionsResponse> {
   return response.json();
 }
 
-export async function fetchSessionMessages(threadId: string) {
+export async function fetchSessionMessages(threadId: string): Promise<SessionMessagesResponse> {
   const response = await fetch(`${CHAT_API_BASE}/sessions/${threadId}/messages`, {
     headers: { ...authHeaders() },
   });

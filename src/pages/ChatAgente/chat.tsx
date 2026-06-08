@@ -258,7 +258,9 @@ export default function Chat() {
             if (!data) continue;
             if (data === "[DONE]") {
               setLoading(false);
-              fetchSessions();
+              // Mejorar esto para que se actualice en cuanto llegue el primer mensaje de respuesta
+              // de una nueva sesion.
+              // fetchSessions();
               return;
             }
             try {

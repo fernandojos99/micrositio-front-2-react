@@ -395,87 +395,87 @@ const LearningCardNode: React.FC<LearningCardNodeProps> = ({ data, selected }) =
         
      
         {/* Sección de hallazgos accionables */}
-{/* Sección de hallazgos accionables */}
-<div className="insight-section">
-  <h4>
-    <Lightbulb size={12} style={{ marginRight: '4px' }} />
-    Hallazgo Accionable
-  </h4>
+        {/* Sección de hallazgos accionables */}
+        <div className="insight-section">
+          <h4>
+            <Lightbulb size={12} style={{ marginRight: '4px' }} />
+            Hallazgo Accionable
+          </h4>
 
-  {!accionables?.length ? (
-    <div className={isExpanded ? 'section-text-expanded' : 'section-text-collapsed'}>
-      Sin hallazgos registrados
-    </div>
-  ) : isExpanded ? (
-    <ul style={{
-      margin: '8px 0 0 0',
-      paddingLeft: '20px',
-      listStyleType: 'disc',
-      listStylePosition: 'outside'
-    }}>
-      {accionables.map((accionable, index) => {
-        return (
-          <li key={index} style={{
-            marginBottom: '12px',
-            display: 'list-item',
-            whiteSpace: 'normal'
-          }}>
-            <div style={{ marginBottom: '4px', fontWeight: '500' }}>
-              {accionable.contenido}
+          {!accionables?.length ? (
+            <div className={isExpanded ? 'section-text-expanded' : 'section-text-collapsed'}>
+              Sin hallazgos registrados
             </div>
-            <div style={{
-              display: 'flex',
-              gap: '16px',
-              fontSize: '11px',
-              color: 'var(--theme-text-secondary)',
-              marginTop: '4px'
+          ) : isExpanded ? (
+            <ul style={{
+              margin: '8px 0 0 0',
+              paddingLeft: '20px',
+              listStyleType: 'disc',
+              listStylePosition: 'outside'
             }}>
-              <span style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}>
-                <span style={{ fontWeight: '600' }}>Impacto:</span> {accionable.impacto}/10
-              </span>
-              <span style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}>
-                <span style={{ fontWeight: '600' }}>Esfuerzo:</span> {accionable.esfuerzo}/10
-              </span>
+              {accionables.map((accionable, index) => {
+                return (
+                  <li key={index} style={{
+                    marginBottom: '12px',
+                    display: 'list-item',
+                    whiteSpace: 'normal'
+                  }}>
+                    <div style={{ marginBottom: '4px', fontWeight: '500' }}>
+                      {accionable.contenido}
+                    </div>
+                    <div style={{
+                      display: 'flex',
+                      gap: '16px',
+                      fontSize: '11px',
+                      color: 'var(--theme-text-secondary)',
+                      marginTop: '4px'
+                    }}>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        <span style={{ fontWeight: '600' }}>Impacto:</span> {accionable.impacto}/10
+                      </span>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        <span style={{ fontWeight: '600' }}>Esfuerzo:</span> {accionable.esfuerzo}/10
+                      </span>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <div className="section-text-collapsed" style={{
+              whiteSpace: 'normal',
+              overflow: 'hidden',    // trucaso para esconder todo lo que este afuera del contenedor 
+              wordBreak: 'break-word',
+              overflowWrap: 'break-word',
+              maxWidth: '100%'
+            }}>
+              {(() => {
+                // Truncar a 3 palabras en la vista colapsada
+                const truncarAPalabras = (texto: string, maxPalabras: number = 3) => {
+                  if (!texto) return '';
+                  const palabras = texto.split(' ');
+                  if (palabras.length <= maxPalabras) return texto;
+                  return palabras.slice(0, maxPalabras).join(' ') + '...';
+                };
+                
+                const contenidos = accionables.map(a => truncarAPalabras(a.contenido));
+                const primeros3 = contenidos.slice(0, 3);
+                const textoMostrado = primeros3.join(', ');
+                return contenidos.length > 3 
+                  ? `${textoMostrado}... (+${contenidos.length - 3} más)`
+                  : textoMostrado;
+              })()}
             </div>
-          </li>
-        );
-      })}
-    </ul>
-  ) : (
-    <div className="section-text-collapsed" style={{
-      whiteSpace: 'normal',
-      overflow: 'visible',
-      wordBreak: 'break-word',
-      overflowWrap: 'break-word',
-      maxWidth: '100%'
-    }}>
-      {(() => {
-        // Truncar a 3 palabras en la vista colapsada
-        const truncarAPalabras = (texto: string, maxPalabras: number = 3) => {
-          if (!texto) return '';
-          const palabras = texto.split(' ');
-          if (palabras.length <= maxPalabras) return texto;
-          return palabras.slice(0, maxPalabras).join(' ') + '...';
-        };
-        
-        const contenidos = accionables.map(a => truncarAPalabras(a.contenido));
-        const primeros3 = contenidos.slice(0, 3);
-        const textoMostrado = primeros3.join(', ');
-        return contenidos.length > 3 
-          ? `${textoMostrado}... (+${contenidos.length - 3} más)`
-          : textoMostrado;
-      })()}
-    </div>
-  )}
-</div>
+          )}
+        </div>
 
 
         {/* Botón para expandir/contraer contenido adicional */}

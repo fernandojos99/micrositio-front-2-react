@@ -275,27 +275,49 @@ function ScatterTooltipContent({
   const cluster = payload[0].payload
   
   return (
-    <div className="rounded-lg border border-border bg-card px-3 py-2 shadow-lg text-card-foreground max-w-[200px]">
+    <div 
+      className="rounded-lg border shadow-lg px-3 py-2 max-w-[200px]"
+      style={{
+        borderColor: 'var(--theme-border)',
+        backgroundColor: 'var(--theme-bg-secondary)',
+        color: 'var(--theme-text-primary)'
+      }}
+    >
       {cluster.count === 1 ? (
         <>
           {cluster.points[0].point.label && (
-            <p className="text-sm font-semibold mb-0.5 truncate">
+            <p 
+              className="text-sm font-semibold mb-0.5 truncate"
+              style={{ color: 'var(--theme-text-primary)' }}
+            >
               {cluster.points[0].point.label}
             </p>
           )}
-          <p className="text-xs text-muted-foreground">
-            Esfuerzo: <span className="font-medium text-foreground">{cluster.points[0].point.x}</span>
+          <p 
+            className="text-xs"
+            style={{ color: 'var(--theme-text-secondary)' }}
+          >
+            Esfuerzo: <span style={{ fontWeight: 500, color: 'var(--theme-text-primary)' }}>{cluster.points[0].point.x}</span>
           </p>
-          <p className="text-xs text-muted-foreground">
-            Impacto: <span className="font-medium text-foreground">{cluster.points[0].point.y}</span>
+          <p 
+            className="text-xs"
+            style={{ color: 'var(--theme-text-secondary)' }}
+          >
+            Impacto: <span style={{ fontWeight: 500, color: 'var(--theme-text-primary)' }}>{cluster.points[0].point.y}</span>
           </p>
         </>
       ) : (
         <>
-          <p className="text-sm font-semibold mb-1">
+          <p 
+            className="text-sm font-semibold mb-1"
+            style={{ color: 'var(--theme-text-primary)' }}
+          >
             {cluster.count} puntos agrupados
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p 
+            className="text-xs"
+            style={{ color: 'var(--theme-text-secondary)' }}
+          >
             Centro: ({cluster.x.toFixed(1)}, {cluster.y.toFixed(1)})
           </p>
         </>
@@ -376,14 +398,22 @@ function ClusterPopover({
         pointerEvents: "auto",
       }}
     >
-      <div className="rounded-xl border border-border bg-card text-card-foreground shadow-xl min-w-[240px] max-w-[320px] max-h-[320px] overflow-hidden flex flex-col">
+      <div 
+        className="rounded-xl border shadow-xl min-w-[240px] max-w-[320px] max-h-[320px] overflow-hidden flex flex-col"
+        style={{
+          borderColor: 'var(--theme-border)',
+          backgroundColor: 'var(--theme-bg-secondary)',
+          color: 'var(--theme-text-primary)'
+        }}
+      >
         
         
         {/* <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5"> */}
         {/* HEADER DRAGGABLE */}
         <div
           onMouseDown={handleMouseDown}
-          className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5 cursor-move"
+          className="flex items-center justify-between gap-3 border-b px-4 py-2.5 cursor-move"
+          style={{ borderColor: 'var(--theme-border)' }}
         > 
 
           <div className="flex items-center gap-2">
@@ -391,13 +421,20 @@ function ClusterPopover({
               className="inline-block h-3 w-3 rounded-full shrink-0"
               style={{ backgroundColor: cluster.cluster.primaryColor }}
             />
-            <span className="text-sm font-semibold truncate">
+            <span className="text-sm font-semibold truncate" style={{ color: 'var(--theme-text-primary)' }}>
               {isSingle ? firstPoint.seriesName : `${cluster.cluster.count} puntos`}
             </span>
           </div>
           <button
             onClick={onClose}
-            className="text-muted-foreground hover:text-foreground transition-colors text-lg leading-none shrink-0"
+            className="text-lg leading-none shrink-0 transition-colors"
+            style={{ color: 'var(--theme-text-secondary)' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = 'var(--theme-text-primary)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'var(--theme-text-secondary)'
+            }}
             aria-label="Cerrar"
           >
             &times;
@@ -408,18 +445,41 @@ function ClusterPopover({
           {isSingle ? (
             <>
               {firstPoint.point.label && (
-                <p className="text-xs text-muted-foreground font-medium">
+                <p 
+                  className="text-xs font-medium"
+                  style={{ color: 'var(--theme-text-secondary)' }}
+                >
                   {firstPoint.point.label}
                 </p>
               )}
               <div className="flex gap-4">
                 <div>
-                  <p className="text-[10px]  tracking-wide text-muted-foreground">Esfuerzo</p>
-                  <p className="text-xl font-bold tracking-tight">{firstPoint.point.x}</p>
+                  <p 
+                    className="text-[10px] tracking-wide"
+                    style={{ color: 'var(--theme-text-tertiary)' }}
+                  >
+                    Esfuerzo
+                  </p>
+                  <p 
+                    className="text-xl font-bold tracking-tight"
+                    style={{ color: 'var(--theme-text-primary)' }}
+                  >
+                    {firstPoint.point.x}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-[10px]  tracking-wide text-muted-foreground">Impacto</p>
-                  <p className="text-xl font-bold tracking-tight">{firstPoint.point.y}</p>
+                  <p 
+                    className="text-[10px] tracking-wide"
+                    style={{ color: 'var(--theme-text-tertiary)' }}
+                  >
+                    Impacto
+                  </p>
+                  <p 
+                    className="text-xl font-bold tracking-tight"
+                    style={{ color: 'var(--theme-text-primary)' }}
+                  >
+                    {firstPoint.point.y}
+                  </p>
                 </div>
               </div>
             </>
@@ -428,7 +488,11 @@ function ClusterPopover({
               {cluster.cluster.points.map((p, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-2 text-xs p-1.5 rounded bg-muted/50"
+                  className="flex items-center gap-2 text-xs p-1.5 rounded"
+                  style={{
+                    backgroundColor: 'var(--theme-bg-tertiary)',
+                    color: 'var(--theme-text-primary)'
+                  }}
                 >
                   <span
                     className="inline-block h-2 w-2 rounded-full shrink-0"
@@ -437,7 +501,10 @@ function ClusterPopover({
                   <span className="truncate flex-1 font-medium">
                     {p.point.label || `Punto ${i + 1}`}
                   </span>
-                  <span className="text-muted-foreground shrink-0">
+                  <span 
+                    className="shrink-0"
+                    style={{ color: 'var(--theme-text-tertiary)' }}
+                  >
                     ({p.point.x}, {p.point.y})
                   </span>
                 </div>
@@ -446,7 +513,13 @@ function ClusterPopover({
           )}
         </div>
         
-        <div className="flex border-t border-border divide-x divide-border">
+        <div 
+          className="flex border-t divide-x"
+          style={{ 
+            borderColor: 'var(--theme-border)',
+            divideColor: 'var(--theme-border)'
+          }}
+        >
           {/* <button
             onClick={() =>
               onAction(
@@ -457,7 +530,14 @@ function ClusterPopover({
                 }))
               )
             }
-            className="flex-1 px-4 py-2.5 text-xs font-medium text-foreground hover:bg-accent transition-colors rounded-bl-xl"
+            className="flex-1 px-4 py-2.5 text-xs font-medium transition-colors rounded-bl-xl"
+            style={{ color: 'var(--theme-text-primary)' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--theme-bg-tertiary)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent'
+            }}
           >
             Ver detalles
           </button> */}
@@ -471,7 +551,14 @@ function ClusterPopover({
                 }))
               )
             }
-            className="flex-1 px-4 py-2.5 text-xs font-medium text-foreground hover:bg-accent transition-colors rounded-br-xl"
+            className="flex-1 px-4 py-2.5 text-xs font-medium transition-colors rounded-br-xl"
+            style={{ color: 'var(--theme-text-primary)' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--theme-bg-tertiary)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent'
+            }}
           >
             Comparar
           </button> */}
@@ -559,50 +646,84 @@ function QuadrantTable({
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger asChild>
         <button
-          className="w-full flex items-center justify-between gap-3 p-3 rounded-lg border border-border hover:bg-accent/50 transition-colors"
-          style={{ borderLeftWidth: 4, borderLeftColor: color }}
+          className="w-full flex items-center justify-between gap-3 p-3 rounded-lg border transition-colors"
+          style={{ 
+            borderLeftWidth: 4, 
+            borderLeftColor: color,
+            borderColor: 'var(--theme-border)',
+            backgroundColor: 'var(--theme-bg-secondary)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--theme-bg-tertiary)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--theme-bg-secondary)'
+          }}
         >
           <div className="flex items-center gap-2 min-w-0">
-            <span className="font-medium text-sm truncate">{title}</span>
-            <span className="shrink-0 inline-flex items-center justify-center rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+            <span 
+              className="font-medium text-sm truncate"
+              style={{ color: 'var(--theme-text-primary)' }}
+            >
+              {title}
+            </span>
+            <span 
+              className="shrink-0 inline-flex items-center justify-center rounded-full px-2 py-0.5 text-xs font-medium"
+              style={{
+                backgroundColor: 'var(--theme-bg-tertiary)',
+                color: 'var(--theme-text-secondary)'
+              }}
+            >
               {points.length}
             </span>
           </div>
           {isOpen ? (
-            <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <ChevronUp className="h-4 w-4 shrink-0" style={{ color: 'var(--theme-text-secondary)' }} />
           ) : (
-            <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <ChevronDown className="h-4 w-4 shrink-0" style={{ color: 'var(--theme-text-secondary)' }} />
           )}
         </button>
       </CollapsibleTrigger>
       <CollapsibleContent className="pt-2">
         {points.length === 0 ? (
-          <p className="text-xs text-muted-foreground px-3 py-2">
+          <p 
+            className="text-xs px-3 py-2"
+            style={{ color: 'var(--theme-text-secondary)' }}
+          >
             No hay puntos en este cuadrante
           </p>
         ) : (
-          <div className="rounded-lg border border-border overflow-hidden">
+          <div 
+            className="rounded-lg border overflow-hidden"
+            style={{ borderColor: 'var(--theme-border)' }}
+          >
             <div className="overflow-x-auto">
              
             <table className="w-full text-sm table-fixed">
                   <thead>
-                    <tr className="border-b border-border bg-muted/50">
+                    <tr 
+                      className="border-b"
+                      style={{ 
+                        borderColor: 'var(--theme-border)',
+                        backgroundColor: 'var(--theme-bg-tertiary)'
+                      }}
+                    >
                       <th className="w-[5%] px-3 py-2"></th>
 
-                      <th className="w-[60%] px-3 py-2 text-left font-medium text-muted-foreground text-xs">
-                        Accionable
+                      <th className="w-[60%] px-3 py-2 text-left font-medium text-xs">
+                        <span style={{ color: 'var(--theme-text-secondary)' }}>Accionable</span>
                       </th>
 
-                      <th className="w-[15%] px-3 py-2 text-left font-medium text-muted-foreground text-xs">
-                        Secuencia
+                      <th className="w-[15%] px-3 py-2 text-left font-medium text-xs">
+                        <span style={{ color: 'var(--theme-text-secondary)' }}>Secuencia</span>
                       </th>
 
-                      <th className="w-[10%] px-3 py-2 text-right font-medium text-muted-foreground text-xs">
-                        Esfuerzo
+                      <th className="w-[10%] px-3 py-2 text-right font-medium text-xs">
+                        <span style={{ color: 'var(--theme-text-secondary)' }}>Esfuerzo</span>
                       </th>
 
-                      <th className="w-[10%] px-3 py-2 text-right font-medium text-muted-foreground text-xs">
-                        Impacto
+                      <th className="w-[10%] px-3 py-2 text-right font-medium text-xs">
+                        <span style={{ color: 'var(--theme-text-secondary)' }}>Impacto</span>
                       </th>
                     </tr>
                   </thead>
@@ -614,7 +735,14 @@ function QuadrantTable({
                       return (
                         <tr
                         key={p.point.label}
-                          className="border-b border-border last:border-b-0 hover:bg-accent/30 transition-colors"
+                          className="border-b last:border-b-0 transition-colors"
+                          style={{ borderColor: 'var(--theme-border)' }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = 'var(--theme-bg-tertiary)'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent'
+                          }}
                         >
                           {/* CHECK BUTTON */}
                           <td className="px-3 py-2">
@@ -626,8 +754,9 @@ function QuadrantTable({
                               className={`flex items-center justify-center w-5 h-5 rounded border transition-colors
                                 ${isChecked 
                                   ? "bg-green-500 border-green-500 text-white" 
-                                  : "border-muted-foreground/40"}
+                                  : ""}
                               `}
+                              style={!isChecked ? { borderColor: 'var(--theme-text-tertiary)' } : {}}
                             >
                               {isChecked && <Check size={14} />}
                             </button>
@@ -635,6 +764,7 @@ function QuadrantTable({
 
                           <td
                             className="px-3 py-2 font-medium truncate cursor-pointer"
+                            style={{ color: 'var(--theme-text-primary)' }}
                             onClick={() => onRowClick?.(p.point, p.seriesName,accionables.find(a => a.contenido === p.point.label) ||createAccionable(0))}
                           >
                             {p.point.label || "-"}
@@ -646,15 +776,26 @@ function QuadrantTable({
                                 className="inline-block h-2 w-2 rounded-full shrink-0"
                                 style={{ backgroundColor: p.seriesColor }}
                               />
-                              <span className="truncate text-xs">{p.seriesName}</span>
+                              <span 
+                                className="truncate text-xs"
+                                style={{ color: 'var(--theme-text-secondary)' }}
+                              >
+                                {p.seriesName}
+                              </span>
                             </div>
                           </td>
 
-                          <td className="px-3 py-2 text-right tabular-nums">
+                          <td 
+                            className="px-3 py-2 text-right tabular-nums"
+                            style={{ color: 'var(--theme-text-primary)' }}
+                          >
                             {p.point.x}
                           </td>
 
-                          <td className="px-3 py-2 text-right tabular-nums">
+                          <td 
+                            className="px-3 py-2 text-right tabular-nums"
+                            style={{ color: 'var(--theme-text-primary)' }}
+                          >
                             {p.point.y}
                           </td>
                         </tr>
@@ -781,10 +922,26 @@ export default function QuadrantScatterChart({
   )
 
   return (
-    <Card className="w-full overflow-visible">
+    <Card 
+      className="w-full overflow-visible"
+      style={{
+        backgroundColor: 'var(--theme-bg-primary)',
+        borderColor: 'var(--theme-border)'
+      }}
+    >
       <CardHeader className="pb-2 sm:pb-4">
-        <CardTitle className="text-balance text-lg sm:text-xl">{title}</CardTitle>
-        <CardDescription className="text-xs sm:text-sm">{description}</CardDescription>
+        <CardTitle 
+          className="text-balance text-lg sm:text-xl"
+          style={{ color: 'var(--theme-text-primary)' }}
+        >
+          {title}
+        </CardTitle>
+        <CardDescription 
+          className="text-xs sm:text-sm"
+          style={{ color: 'var(--theme-text-secondary)' }}
+        >
+          {description}
+        </CardDescription>
       </CardHeader>
       <CardContent className="px-2 sm:px-6">
         <div className="relative">
@@ -859,14 +1016,14 @@ export default function QuadrantScatterChart({
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
-                  tick={{ fontSize: 10 }}
+                  tick={{ fontSize: 10, fill: 'var(--theme-text-tertiary)' }}
                   label={{
                     value: xLabel,
                     position: "insideBottom",
                     offset: -10,
                     style: {
                       fontSize: 10,
-                      fill: "rgba(0,0,0,0.45)",
+                      fill: 'var(--theme-text-tertiary)',
                       fontWeight: 500,
                     },
                   }}
@@ -879,7 +1036,7 @@ export default function QuadrantScatterChart({
                   axisLine={false}
                   tickMargin={4}
                   width={36}
-                  tick={{ fontSize: 10 }}
+                  tick={{ fontSize: 10, fill: 'var(--theme-text-tertiary)' }}
                   label={{
                     value: yLabel,
                     angle: -90,
@@ -887,7 +1044,7 @@ export default function QuadrantScatterChart({
                     offset: 8,
                     style: {
                       fontSize: 10,
-                      fill: "rgba(0,0,0,0.45)",
+                      fill: 'var(--theme-text-tertiary)',
                       fontWeight: 500,
                     },
                   }}
@@ -930,7 +1087,10 @@ export default function QuadrantScatterChart({
                   className="inline-block h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full"
                   style={{ backgroundColor: s.color }}
                 />
-                <span className="text-[10px] sm:text-xs font-medium text-muted-foreground">
+                <span 
+                  className="text-[10px] sm:text-xs font-medium"
+                  style={{ color: 'var(--theme-text-secondary)' }}
+                >
                   {s.name}
                 </span>
               </div>
@@ -940,7 +1100,10 @@ export default function QuadrantScatterChart({
 
         {/* Quadrant Tables */}
         <div className="mt-6 space-y-2">
-          <h3 className="text-sm font-semibold text-foreground mb-3">
+          <h3 
+            className="text-sm font-semibold mb-3"
+            style={{ color: 'var(--theme-text-primary)' }}
+          >
             Puntos por Cuadrante
           </h3>
           <div className="grid grid-cols-1 gap-2">

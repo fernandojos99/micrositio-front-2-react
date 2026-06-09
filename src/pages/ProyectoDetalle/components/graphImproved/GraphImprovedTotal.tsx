@@ -212,13 +212,22 @@ export default function DemoPage() {
   )
 
   return (
-    <main className="min-h-screen bg-background flex flex-col items-center p-3 sm:p-4 md:p-6">
+    <main 
+      className="min-h-screen flex flex-col items-center p-3 sm:p-4 md:p-6"
+      style={{ backgroundColor: 'var(--theme-bg-primary)' }}
+    >
       <div className="w-full max-w-5xl space-y-4 sm:space-y-6">
         <div className="space-y-1 text-center">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground text-balance">
+          <h1 
+            className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-balance"
+            style={{ color: 'var(--theme-text-primary)' }}
+          >
             Accionables de {proyecto?.titulo || "cargando..."}
           </h1>
-          <p className="text-muted-foreground text-xs sm:text-sm">
+          <p 
+            className="text-xs sm:text-sm"
+            style={{ color: 'var(--theme-text-secondary)' }}
+          >
             Puntos cercanos se agrupan con badge. Haz clic para interactuar.
           </p>
         </div>
@@ -254,11 +263,26 @@ export default function DemoPage() {
         {/* Lo que aparece hasta abajo cuando apretamos el modal */}
 
         {lastAction && (
-          <div className="rounded-lg border border-border bg-card p-3 sm:p-4 text-sm text-card-foreground animate-in fade-in-0 slide-in-from-bottom-2 duration-200">
-            <p className="font-medium text-xs text-muted-foreground mb-1">
+          <div 
+            className="rounded-lg border p-3 sm:p-4 text-sm animate-in fade-in-0 slide-in-from-bottom-2 duration-200"
+            style={{
+              borderColor: 'var(--theme-border)',
+              backgroundColor: 'var(--theme-bg-secondary)',
+              color: 'var(--theme-text-primary)'
+            }}
+          >
+            <p 
+              className="font-medium text-xs mb-1"
+              style={{ color: 'var(--theme-text-secondary)' }}
+            >
               Detalles:
             </p>
-            <p className="font-mono text-xs sm:text-sm break-all">{lastAction}</p>
+            <p 
+              className="font-mono text-xs sm:text-sm break-all"
+              style={{ color: 'var(--theme-text-primary)' }}
+            >
+              {lastAction}
+            </p>
           </div>
         )}
       </div>

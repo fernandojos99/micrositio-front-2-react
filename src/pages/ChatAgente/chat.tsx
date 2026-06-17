@@ -136,6 +136,14 @@ export default function Chat() {
       setMessagesLoading(true);
       const data = await fetchSessionMessagesApi(threadId);
 
+      if (data.titulo) {
+        setSessions((prev) =>
+          prev.map((s) =>
+            s.thread_id === threadId ? { ...s, titulo: data.titulo } : s
+          )
+        );
+      }
+
       if (data.messages && Array.isArray(data.messages)) {
         const formatted: Message[] = data.messages.map(
           (msg: { role: string; content: string }) => ({
@@ -279,9 +287,6 @@ export default function Chat() {
             if (!data) continue;
             if (data === "[DONE]") {
               setLoading(false);
-              // Mejorar esto para que se actualice en cuanto llegue el primer mensaje de respuesta
-              // de una nueva sesion.
-              // fetchSessions();
               return;
             }
             try {
@@ -289,10 +294,30 @@ export default function Chat() {
               if (parsed.type === "thread_id" && parsed.thread_id) {
                 threadIdRef.current = parsed.thread_id;
                 setSelectedSession(parsed.thread_id);
+                setSessions((prev) => {
+                  if (prev.some((s) => s.thread_id === parsed.thread_id)) return prev;
+                  const newSession: Session = {
+                    thread_id: parsed.thread_id,
+                    titulo: parsed.titulo ?? null,
+                    last_checkpoint_id: "",
+                    last_update: null,
+                  };
+                  return [newSession, ...prev];
+                });
                 continue;
               }
               const token = extractToken(parsed);
               if (token) appendTokenToLastMessage(token);
+              const titulo = parsed.titulo;
+              if (titulo && threadIdRef.current) {
+                setSessions((prev) =>
+                  prev.map((s) =>
+                    s.thread_id === threadIdRef.current
+                      ? { ...s, titulo }
+                      : s
+                  )
+                );
+              }
             } catch (err) {
               console.error("SSE JSON parse error:", err, data);
             }
@@ -308,17 +333,35 @@ export default function Chat() {
               if (parsed.type === "thread_id" && parsed.thread_id) {
                 threadIdRef.current = parsed.thread_id;
                 setSelectedSession(parsed.thread_id);
+                setSessions((prev) => {
+                  if (prev.some((s) => s.thread_id === parsed.thread_id)) return prev;
+                  const newSession: Session = {
+                    thread_id: parsed.thread_id,
+                    titulo: parsed.titulo ?? null,
+                    last_checkpoint_id: "",
+                    last_update: null,
+                  };
+                  return [newSession, ...prev];
+                });
               } else {
                 const token = extractToken(parsed);
                 if (token) appendTokenToLastMessage(token);
+                const titulo = parsed.titulo;
+                if (titulo && threadIdRef.current) {
+                  setSessions((prev) =>
+                    prev.map((s) =>
+                      s.thread_id === threadIdRef.current
+                        ? { ...s, titulo }
+                        : s
+                    )
+                  );
+                }
               }
             } catch (err) {
               console.error("Final buffer parse error:", err);
             }
           }
         }
-
-        fetchSessions();
       } catch (error) {
         if (error instanceof Error && error.name !== "AbortError") {
           console.error("Streaming error:", error);

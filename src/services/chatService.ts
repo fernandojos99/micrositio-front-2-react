@@ -68,7 +68,7 @@ export async function deleteSession(threadId: string): Promise<void> {
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
 }
 
-export async function streamMessage(body: { message: string; thread_id?: string }, signal?: AbortSignal): Promise<Response> {
+export async function streamMessage(body: { message: string; thread_id?: string; agent_id: string }, signal?: AbortSignal): Promise<Response> {
   const response = await fetch(`${CHAT_API_BASE}/stream`, {
     method: 'POST',
     headers: {

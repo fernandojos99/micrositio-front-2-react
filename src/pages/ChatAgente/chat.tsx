@@ -11,6 +11,8 @@ import {
 import type { Session } from "../../services/chatService";
 import MessageList, { type Message } from "./MessageList";
 import ChatInput from "./ChatInput";
+import { obtenerAgentes } from "../../services/agenteService";
+import type { Agente } from "../../services/agenteService";
 import "./chat.css";
 
 interface ParsedChunkItem {
@@ -41,6 +43,11 @@ export default function Chat() {
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // Agent selector
+  const [agentId, setAgentId] = useState("default");
+  const [agentes, setAgentes] = useState<Agente[]>([]);
+  const [agentesLoading, setAgentesLoading] = useState(true);
 
   // Chat
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
@@ -86,6 +93,22 @@ export default function Chat() {
   // ─── Sessions ────────────────────────────────────────────────────────────────
   useEffect(() => {
     fetchSessions();
+  }, []);
+
+  // ─── Agentes ─────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    const fetchAgentes = async () => {
+      try {
+        setAgentesLoading(true);
+        const data = await obtenerAgentes();
+        setAgentes(data);
+      } catch (error) {
+        console.error("Error fetching agentes:", error);
+      } finally {
+        setAgentesLoading(false);
+      }
+    };
+    fetchAgentes();
   }, []);
 
   const fetchSessions = async () => {
@@ -230,11 +253,9 @@ export default function Chat() {
       abortControllerRef.current = controller;
 
       try {
-        const requestBody: { message: string; thread_id?: string } = {
+        const requestBody: { message: string; thread_id?: string; agent_id: string } = {
           message: userMessage,
-          // thread_id mantiene el contexto de la conversación con el agente.
-          // Si es null, el backend crea un hilo nuevo; si ya existe, el agente
-          // recupera el historial completo de esa sesión.
+          agent_id: agentId,
           ...(threadIdRef.current ? { thread_id: threadIdRef.current } : {}),
         };
 
@@ -311,7 +332,7 @@ export default function Chat() {
         abortControllerRef.current = null;
       }
     },
-    [loading, appendTokenToLastMessage]
+    [loading, appendTokenToLastMessage, agentId]
   );
 
   const stopGeneration = useCallback(() => {
@@ -414,6 +435,23 @@ export default function Chat() {
       {/* Main chat area */}
       <div className="chat-main">
         <div className="chat-container">
+          <div className="chat-agent-header">
+            <label className="agent-select-label">Agente</label>
+            <select
+              className="agent-select"
+              value={agentId}
+              onChange={(e) => setAgentId(e.target.value)}
+              disabled={agentesLoading}
+            >
+              <option value="default">default</option>
+              {agentes.map((agente) => (
+                <option key={agente.id_agente} value={agente.nombre}>
+                  {agente.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* 
             MessageList recibe solo messages/loading → memo la protege de
             re-renders causados por cualquier otra cosa (incluyendo el input).

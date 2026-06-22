@@ -1,0 +1,168 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Agentes API",
+    "description": "Endpoints CRUD para la tabla Agente, consumidos desde React via apiClient (axios).",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://micrositio-iris-backend.onrender.com",
+      "description": "Producción"
+    },
+    {
+      "url": "http://localhost:3001",
+      "description": "Desarrollo local"
+    }
+  ],
+  "paths": {
+    "/agentes/": {
+      "get": {
+        "summary": "Obtener todos los agentes",
+        "operationId": "obtenerAgentes",
+        "responses": {
+          "200": {
+            "description": "Lista de agentes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Agente" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear un nuevo agente",
+        "operationId": "crearAgente",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CrearAgenteData" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Agente creado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Agente" }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Actualizar un agente existente",
+        "operationId": "actualizarAgente",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ActualizarAgenteData" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Agente actualizado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Agente" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar un agente",
+        "operationId": "eliminarAgente",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "integer", "description": "ID del agente a eliminar" }
+                },
+                "required": ["id"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Agente eliminado"
+          }
+        }
+      }
+    },
+    "/agentes/{idAgente}": {
+      "get": {
+        "summary": "Obtener un agente por ID",
+        "operationId": "obtenerAgentePorId",
+        "parameters": [
+          {
+            "name": "idAgente",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Datos del agente",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Agente" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Agente": {
+        "type": "object",
+        "properties": {
+          "id_agente": { "type": "integer", "description": "ID único del agente" },
+          "nombre": { "type": "string", "description": "Nombre del agente" },
+          "link": { "type": "string", "description": "Enlace asociado" },
+          "descripcion": { "type": "string", "description": "Descripción del agente" },
+          "prompt": { "type": "string", "description": "Prompt del agente" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id_agente", "nombre"]
+      },
+      "CrearAgenteData": {
+        "type": "object",
+        "properties": {
+          "nombre": { "type": "string" },
+          "link": { "type": "string" },
+          "descripcion": { "type": "string" },
+          "prompt": { "type": "string" }
+        },
+        "required": ["nombre"]
+      },
+      "ActualizarAgenteData": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "nombre": { "type": "string" },
+          "link": { "type": "string" },
+          "descripcion": { "type": "string" },
+          "prompt": { "type": "string" }
+        },
+        "required": ["id"]
+      }
+    }
+  }
+}

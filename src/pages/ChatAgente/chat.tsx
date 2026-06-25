@@ -7,6 +7,7 @@ import {
   fetchSessionMessages as fetchSessionMessagesApi,
   streamMessage as streamMessageApi,
   pingBackend,
+  generateSessionTitle,
 } from "../../services/chatService";
 import type { Session } from "../../services/chatService";
 import MessageList, { type Message } from "./MessageList";
@@ -23,7 +24,7 @@ interface ParsedSSEData {
   type?: string;
   thread_id?: string;
   token?: string;
-  titulo?: string;  // ← Añadido: el backend puede enviar título durante el stream
+  titulo?: string;
   data?: {
     chunk?: {
       content?: string | ParsedChunkItem[] | string[];
@@ -57,6 +58,7 @@ export default function Chat() {
   // Refs
   const threadIdRef = useRef<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const isNewSessionRef = useRef<boolean>(true);
 
   // Manda ping cada 5 min mientras el componente esté montado para mantener el backend despierto
   useEffect(() => {
@@ -78,13 +80,6 @@ export default function Chat() {
     const id = setInterval(() => {
       check();
     }, 5 * 60 * 1000);
-
-    // Si quiero que se mande mientras esté visto
-    // const id = setInterval(() => {
-    //   if (document.visibilityState === "visible") {
-    //     check();
-    //   }
-    // }, 5 * 60 * 1000);
 
     // Se ejecuta cuando el componente se desmonta
     return () => clearInterval(id);
@@ -111,11 +106,18 @@ export default function Chat() {
     fetchAgentes();
   }, []);
 
+  // ─── Fetch sessions con orden cronológico ──────────────────────────────────
   const fetchSessions = async () => {
     try {
       setSessionsLoading(true);
       const data = await fetchSessionsApi();
-      setSessions(data.sessions);
+      // Ordenar sesiones por fecha de última actualización (más reciente primero)
+      const sortedSessions = data.sessions.sort((a, b) => {
+        if (!a.last_update) return 1;
+        if (!b.last_update) return -1;
+        return new Date(b.last_update).getTime() - new Date(a.last_update).getTime();
+      });
+      setSessions(sortedSessions);
     } catch (error) {
       console.error("Error fetching sessions:", error);
     } finally {
@@ -136,10 +138,13 @@ export default function Chat() {
       setMessagesLoading(true);
       const data = await fetchSessionMessagesApi(threadId);
 
+      // CORREGIDO: Verificar que data.titulo no sea undefined
       if (data.titulo) {
         setSessions((prev) =>
           prev.map((s) =>
-            s.thread_id === threadId ? { ...s, titulo: data.titulo } : s
+            s.thread_id === threadId 
+              ? { ...s, titulo: data.titulo ?? null } // ← Asegurar que sea string | null
+              : s
           )
         );
       }
@@ -178,16 +183,19 @@ export default function Chat() {
     }
   };
 
-  const handleSelectSession = (threadId: string) => {
+  const handleSelectSession = async (threadId: string) => {
     setSelectedSession(threadId);
     threadIdRef.current = threadId;
-    fetchSessionMessages(threadId);
+    isNewSessionRef.current = false;
+    await fetchSessionMessages(threadId);
+    await fetchSessions();
     setSidebarOpen(false);
   };
 
   const handleNewChat = () => {
     setSelectedSession(null);
     threadIdRef.current = null;
+    isNewSessionRef.current = true;
     setMessages([INITIAL_MESSAGE]);
     setSidebarOpen(false);
   };
@@ -201,6 +209,7 @@ export default function Chat() {
       if (selectedSession === threadId) {
         setSelectedSession(null);
         threadIdRef.current = null;
+        isNewSessionRef.current = true;
         setMessages([INITIAL_MESSAGE]);
       }
     } catch (error) {
@@ -243,7 +252,6 @@ export default function Chat() {
   };
 
   // ─── Send message ────────────────────────────────────────────────────────────
-  // Recibe el texto desde ChatInput (solo cuando el usuario presiona Enviar)
   const sendMessage = useCallback(
     async (userMessage: string): Promise<void> => {
       if (!userMessage.trim() || loading) return;
@@ -292,13 +300,15 @@ export default function Chat() {
             try {
               const parsed: ParsedSSEData = JSON.parse(data);
               if (parsed.type === "thread_id" && parsed.thread_id) {
-                threadIdRef.current = parsed.thread_id;
-                setSelectedSession(parsed.thread_id);
+                // CORREGIDO: Asegurar que thread_id no sea undefined
+                const threadId = parsed.thread_id;
+                threadIdRef.current = threadId;
+                setSelectedSession(threadId);
                 setSessions((prev) => {
-                  if (prev.some((s) => s.thread_id === parsed.thread_id)) return prev;
+                  if (prev.some((s) => s.thread_id === threadId)) return prev;
                   const newSession: Session = {
-                    thread_id: parsed.thread_id,
-                    titulo: parsed.titulo ?? null,
+                    thread_id: threadId, // ← threadId es string (no undefined)
+                    titulo: parsed.titulo ?? null, // ← Asegurar que sea string | null
                     last_checkpoint_id: "",
                     last_update: null,
                   };
@@ -313,7 +323,7 @@ export default function Chat() {
                 setSessions((prev) =>
                   prev.map((s) =>
                     s.thread_id === threadIdRef.current
-                      ? { ...s, titulo }
+                      ? { ...s, titulo: titulo ?? null } // ← Asegurar que sea string | null
                       : s
                   )
                 );
@@ -331,13 +341,15 @@ export default function Chat() {
             try {
               const parsed: ParsedSSEData = JSON.parse(data);
               if (parsed.type === "thread_id" && parsed.thread_id) {
-                threadIdRef.current = parsed.thread_id;
-                setSelectedSession(parsed.thread_id);
+                // CORREGIDO: Asegurar que thread_id no sea undefined
+                const threadId = parsed.thread_id;
+                threadIdRef.current = threadId;
+                setSelectedSession(threadId);
                 setSessions((prev) => {
-                  if (prev.some((s) => s.thread_id === parsed.thread_id)) return prev;
+                  if (prev.some((s) => s.thread_id === threadId)) return prev;
                   const newSession: Session = {
-                    thread_id: parsed.thread_id,
-                    titulo: parsed.titulo ?? null,
+                    thread_id: threadId, // ← threadId es string (no undefined)
+                    titulo: parsed.titulo ?? null, // ← Asegurar que sea string | null
                     last_checkpoint_id: "",
                     last_update: null,
                   };
@@ -351,7 +363,7 @@ export default function Chat() {
                   setSessions((prev) =>
                     prev.map((s) =>
                       s.thread_id === threadIdRef.current
-                        ? { ...s, titulo }
+                        ? { ...s, titulo: titulo ?? null } // ← Asegurar que sea string | null
                         : s
                     )
                   );
@@ -362,6 +374,34 @@ export default function Chat() {
             }
           }
         }
+
+        // Generar título para sesiones nuevas
+        if (threadIdRef.current && isNewSessionRef.current) {
+          try {
+            const { titulo } = await generateSessionTitle(threadIdRef.current);
+            // Actualizar la sesión en la lista con el nuevo título
+            setSessions((prev) =>
+              prev.map((s) =>
+                s.thread_id === threadIdRef.current
+                  ? { ...s, titulo: titulo ?? null } // ← Asegurar que sea string | null
+                  : s
+              )
+            );
+            // Marcar que ya no es nueva para no generar título de nuevo
+            isNewSessionRef.current = false;
+          } catch (error) {
+            console.error('Error generando título de sesión:', error);
+            // Si falla, mostrar un título por defecto
+            setSessions((prev) =>
+              prev.map((s) =>
+                s.thread_id === threadIdRef.current
+                  ? { ...s, titulo: 'Nueva conversación' }
+                  : s
+              )
+            );
+          }
+        }
+
       } catch (error) {
         if (error instanceof Error && error.name !== "AbortError") {
           console.error("Streaming error:", error);
@@ -456,7 +496,13 @@ export default function Chat() {
                       </div>
                       {session.last_update && (
                         <div className="session-date">
-                          {new Date(session.last_update).toLocaleDateString()}
+                          {new Date(session.last_update).toLocaleString('es-ES', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
                         </div>
                       )}
                     </div>
@@ -495,20 +541,12 @@ export default function Chat() {
             </select>
           </div>
 
-          {/* 
-            MessageList recibe solo messages/loading → memo la protege de
-            re-renders causados por cualquier otra cosa (incluyendo el input).
-          */}
           <MessageList
             messages={messages}
             loading={loading}
             messagesLoading={messagesLoading}
           />
 
-          {/* 
-            ChatInput maneja su propio estado local de texto → nunca provoca
-            re-renders en MessageList mientras el usuario escribe.
-          */}
           <ChatInput
             onSend={sendMessage}
             onStop={stopGeneration}

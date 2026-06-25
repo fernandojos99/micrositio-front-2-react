@@ -46,6 +46,7 @@ export async function fetchSessions(): Promise<SessionsResponse> {
   });
   if (response.status === 401) handle401();
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  console.log('fetchSessions response:', response);
   return response.json();
 }
 
@@ -95,4 +96,18 @@ export async function pingBackend(): Promise<PingResponse> {
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
   return response.json();
+}
+
+export async function generateSessionTitle(threadId: string): Promise<{ titulo: string }> {
+  console.log("lo intenro generar titulo")
+  const response = await fetch(`${CHAT_API_BASE}/sessions/${threadId}/title`, {
+    method: 'PATCH',
+    headers: { 
+      'Content-Type': 'application/json',
+      ...authHeaders() 
+    },
+  });
+  if (response.status === 401) handle401();
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json(); // El backend devuelve { titulo: "nuevo título" }
 }

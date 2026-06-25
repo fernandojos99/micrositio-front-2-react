@@ -1,13 +1,15 @@
 "use client"
 
+import { useState } from "react"
 import useSWR from "swr"
+import { Plus } from "lucide-react"
 import { obtenerAgentes, type Agente } from "@/services/agenteService.ts"
 import { AgenteCard } from "./agente-card"
-import { ThemeToggle } from "./theme-toggle"
+import { AgenteCreateModal } from "./agente-create-modal"
 import { Skeleton } from "@/components/ui-shadcn2/skeleton"
 
 export function AgentesGrid() {
-  // CORRECCIÓN 1: La clave debe ser un array o string, no un array con opciones
+  const [createOpen, setCreateOpen] = useState(false)
   const { data, error, isLoading, mutate } = useSWR<Agente[]>(
     "agentes", 
     obtenerAgentes, 
@@ -16,12 +18,18 @@ export function AgentesGrid() {
     }
   )
 
-  // CORRECCIÓN 2: Tipar explícitamente el parámetro 'current'
   const handleUpdated = (updated: Agente) => {
     mutate(
-      (current: Agente[] | undefined) => // <-- Aquí se tipa 'current'
+      (current: Agente[] | undefined) =>
         current?.map((a) => (a.id_agente === updated.id_agente ? updated : a)) ?? current,
-      { revalidate: false } // <-- Esto está bien, es la opción de mutate
+      { revalidate: false }
+    )
+  }
+
+  const handleCreated = (nuevo: Agente) => {
+    mutate(
+      (current: Agente[] | undefined) => [...(current ?? []), nuevo],
+      { revalidate: false }
     )
   }
 
@@ -36,7 +44,6 @@ export function AgentesGrid() {
             Explora los agentes disponibles, revisa su prompt completo y edita su información.
           </p>
         </div>
-        <ThemeToggle />
       </header>
 
       {isLoading && (
@@ -54,18 +61,31 @@ export function AgentesGrid() {
       )}
 
       {!isLoading && !error && data && data.length === 0 && (
-        <div className="rounded-xl border border-theme-border bg-theme-bg-secondary p-8 text-center text-theme-text-tertiary">
-          No hay agentes disponibles por el momento.
-        </div>
+        <p className="mb-6 text-center text-theme-text-muted">
+          No hay agentes todavía. Crea el primero con el botón de abajo.
+        </p>
       )}
 
-      {!isLoading && data && data.length > 0 && (
+      {!isLoading && data && (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {data.map((agente) => (
             <AgenteCard key={agente.id_agente} agente={agente} onUpdated={handleUpdated} />
           ))}
+          <button
+            onClick={() => setCreateOpen(true)}
+            className="flex h-full min-h-[14rem] flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-theme-border bg-theme-bg-secondary text-theme-text-muted transition-colors hover:border-theme-accent hover:text-theme-accent"
+          >
+            <Plus className="size-8" />
+            <span className="text-sm font-medium">Nuevo agente</span>
+          </button>
         </div>
       )}
+
+      <AgenteCreateModal
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onCreated={handleCreated}
+      />
     </div>
   )
 }

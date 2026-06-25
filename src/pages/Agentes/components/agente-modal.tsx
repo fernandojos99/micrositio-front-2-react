@@ -67,7 +67,7 @@ export function AgenteModal({ agente, open, onOpenChange, onUpdated }: AgenteMod
     setSaving(field)
     try {
       const updated = await actualizarAgente({
-        id: agente.id_agente,
+        id_agente: agente.id_agente,
         [field]: draft[field],
       })
       onUpdated({ ...agente, ...updated, [field]: draft[field] })

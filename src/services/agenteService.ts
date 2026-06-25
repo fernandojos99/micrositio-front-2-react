@@ -18,7 +18,7 @@ export interface CrearAgenteData {
 }
 
 export interface ActualizarAgenteData {
-  id: number;
+  id_agente: number;
   nombre?: string;
   link?: string;
   descripcion?: string;

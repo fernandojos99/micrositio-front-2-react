@@ -27,7 +27,7 @@ import HomePage from '../pages/HomePage';
 import Proyectos from '../pages/Proyectos/Proyectos';
 import ProyectoDetalle from '../pages/ProyectoDetalle/ProyectoDetalle';
 import Agentes from '../pages/Agentes/Agentes';
-import AgenteDetalle from '../pages/Agentes/AgenteDetalle';
+// import AgenteDetalle from '../pages/Agentes/AgenteDetalle';
 import Formatos from '../pages/Formatos/Formatos';
 import Equipo from '../pages/Equipo/Equipo';
 import Perfil from '../pages/Perfil/Perfil';
@@ -53,7 +53,7 @@ function AppRoutes() {
           <Route path="equipo" element={<Equipo />} />
 
           <Route path="agentes" element={<Agentes />} />
-          <Route path="agentes/:agenteId" element={<AgenteDetalle />} />
+          {/* <Route path="agentes/:agenteId" element={<AgenteDetalle />} /> */}
 
           <Route path="formatos" element={<Formatos />} />
           <Route path="assistant" element={<Assistant />} />

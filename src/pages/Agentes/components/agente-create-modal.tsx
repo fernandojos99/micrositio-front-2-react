@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Save, Loader2 } from "lucide-react"
 import { toast } from "sonner"
-import { crearAgente, type Agente } from "@/services/agenteService"
+import { crearAgente, CATEGORIAS_AGENTE, type Agente } from "@/services/agenteService"
 import {
   Dialog,
   DialogContent,
@@ -15,6 +15,13 @@ import { Button } from "@/components/ui-shadcn2/button"
 import { Input } from "@/components/ui-shadcn2/input"
 import { Textarea } from "@/components/ui-shadcn2/textarea"
 import { Label } from "@/components/ui-shadcn2/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui-shadcn2/select"
 
 interface AgenteCreateModalProps {
   open: boolean
@@ -26,6 +33,7 @@ export function AgenteCreateModal({ open, onOpenChange, onCreated }: AgenteCreat
   const [nombre, setNombre] = useState("")
   const [descripcion, setDescripcion] = useState("")
   const [prompt, setPrompt] = useState("")
+  const [categoria, setCategoria] = useState("")
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<{ nombre?: string; descripcion?: string; prompt?: string }>({})
 
@@ -33,6 +41,7 @@ export function AgenteCreateModal({ open, onOpenChange, onCreated }: AgenteCreat
     setNombre("")
     setDescripcion("")
     setPrompt("")
+    setCategoria("")
     setErrors({})
     setSaving(false)
   }
@@ -59,6 +68,7 @@ export function AgenteCreateModal({ open, onOpenChange, onCreated }: AgenteCreat
         nombre: nombre.trim(),
         descripcion: descripcion.trim(),
         prompt: prompt.trim(),
+        categoria: categoria || undefined,
       })
       onCreated(nuevo)
       toast.success("Agente creado correctamente.")
@@ -107,6 +117,22 @@ export function AgenteCreateModal({ open, onOpenChange, onCreated }: AgenteCreat
               className="border-theme-border bg-theme-bg-secondary text-theme-text-primary"
             />
             {errors.descripcion && <p className="text-sm text-red-500">{errors.descripcion}</p>}
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Label className="text-xs font-semibold uppercase tracking-wide text-theme-accent">
+              Categoría
+            </Label>
+            <Select value={categoria} onValueChange={setCategoria}>
+              <SelectTrigger className="border-theme-border bg-theme-bg-secondary text-theme-text-primary">
+                <SelectValue placeholder="Seleccionar categoría" />
+              </SelectTrigger>
+              <SelectContent className="border-theme-border bg-theme-bg-secondary text-theme-text-primary">
+                {CATEGORIAS_AGENTE.map((cat) => (
+                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="flex flex-col gap-2">

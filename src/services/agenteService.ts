@@ -1,11 +1,22 @@
 import apiClient from '../apiClient';
 
+export const CATEGORIAS_AGENTE = [
+  "Descubrimiento",
+  "Ideación",
+  "Investigación",
+  "Prototipado",
+  "Validación",
+] as const
+
+export type CategoriaAgente = typeof CATEGORIAS_AGENTE[number]
+
 export interface Agente {
   id_agente: number;
   nombre: string;
   link?: string;
   descripcion?: string;
   prompt?: string;
+  categoria?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -15,6 +26,7 @@ export interface CrearAgenteData {
   link?: string;
   descripcion?: string;
   prompt?: string;
+  categoria?: string;
 }
 
 export interface ActualizarAgenteData {
@@ -23,6 +35,7 @@ export interface ActualizarAgenteData {
   link?: string;
   descripcion?: string;
   prompt?: string;
+  categoria?: string;
 }
 
 /**

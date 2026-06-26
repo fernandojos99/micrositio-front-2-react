@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Sparkles, ArrowRight } from "lucide-react"
+import { Sparkles, ArrowRight, Tag } from "lucide-react"
 import type { Agente } from "@/services/agenteService"
 import {
   Card,
@@ -36,7 +36,12 @@ export function AgenteCard({ agente, onUpdated }: AgenteCardProps) {
             {agente.descripcion || "Sin descripción disponible."}
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex-1" />
+        <CardContent className="flex-1">
+          <span className="inline-flex items-center gap-1 rounded-full border border-theme-border bg-theme-bg-tertiary px-2.5 py-0.5 text-xs text-theme-text-secondary">
+            <Tag className="size-3" />
+            {agente.categoria || "default"}
+          </span>
+        </CardContent>
         <CardFooter>
           <Button
             onClick={() => setOpen(true)}

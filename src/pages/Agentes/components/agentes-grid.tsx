@@ -1,15 +1,29 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import useSWR from "swr"
-import { Plus } from "lucide-react"
-import { obtenerAgentes, type Agente } from "@/services/agenteService.ts"
+import { Plus, Search } from "lucide-react"
+import { obtenerAgentes, CATEGORIAS_AGENTE, type Agente } from "@/services/agenteService.ts"
 import { AgenteCard } from "./agente-card"
 import { AgenteCreateModal } from "./agente-create-modal"
 import { Skeleton } from "@/components/ui-shadcn2/skeleton"
+import { Input } from "@/components/ui-shadcn2/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui-shadcn2/select"
+
+function getCategoriaLabel(categoria: string | undefined): string {
+  return categoria || "default"
+}
 
 export function AgentesGrid() {
   const [createOpen, setCreateOpen] = useState(false)
+  const [search, setSearch] = useState("")
+  const [filterCategoria, setFilterCategoria] = useState<string>("todas")
   const { data, error, isLoading, mutate } = useSWR<Agente[]>(
     "agentes", 
     obtenerAgentes, 
@@ -17,6 +31,29 @@ export function AgentesGrid() {
       revalidateOnFocus: false,
     }
   )
+
+  const categoriasDisponibles = useMemo(() => {
+    if (!data) return []
+    const cats = new Set(data.map((a) => getCategoriaLabel(a.categoria)))
+    return Array.from(cats).sort()
+  }, [data])
+
+  const agentesFiltrados = useMemo(() => {
+    if (!data) return []
+    let result = data
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      result = result.filter(
+        (a) =>
+          a.nombre.toLowerCase().includes(q) ||
+          (a.descripcion ?? "").toLowerCase().includes(q)
+      )
+    }
+    if (filterCategoria !== "todas") {
+      result = result.filter((a) => getCategoriaLabel(a.categoria) === filterCategoria)
+    }
+    return result
+  }, [data, search, filterCategoria])
 
   const handleUpdated = (updated: Agente) => {
     mutate(
@@ -46,6 +83,32 @@ export function AgentesGrid() {
         </div>
       </header>
 
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-theme-text-muted" />
+          <Input
+            placeholder="busqueda agente..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9 border-theme-border bg-theme-bg-secondary text-theme-text-primary placeholder:text-theme-text-muted"
+          />
+        </div>
+        <Select value={filterCategoria} onValueChange={setFilterCategoria}>
+          <SelectTrigger className="w-full sm:w-48 border-theme-border bg-theme-bg-secondary text-theme-text-primary">
+            <SelectValue placeholder="Todas las categorías" />
+          </SelectTrigger>
+          <SelectContent className="border-theme-border bg-theme-bg-secondary text-theme-text-primary">
+            <SelectItem value="todas">Todas las categorías</SelectItem>
+            {CATEGORIAS_AGENTE.map((cat) => (
+              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+            ))}
+            {categoriasDisponibles.filter((c) => c === "default" || !(CATEGORIAS_AGENTE as readonly string[]).includes(c)).map((cat) => (
+              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {isLoading && (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -66,11 +129,14 @@ export function AgentesGrid() {
         </p>
       )}
 
-      {!isLoading && data && (
+      {!isLoading && data && agentesFiltrados.length === 0 && data.length > 0 && (
+        <p className="mb-6 text-center text-theme-text-muted">
+          No se encontraron agentes con los filtros actuales.
+        </p>
+      )}
+
+      {!isLoading && data && agentesFiltrados.length > 0 && (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {data.map((agente) => (
-            <AgenteCard key={agente.id_agente} agente={agente} onUpdated={handleUpdated} />
-          ))}
           <button
             onClick={() => setCreateOpen(true)}
             className="flex h-full min-h-[14rem] flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-theme-border bg-theme-bg-secondary text-theme-text-muted transition-colors hover:border-theme-accent hover:text-theme-accent"
@@ -78,6 +144,9 @@ export function AgentesGrid() {
             <Plus className="size-8" />
             <span className="text-sm font-medium">Nuevo agente</span>
           </button>
+          {agentesFiltrados.map((agente) => (
+            <AgenteCard key={agente.id_agente} agente={agente} onUpdated={handleUpdated} />
+          ))}
         </div>
       )}
 

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Pencil, Save, X, Loader2 } from "lucide-react"
 import { toast } from "sonner"
-import { actualizarAgente, type Agente } from "@/services/agenteService"
+import { actualizarAgente, CATEGORIAS_AGENTE, type Agente } from "@/services/agenteService"
 import {
   Dialog,
   DialogContent,
@@ -15,8 +15,15 @@ import { Button } from "@/components/ui-shadcn2/button"
 import { Input } from "@/components/ui-shadcn2/input"
 import { Textarea } from "@/components/ui-shadcn2/textarea"
 import { Label } from "@/components/ui-shadcn2/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui-shadcn2/select"
 
-type EditableField = "nombre" | "descripcion" | "prompt"
+type EditableField = "nombre" | "descripcion" | "prompt" | "categoria"
 
 interface AgenteModalProps {
   agente: Agente
@@ -29,6 +36,7 @@ interface FieldDraft {
   nombre: string
   descripcion: string
   prompt: string
+  categoria: string
 }
 
 function buildDraft(agente: Agente): FieldDraft {
@@ -36,6 +44,7 @@ function buildDraft(agente: Agente): FieldDraft {
     nombre: agente.nombre ?? "",
     descripcion: agente.descripcion ?? "",
     prompt: agente.prompt ?? "",
+    categoria: agente.categoria ?? "",
   }
 }
 
@@ -156,6 +165,70 @@ export function AgenteModal({ agente, open, onOpenChange, onUpdated }: AgenteMod
               </pre>
             )}
           </FieldBlock>
+
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-3">
+              <Label className="text-xs font-semibold uppercase tracking-wide text-theme-accent">
+                Categoría
+              </Label>
+              {editing !== "categoria" ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => startEdit("categoria")}
+                  className="h-8 gap-1.5 text-theme-text-secondary hover:bg-theme-accent-soft hover:text-theme-accent"
+                >
+                  <Pencil className="size-3.5" />
+                  Modificar
+                </Button>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => saveEdit("categoria")}
+                    disabled={saving === "categoria"}
+                    className="h-8 gap-1.5 bg-gradient-to-r from-theme-accent to-theme-accent-2 text-theme-accent-foreground hover:opacity-90"
+                  >
+                    {saving === "categoria" ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
+                    Guardar
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => cancelEdit("categoria")}
+                    disabled={saving === "categoria"}
+                    className="h-8 gap-1.5 border-theme-border text-theme-text-secondary hover:bg-theme-bg-tertiary"
+                  >
+                    <X className="size-3.5" />
+                    Cancelar
+                  </Button>
+                </div>
+              )}
+            </div>
+            {editing === "categoria" ? (
+              <Select
+                value={draft.categoria}
+                onValueChange={(v) => setDraft((d) => ({ ...d, categoria: v }))}
+              >
+                <SelectTrigger className="border-theme-border bg-theme-bg-secondary text-theme-text-primary">
+                  <SelectValue placeholder="Seleccionar categoría" />
+                </SelectTrigger>
+                <SelectContent className="border-theme-border bg-theme-bg-secondary text-theme-text-primary">
+                  <SelectItem value="default">default</SelectItem>
+                  {CATEGORIAS_AGENTE.map((cat) => (
+                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <span className="inline-flex w-fit items-center rounded-full border border-theme-border bg-theme-bg-secondary px-3 py-1 text-sm text-theme-text-secondary">
+                {draft.categoria || "default"}
+              </span>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

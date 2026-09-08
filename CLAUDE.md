@@ -36,14 +36,22 @@ ThemeProvider (src/hooks/useTheme)
 Componente → src/services/<recurso>Service.ts → src/apiClient.ts → backend
 ```
 
-`src/apiClient.ts` es la única instancia de axios del proyecto (hoy **ningún** archivo fuera de él importa axios — mantenlo así). Contiene:
+`src/apiClient.ts` es la única instancia de axios del proyecto (ningún archivo fuera de él importa axios — mantenlo así). Contiene:
 
 - `API_BASE_URL` **hardcodeada** en `http://localhost:3001` (línea 5), con la URL de producción de Render comentada encima. **No hay variable de entorno**: cambiar de entorno = editar este archivo.
 - Interceptor de request: mete `Authorization: Bearer <token>` leyendo `localStorage.jwt_token`.
 - Interceptor de response: ante un **401** borra `jwt_token` y `auth_user` de `localStorage` y dispara `window.dispatchEvent(new CustomEvent('auth:logout'))`, que `AuthContext` escucha para cerrar sesión.
 - `fetchStream(path, options)` — helper aparte basado en `fetch` (no axios) para consumir **SSE**; aplica el mismo token y el mismo manejo de 401.
 
-Hay 32 servicios en `src/services/`, uno por recurso del backend, todos con funciones sueltas exportadas (`obtenerX`, `crearX`, `actualizarX`, `eliminarX`). Al añadir una llamada al backend, **crea o extiende el servicio del recurso**, no llames al `apiClient` desde el componente.
+Hay ~30 servicios en `src/services/`, uno por recurso del backend, con funciones sueltas exportadas (`obtenerX`, `crearX`, `actualizarX`, `eliminarX`). Al añadir una llamada al backend, **crea o extiende el servicio del recurso**, no llames al `apiClient` desde el componente.
+
+`services/index-testingCardDocuments.ts` no es un servicio: es un barrel que reexporta el servicio de documentos, el hook `useDocuments` y el `DocumentManager`.
+
+### Tres sitios que se saltan el `apiClient` — tenlos presentes
+
+1. **`services/chatService.ts`** usa `fetch` crudo, no la instancia axios. Importa `API_BASE_URL` de `apiClient` (así que la URL base sí es la misma), pero **queda fuera de los interceptores**: ni inyección automática del token ni manejo global del 401. Es el servicio de sesiones de chat y del stream SSE.
+2. **`pages/Transcripts/page.tsx`** no habla con el backend del repo: llama con `fetch` a **dos AWS Lambda Function URLs hardcodeadas** en el propio archivo (`.../process-text` y otra de transcripts). Si algo de transcripts falla, no lo busques en `Micrositio-Iris-Backend`.
+3. **`pages/Perfil/components/nuevoHeader/image-uploader.tsx`** exporta `uploadImageFormData` / `uploadImageBase64`, helpers genéricos con `fetch(endpoint, ...)` y sin cabecera de autenticación. Encajan con el endpoint `POST /upload` del backend, que **está comentado** en `src/app.js`.
 
 ⚠️ Los servicios reflejan las inconsistencias del backend, no las arreglan. Ejemplo real en `proyectosService.ts`: `obtenerProyectoPorId` hace `POST /proyectos/p` con `{ id_proyecto }` en el body, y `actualizarProyecto` hace `PATCH /proyectos` metiendo el ID en el body. Antes de escribir un servicio nuevo, mira el archivo de rutas del backend.
 

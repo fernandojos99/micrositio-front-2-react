@@ -15,7 +15,7 @@ React 18 + Vite 6 + TypeScript + Tailwind v3 + shadcn/ui. SPA que consume el bac
 
 1. **`ui-shadcn2` es la carpeta shadcn buena.** Conviven tres carpetas distintas: `components/ui-shadcn2/` (shadcn actual, destino del alias `@/components/ui` en `components.json`), `components/ui-shadcn/` (shadcn legado, aún importado por 4 archivos) y `components/ui/` (componentes propios escritos a mano, no shadcn). Verifica cuál quieres antes de importar.
 2. **Tailwind es v3 vía PostCSS**, no v4. La cadena es `postcss.config.js` → `tailwind.config.js` → `src/tailwind.css`. `@tailwindcss/vite` está en `package.json` pero `vite.config.ts` no lo carga. No migres a v4 por accidente.
-3. **Todo el acceso al backend pasa por `src/services/<recurso>Service.ts`**, que usan la instancia axios única de `src/apiClient.ts` (interceptores de token y de 401). Ningún componente importa axios directamente — mantenlo así.
+3. **El acceso al backend pasa por `src/services/<recurso>Service.ts`**, que usan la instancia axios única de `src/apiClient.ts` (interceptores de token y de 401). Ningún componente importa axios directamente — mantenlo así. Tres excepciones reales: `chatService.ts` usa `fetch` crudo (fuera de los interceptores), `pages/Transcripts/page.tsx` llama a dos Lambda URLs hardcodeadas sin pasar por el backend, y `image-uploader.tsx` expone helpers `fetch` sin auth.
 
 ## Otras cosas que conviene saber
 - `API_BASE_URL` está **hardcodeada** en `src/apiClient.ts` (`http://localhost:3001`), sin variable de entorno. La URL de producción está comentada encima

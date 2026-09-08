@@ -2,6 +2,8 @@
 
 SPA en React 18 + Vite + TypeScript + Tailwind v3 + shadcn/ui. Consume el backend de `../Micrositio-Iris-Backend`. Todo lo de aquí está verificado contra el código.
 
+Para el modelo de negocio (secuencias, testing/learning cards, métricas, plantillas, `FlowEditor`) y las discrepancias de estados entre front y BD: **`../DOMINIO.md`**.
+
 ## Comandos
 
 ```bash

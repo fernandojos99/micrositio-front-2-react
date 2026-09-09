@@ -63,7 +63,6 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({
   onTestingCardsChange,
   onTestingCardSelect,
   onLearningCardSelect,
-  onCardDeselect,
   selectedTestingCardId,
   selectedLearningCardId 
 }, ref) => {
@@ -298,14 +297,14 @@ const FlowEditor = forwardRef<FlowEditorRef, FlowEditorProps>(({
 
   // Escuchar eventos globales que indiquen que se aplicó una plantilla
   useEffect(() => {
-    const handleTestingCardTemplate = (e: any) => {
+    const handleTestingCardTemplate = () => {
       // Recargar datos para reflejar los cambios aplicados por la plantilla
       if (idSecuencia) {
         fetchInitialData();
       }
     };
 
-    const handleSecuenciaTemplate = (e: any) => {
+    const handleSecuenciaTemplate = () => {
       if (idSecuencia) {
         fetchInitialData();
       }

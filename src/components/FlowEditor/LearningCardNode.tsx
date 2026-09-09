@@ -16,7 +16,7 @@ import { UrlLearningCard, obtenerPorLearningCard } from '../../services/urlLearn
 import { MetricaTestingCard, obtenerPorTestingCard } from '../../services/metricaTestingCardService';
 import { Empleado, obtenerEmpleados } from '../../services/empleadosService';
 import './styles/LearningCardNode.css';
-import { obtenerAccionablesPorLearningCard, obtenerAccionablesPorSecuencia } from '@/services/accionableService';
+import { obtenerAccionablesPorLearningCard } from '@/services/accionableService';
 import { Accionable } from '@/pages/Interfaces/accionablesPoints';
 
 /**

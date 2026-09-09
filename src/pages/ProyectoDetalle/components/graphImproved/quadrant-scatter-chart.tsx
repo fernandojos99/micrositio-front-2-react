@@ -522,8 +522,9 @@ function ClusterPopover({
         <div 
           className="flex border-t divide-x"
           style={{ 
-            borderColor: 'var(--theme-border)',
-            divideColor: 'var(--theme-border)'
+            // divideColor no existe en CSSProperties; el separador lo pone la
+            // clase divide-x de Tailwind.
+            borderColor: 'var(--theme-border)'
           }}
         >
           {/* <button

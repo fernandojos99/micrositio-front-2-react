@@ -112,6 +112,7 @@ const EditarProyectoModal: React.FC<EditarProyectoModalProps> = ({
         apellido_paterno: empleado.apellido_paterno,
         apellido_materno: empleado.apellido_materno,
         correo: empleado.correo,
+        numero_empleado: empleado.numero_empleado,
         activo: empleado.activo
       }));
 

@@ -1,7 +1,10 @@
 import apiClient from '../apiClient';
 
 export interface Usuario {
-  id_usuario: number;
+  // UUID: la columna usuarios.id_usuario es uuid, no un entero. Estaba
+  // declarado como number y por eso chocaba con todas las funciones de este
+  // mismo archivo, que ya reciben string.
+  id_usuario: string;
   alias: string;
   password_hash: string;
   tipo: 'EDITOR' | 'VISITANTE';

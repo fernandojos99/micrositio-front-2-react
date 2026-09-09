@@ -1,7 +1,10 @@
 import apiClient from '../apiClient';
 
 export interface Empleado {
-  id: number;
+  // La API devuelve id_empleado, nunca id: la PK de la tabla empleado se
+  // llama asi. Este tipo declaraba 'id', que no existe en la respuesta, y por
+  // eso seis archivos redeclaraban Empleado por su cuenta con el nombre bueno.
+  id_empleado: number;
   nombre_pila: string;
   apellido_paterno: string;
   apellido_materno?: string;
@@ -27,7 +30,7 @@ export interface CrearEmpleadoData {
 }
 
 export interface ActualizarEmpleadoData {
-  id: number;
+  id_empleado: number;
   nombre_pila?: string;
   apellido_paterno?: string;
   apellido_materno?: string;
@@ -263,7 +266,7 @@ export const crearEmpleado = async (empleadoData: CrearEmpleadoData): Promise<Em
  * @returns {Promise<Empleado>} El empleado actualizado
  */
 export const actualizarEmpleado = async (empleadoData: ActualizarEmpleadoData): Promise<Empleado> => {
-  const response = await apiClient.patch(`/empleados/${empleadoData.id}`, empleadoData);
+  const response = await apiClient.patch(`/empleados/${empleadoData.id_empleado}`, empleadoData);
   return response.data;
 };
 

@@ -154,8 +154,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
 
     try {
       // Crear el usuario usando el servicio
-      const nuevoUsuario = await crearUsuarioVisitante({
-        alias: formData.alias,
+      await crearUsuarioVisitante({        alias: formData.alias,
         password: formData.password,
         tipo: 'VISITANTE', // Por defecto los registros desde el frontend son visitantes
         activo: true

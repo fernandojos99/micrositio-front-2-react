@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useCallback, useEffect } from "react"
-import { ProfileHeader } from "./components/profile-header"
 import { PersonalInfoSection } from "./components/personal-info-section"
 import { UserConfigSection } from "./components/user-config-section"
 import { DateValue, ProfileSection } from "./components/profile-section"
@@ -154,7 +153,7 @@ useEffect(() => {
     if (!empleado) return
     try {
       const updated = await actualizarEmpleado({
-        id:Number( empleado.id),
+        id_empleado: Number(empleado.id_empleado),
         correo,
       })
       setEmpleado(updated)
@@ -228,7 +227,7 @@ const handleSaveAboutMe = useCallback(async (data: AboutMeData) => {
   try {
     const updated = await actualizarEmpleado({
       
-      id: Number(empleado.id ), // 👈 asegúrate de tener este valor
+      id_empleado: Number(empleado.id_empleado),
       //cargo: data.cargo,
       //departamento: data.departamento,
       infopersonal: data.description    });
@@ -259,7 +258,7 @@ const handleSaveAboutMe = useCallback(async (data: AboutMeData) => {
         // 2. Enviamos el arreglo al servidor
         // Agregamos 'habilidades' al objeto que se envía
         await actualizarEmpleado({
-          id: Number(empleado.id),
+          id_empleado: Number(empleado.id_empleado),
           // @ts-ignore (Si tu interfaz ActualizarEmpleadoData aún no tiene el campo)
           habilidades: habilidadesValidas 
         });
@@ -312,7 +311,7 @@ const handleSaveWorkInfo = useCallback(async (data: WorkInfoData) => {
     try {
         // 1. Llamada al servicio
         const updated = await actualizarEmpleado({
-          id: Number(empleado.id),
+          id_empleado: Number(empleado.id_empleado),
           // Mapeamos los nombres de la UI a los nombres de la base de datos
           cargo: data.rol, 
           departamento: data.departamento // Mantenemos lo que ya existe
@@ -353,7 +352,7 @@ const handleSaveWorkInfo = useCallback(async (data: WorkInfoData) => {
       : undefined;
 
     await actualizarEmpleado({
-      id: Number(empleado.id),
+      id_empleado: Number(empleado.id_empleado),
       fecha_ingreso: fechaFormateada,
     });
 
@@ -385,7 +384,7 @@ const handleSaveExperience = useCallback(async (date: DateValue) => {
       : undefined;
 
     await actualizarEmpleado({
-      id: Number(empleado.id),
+      id_empleado: Number(empleado.id_empleado),
       fecha_ingreso: fechaFormateada,
     });
 

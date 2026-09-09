@@ -1,11 +1,9 @@
-import * as React from "react"
 import { useState, useEffect, useMemo } from "react"
 import { Info, Briefcase, Building, X, Plus, Save, Loader2, Undo2 } from "lucide-react"
 import { Button } from "@/components/ui-shadcn2/button"
 import { Textarea } from "@/components/ui-shadcn2/textarea"
 import { Input } from "@/components/ui-shadcn/input"
 import { Label } from "@/components/ui-shadcn2/label"
-import { cn } from "@/lib/utils"
 import {
   Select,
   SelectContent,

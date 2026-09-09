@@ -8,20 +8,13 @@ import {
   Rocket, 
   Code, 
   FileText, 
-  Share2, 
-  Search, 
-  BookOpen,
   ArrowRight,
   Play,
   Users,
   TrendingUp,
-  Star,
-  ChevronRight
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import FeatureCard from '../components/cards/FeatureCard';
-import InnovationCard from '../components/cards/InnovationCard';
 import LoginModal from '../components/auth/LoginModal';
 import styles from './HomePage.module.css';
 import { obtenerEmpleados } from '@/services/empleadosService';

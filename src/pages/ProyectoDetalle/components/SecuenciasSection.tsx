@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Edit, FlaskConical, Save, Check } from 'lucide-react';
+import { Plus, Trash2, Edit, FlaskConical, Check } from 'lucide-react';
 import { Secuencia } from '../../../types/secuencia';
 import Button from '../../../components/ui-propios/Button/Button';
 import ConfirmationModal from '../../../components/ui-propios/ConfirmationModal/ConfirmationModal';
@@ -281,8 +281,7 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
 
 
       // Llamar al endpoint para crear la plantilla
-      const nuevaPlantilla = await crearPlantillaSecuencia(plantillaData);
-      
+      await crearPlantillaSecuencia(plantillaData);      
       alert(`¡Plantilla guardada exitosamente para la secuencia "${secuencia.nombre}"!`);
       
     } catch (error: any) {

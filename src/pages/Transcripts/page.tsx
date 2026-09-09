@@ -55,8 +55,6 @@
    import {
      Upload,
      X,
-     Plus,
-     Trash2,
      Copy,
      Check,
      FileText,
@@ -131,10 +129,10 @@
      const [docxFile, setDocxFile] =
        useState<File | null>(null)
    
-     const [templateId, setTemplateId] =
+     const [templateId] =
        useState("")
    
-     const [variables, setVariables] =
+     const [variables] =
        useState("")
    
      const [variablesWithMeaning, setVariablesWithMeaning] =

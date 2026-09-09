@@ -52,10 +52,10 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
   //onUseTemplate,
 }) => {
   // Estados locales para el manejo de datos y UI
-  const [templateData, setTemplateData] = useState<TemplateServiceResponse | null>(null);
+  const [, setTemplateData] = useState<TemplateServiceResponse | null>(null);
   const [loadingState, setLoadingState] = useState<LoadingState>(TEMPLATE_CONSTANTS.LOADING_STATES.IDLE);
   const [error, setError] = useState<string | null>(null);
-  const [showDetails, setShowDetails] = useState(true);
+  const [showDetails] = useState(true);
   
   // Estados para la Testing Card seleccionada
   const [selectedTestingCard, setSelectedTestingCard] = useState<any | null>(null);
@@ -234,7 +234,7 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
     return (
       <div className="selected-card-metricas-list">
         {selectedCardMetricas.map((metrica) => (
-          <div key={metrica.id} className="selected-card-metrica-item" style={{
+          <div key={metrica.id_metrica} className="selected-card-metrica-item" style={{
             marginBottom: '8px',
             padding: '8px',
             backgroundColor: 'rgba(59, 130, 246, 0.05)',

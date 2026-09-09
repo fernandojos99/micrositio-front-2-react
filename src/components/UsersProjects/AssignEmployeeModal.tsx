@@ -119,7 +119,6 @@ const AssignEmployeeModal: React.FC<AssignEmployeeModalProps> = ({
       } else if (response && typeof response === 'object' && 'data' in response && Array.isArray((response as any).data)) {
         // El backend devuelve {success: true, data: [...], total: number}
         const responseData = (response as any).data;
-        const responseTotal = (response as any).total;
         setEmpleadosSafely(responseData);
       } else {
         console.error('❌ Los datos recibidos no tienen el formato esperado:', response);
@@ -230,8 +229,7 @@ const AssignEmployeeModal: React.FC<AssignEmployeeModalProps> = ({
         usuarioId: userId
       });
       
-      const resultado = await asignarEmpleadoUsuario(userId, empleadoId);
-      
+      await asignarEmpleadoUsuario(userId, empleadoId);      
       
       // Notificar éxito
       onEmployeeAssigned?.();

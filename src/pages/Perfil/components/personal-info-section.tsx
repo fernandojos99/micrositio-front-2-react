@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { User, Mail, Phone, Edit3, Save, X, CheckCircle2 } from "lucide-react"
+import { User, Mail, Edit3, Save, X } from "lucide-react"
 import { Button } from "@/components/ui-shadcn2/button"
 import { Input } from "@/components/ui-shadcn/input"
 import { useToast } from "@/hooks/use-toast"

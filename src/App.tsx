@@ -14,8 +14,7 @@ function App() {
   useEffect(() => {
     const checkBackend = async () => {
       try {
-        const data = await pingBackend();
-
+        await pingBackend();
       } catch (err) {
         console.error('Backend no disponible', err);
       }

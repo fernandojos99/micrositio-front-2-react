@@ -3,7 +3,22 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 
-import { Proyecto } from '../../types/proyecto';
+/**
+ * Esta pagina no muestra un Proyecto completo, sino una vista reducida con los
+ * campos ya mapeados para pintar la tarjeta. Antes se tipaba como Proyecto y no
+ * cuadraba: faltaban id_categoria, fecha_fin_estimada e id_lider, y ademas
+ * renombraba fecha_inicio a fechaInicio, con lo que proyecto.fechaInicio ni
+ * siquiera existia en el tipo declarado.
+ */
+interface ProyectoTarjeta {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  estado: string;
+  fechaInicio: string;
+  fechaCreacion: string;
+  colaboradores: never[];
+}
 import Button from '../../components/ui-propios/Button/Button';
 import NuevoProyectoModal from './components/NuevoProyectoModal';
 import ColaboradoresPreview from './components/ColaboradoresPreview';
@@ -13,7 +28,7 @@ import { obtenerProyectos } from '../../services/proyectosService';
 
 const Proyectos: React.FC = () => {
   const navigate = useNavigate();
-  const [proyectos, setProyectos] = useState<Proyecto[]>([]);
+  const [proyectos, setProyectos] = useState<ProyectoTarjeta[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);

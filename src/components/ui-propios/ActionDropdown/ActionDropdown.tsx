@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { MoreVertical } from 'lucide-react';
 import styles from './ActionDropdown.module.css';
 
 /**

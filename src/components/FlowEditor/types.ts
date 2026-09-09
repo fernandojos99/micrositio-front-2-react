@@ -32,15 +32,12 @@ export interface Attachment {
  * Tipos para métricas reales de la BD
  * @interface MetricaTestingCard
  */
-export interface MetricaTestingCard {
-  id_metrica: number;
-  id_testing_card: number;
-  nombre: string;
-  operador: string;
-  criterio: string;
-  created_at?: string;
-  updated_at?: string;
-}
+// Definicion unica: la de services/metricaTestingCardService, que es la que
+// coincide con lo que devuelve la API. Aqui habia una copia con created_at /
+// updated_at y sin 'resultado'; el modelo del backend los renombra a creado /
+// actualizado en toAPI(), asi que esos campos nunca llegaban con ese nombre.
+import type { MetricaTestingCard } from '../../services/metricaTestingCardService';
+export type { MetricaTestingCard };
 
 /**
  * Ajuste de TestingCardData para coincidir con la BD

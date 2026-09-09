@@ -169,8 +169,7 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
 
       // Paso 2: Aplicar la plantilla a la Testing Card actual
       //const plantillaId = parseInt(id_plantilla_testing_card);
-      const aplicacionResponse = await aplicarPlantillaATestingCard(id_testing_card, id_plantilla_testing_card);
-      
+      await aplicarPlantillaATestingCard(id_testing_card, id_plantilla_testing_card);      
 
       // Disparar evento global para notificar a editores que deben recargar datos
       try {

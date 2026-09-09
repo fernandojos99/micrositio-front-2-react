@@ -239,8 +239,7 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
         throw new Error(`ID de plantilla secuencia inválido: ${plantillaId}`);
       }
       
-      const aplicacionResponse = await aplicarPlantillaSecuencia(
-        secuenciaDestinoId, 
+      await aplicarPlantillaSecuencia(        secuenciaDestinoId, 
         plantillaId
       );
 

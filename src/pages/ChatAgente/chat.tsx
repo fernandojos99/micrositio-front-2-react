@@ -64,8 +64,7 @@ export default function Chat() {
   useEffect(() => {
     const check = async () => {
       try {
-        const data = await pingBackend();
-      } catch (err) {
+        await pingBackend();      } catch (err) {
         console.error("Backend no disponible", err);
       }
     };

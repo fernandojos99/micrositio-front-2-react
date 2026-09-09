@@ -17,8 +17,6 @@ interface HeaderProps {
 
 export default function Header({
   initialUser,
-  correo,
-  tipo,
   empleado,
   imagen,
   onImageChange,

@@ -9,11 +9,14 @@ Para el modelo de negocio (secuencias, testing/learning cards, métricas, planti
 ```bash
 npm run dev       # Vite dev server en :5173
 npm run build     # vite build
+npm run typecheck # tsc --noEmit -p tsconfig.app.json
 npm run lint      # ESLint (flat config en eslint.config.js)
 npm run preview   # sirve el build
 ```
 
-**No hay typecheck ni tests.** `npm run build` es `vite build` a secas, sin `tsc` delante: **un error de TypeScript no rompe el build**, solo se ve en el IDE. `npm run lint` es la única verificación automatizable.
+**No hay tests.** `npm run build` sigue siendo `vite build` a secas: **un error de TypeScript no rompe el build**. Para verlos hay que ejecutar `npm run typecheck` — y hay que usar ese script, no `tsc --noEmit` a secas, porque el `tsconfig.json` raíz tiene `"files": []` y devuelve 0 errores sin compilar nada.
+
+`.github/workflows/ci.yml` ejecuta typecheck, lint y build en cada push. Los dos primeros funcionan como **trinquete**: fallan solo si el número de errores sube por encima del límite fijado en el propio workflow (hoy 19 de TypeScript y 173 de ESLint). Al arreglar errores, baja también el límite.
 
 ## Punto de entrada y providers
 
@@ -40,14 +43,12 @@ Componente → src/services/<recurso>Service.ts → src/apiClient.ts → backend
 
 `src/apiClient.ts` es la única instancia de axios del proyecto (ningún archivo fuera de él importa axios — mantenlo así). Contiene:
 
-- `API_BASE_URL` **hardcodeada** en `http://localhost:3001` (línea 5), con la URL de producción de Render comentada encima. **No hay variable de entorno**: cambiar de entorno = editar este archivo.
+- `API_BASE_URL` **hardcodeada**, sin variable de entorno: cambiar de entorno = editar este archivo. En el commit apunta a Render; en el árbol de trabajo suele estar cambiada a `http://localhost:3001` con la de Render comentada. Mira `git diff src/apiClient.ts` antes de sacar conclusiones.
 - Interceptor de request: mete `Authorization: Bearer <token>` leyendo `localStorage.jwt_token`.
 - Interceptor de response: ante un **401** borra `jwt_token` y `auth_user` de `localStorage` y dispara `window.dispatchEvent(new CustomEvent('auth:logout'))`, que `AuthContext` escucha para cerrar sesión.
 - `fetchStream(path, options)` — helper aparte basado en `fetch` (no axios) para consumir **SSE**; aplica el mismo token y el mismo manejo de 401.
 
 Hay ~30 servicios en `src/services/`, uno por recurso del backend, con funciones sueltas exportadas (`obtenerX`, `crearX`, `actualizarX`, `eliminarX`). Al añadir una llamada al backend, **crea o extiende el servicio del recurso**, no llames al `apiClient` desde el componente.
-
-`services/index-testingCardDocuments.ts` no es un servicio: es un barrel que reexporta el servicio de documentos, el hook `useDocuments` y el `DocumentManager`.
 
 ### Tres sitios que se saltan el `apiClient` — tenlos presentes
 
@@ -55,7 +56,7 @@ Hay ~30 servicios en `src/services/`, uno por recurso del backend, con funciones
 2. **`pages/Transcripts/page.tsx`** no habla con el backend del repo: llama con `fetch` a **dos AWS Lambda Function URLs hardcodeadas** en el propio archivo (`.../process-text` y otra de transcripts). Si algo de transcripts falla, no lo busques en `Micrositio-Iris-Backend`.
 3. **`pages/Perfil/components/nuevoHeader/image-uploader.tsx`** exporta `uploadImageFormData` / `uploadImageBase64`, helpers genéricos con `fetch(endpoint, ...)` y sin cabecera de autenticación. Encajan con el endpoint `POST /upload` del backend, que **está comentado** en `src/app.js`.
 
-⚠️ Los servicios reflejan las inconsistencias del backend, no las arreglan. Ejemplo real en `proyectosService.ts`: `obtenerProyectoPorId` hace `POST /proyectos/p` con `{ id_proyecto }` en el body, y `actualizarProyecto` hace `PATCH /proyectos` metiendo el ID en el body. Antes de escribir un servicio nuevo, mira el archivo de rutas del backend.
+Los cinco recursos principales (proyectos, secuencias, testing cards, learning cards y empleados) ya usan **rutas REST con el ID en el path**. El backend mantiene además las rutas antiguas, que llevaban el ID en el body — incluido un `GET` con body —, para no romper a clientes sin migrar; no las uses en código nuevo. El resto de recursos sigue sin normalizar: **antes de escribir un servicio nuevo, mira el archivo de rutas del backend**.
 
 ## Estado global
 
@@ -65,7 +66,7 @@ Hay ~30 servicios en `src/services/`, uno por recurso del backend, con funciones
 | `contexts/AppContext.tsx` | Estado de aplicación compartido |
 | `contexts/UIContext.tsx` | Estado de interfaz (modales, paneles) |
 
-Hooks propios en `src/hooks/`: `useTheme` (además exporta el `ThemeProvider`), `use-toast`, `useDocuments`, `useEmpleados`, `useNodePositions`, `useProyectoNavigation`.
+Hooks propios en `src/hooks/`: `useTheme` (además exporta el `ThemeProvider`), `use-toast`, `useEmpleados`, `useNodePositions`, `useProyectoNavigation`.
 
 `swr` está instalado pero se usa en **un solo archivo** (`pages/Agentes/components/agentes-grid.tsx`). El patrón dominante sigue siendo `useEffect` + servicio.
 
@@ -75,11 +76,13 @@ Hooks propios en `src/hooks/`: `useTheme` (además exporta el `ThemeProvider`), 
 |---|---|---|
 | `src/components/ui-shadcn2/` | **shadcn/ui actual** (16 componentes). Es el destino del alias `@/components/ui` según `components.json` | ✅ Aquí van los componentes shadcn nuevos |
 | `src/components/ui-shadcn/` | shadcn viejo (6 componentes), aún importado por 4 archivos | ⚠️ Legado, no añadir nada |
-| `src/components/ui/` | Componentes **propios** del proyecto, no shadcn (`Modal`, `ConfirmationModal`, `Dropdown`, `ActionDropdown`, `Button`, `Busqueda`) | Aquí van los componentes genéricos escritos a mano |
+| `src/components/ui-propios/` | Componentes **propios** del proyecto, no shadcn (`Modal`, `ConfirmationModal`, `Dropdown`, `ActionDropdown`, `Button`, `Busqueda`) | Aquí van los componentes genéricos escritos a mano |
 
-Ojo con el desfase: `components.json` mapea el alias `ui` a `@/components/ui-shadcn2`, pero en el código **existe** un `@/components/ui` real que es otra cosa. Al ejecutar `npx shadcn add`, el componente cae en `ui-shadcn2`; al escribir un import a mano, verifica cuál de las tres quieres.
+Esta carpeta se llamaba `ui/`, que colisionaba con el alias `ui` que `components.json` mapea a `ui-shadcn2`: se renombró para que el nombre no engañe.
 
-El resto de `src/components/` son módulos de dominio: `FlowEditor`, `DocumentManager`, `ExperimentCard`, `ExperimentModal`, `SaveDocumentationModal`, `UsersProjects`, `Filters`, `PieChart`, `cards`, `listItems`, `auth`, `layout`, `ErrorBoundary`.
+`ui-shadcn/` sigue viva a propósito. Su `Input` y el de `ui-shadcn2` son de generaciones distintas de shadcn y **no se ven igual** (anillo de foco, sombra, dark mode), así que unificarlas cambia el aspecto de las 4 pantallas que la usan y necesita revisión visual.
+
+El resto de `src/components/` son módulos de dominio: `FlowEditor`, `ExperimentCard`, `ExperimentModal`, `SaveDocumentationModal`, `UsersProjects`, `Filters`, `PieChart`, `cards`, `listItems`, `auth`, `layout`, `ErrorBoundary`.
 
 ## Estilos
 
@@ -88,8 +91,6 @@ Tailwind **v3 por PostCSS**, no v4:
 ```
 postcss.config.js → tailwind.config.js → src/tailwind.css (variables CSS de shadcn)
 ```
-
-`@tailwindcss/vite` (el plugin de Tailwind v4) está en `package.json` pero **`vite.config.ts` solo carga `@vitejs/plugin-react`** — no se usa. No migres a v4 por accidente al ver esa dependencia.
 
 Estilo shadcn: `new-york`, base color `neutral`, CSS variables activadas, iconos `lucide-react`. Utilidad `cn()` en `src/lib/utils.ts` (`clsx` + `tailwind-merge`). Variantes con `class-variance-authority`.
 
@@ -141,15 +142,16 @@ En el código conviven imports con alias (`@/pages/...`) y relativos (`../pages/
 
 - **Vercel**, con `vercel.json` reescribiendo todas las rutas a `/index.html` (necesario para el router del lado cliente).
 - `index.html` carga Google Analytics (`G-FGHRMXS7TY`) y Microsoft Clarity (`w1ex3ex3i3`).
-- El backend en producción es el de Render, cuya URL está **comentada** en `apiClient.ts`: un despliegue hoy saldría apuntando a `localhost:3001`. Revísalo antes de publicar.
+- El backend en producción es el de Render y **es lo que hay commiteado** en `apiClient.ts`, así que un despliegue desde HEAD sale bien. Lo que rompe un deploy es publicar con el cambio local a `localhost:3001` sin revertir: compruébalo antes.
 
 ## Ruido en el repositorio — no lo tomes como ejemplo
 
-- `Untitled-1.jsonc` y `debug-guardar-boton.js` en la raíz: restos de depuración.
 - Imágenes sueltas en la raíz de `src/` (`logoIRIS.png`, `COPILOT.jpg`, `iconCopilot.png`, `icons8-chatgpt-50.png`…) en vez de en `public/` o `src/assets/`.
-- `openapi.agentes.json` en la raíz, desincronizado del backend.
-- `firebase` está en `package.json` pero **no tiene ni un import en `src/`**. No asumas que hay Firebase.
+
+## Declaraciones sin usar que apuntan a funcionalidad desconectada
+
+`npm run typecheck` reporta 19 errores, todos `TS6133` (declarado y nunca usado). Varios no son basura, son síntomas: `handleAddSkill`, `handleRemoveSkill` y `handleUpdateSkill` en `pages/Perfil/Perfil.tsx`, y `addVariable`, `removeVariable` y `updateVariable` en `pages/Transcripts/page.tsx`, existen pero **no los llama nadie**. Antes de borrarlos, comprueba si la UI correspondiente debería estar conectada.
 
 ## Estado del repositorio
 
-Repo git propio (independiente del backend), rama `dev3`, con `src/apiClient.ts` modificado sin commitear (es el cambio de URL a `localhost:3001`).
+Repo git propio (independiente del backend), rama `dev3`. `src/apiClient.ts` apunta a Render en el commit; el cambio a `localhost:3001` es local y no está commiteado.

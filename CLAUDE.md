@@ -29,7 +29,7 @@ ThemeProvider (src/hooks/useTheme)
 └── UIProvider (src/contexts/UIContext)
     └── AuthProvider (src/contexts/AuthContext)
         └── AppProvider (src/contexts/AppContext)
-            ├── <Toaster />           (ui-shadcn2/toaster)
+            ├── <Toaster />           (ui-shadcn/toaster)
             └── <Router> → <AppRoutes />
 ```
 
@@ -70,17 +70,20 @@ Hooks propios en `src/hooks/`: `useTheme` (además exporta el `ThemeProvider`), 
 
 `swr` está instalado pero se usa en **un solo archivo** (`pages/Agentes/components/agentes-grid.tsx`). El patrón dominante sigue siendo `useEffect` + servicio.
 
-## Componentes: tres carpetas, tres cosas distintas
+## Componentes: dos carpetas, dos cosas distintas
 
 | Carpeta | Qué es | Regla |
 |---|---|---|
-| `src/components/ui-shadcn2/` | **shadcn/ui actual** (16 componentes). Es el destino del alias `@/components/ui` según `components.json` | ✅ Aquí van los componentes shadcn nuevos |
-| `src/components/ui-shadcn/` | shadcn viejo (6 componentes), aún importado por 4 archivos | ⚠️ Legado, no añadir nada |
+| `src/components/ui-shadcn/` | **shadcn/ui** (17 componentes). Destino del alias `@/components/ui` de `components.json`, o sea donde escribe `npx shadcn add` | ✅ Aquí van los componentes shadcn |
 | `src/components/ui-propios/` | Componentes **propios** del proyecto, no shadcn (`Modal`, `ConfirmationModal`, `Dropdown`, `ActionDropdown`, `Button`, `Busqueda`) | Aquí van los componentes genéricos escritos a mano |
 
-Esta carpeta se llamaba `ui/`, que colisionaba con el alias `ui` que `components.json` mapea a `ui-shadcn2`: se renombró para que el nombre no engañe.
+Antes había **tres**: una `ui/` que no era shadcn pese al nombre (hoy `ui-propios/`), y dos carpetas shadcn duplicadas, `ui-shadcn/` y `ui-shadcn2/`. Ya están fusionadas en `ui-shadcn/`.
 
-`ui-shadcn/` sigue viva a propósito. Su `Input` y el de `ui-shadcn2` son de generaciones distintas de shadcn y **no se ven igual** (anillo de foco, sombra, dark mode), así que unificarlas cambia el aspecto de las 4 pantallas que la usan y necesita revisión visual.
+⚠️ **Cuidado al ejecutar `npx shadcn add`.** El CLI actual genera para Tailwind **v4** y este proyecto es **v3**. Así nació la duplicación, y dejó un defecto real: los componentes de la generación nueva traían `shadow-xs`, una clase que **no existe en la escala de v3** (`sm, DEFAULT, md, lg, xl, 2xl, inner, none`) y que por tanto no pintaba nada. Tras añadir un componente, compáralo con sus hermanos ya instalados y revisa que no traiga clases de v4.
+
+La carpeta es mayoritariamente de la generación con `forwardRef` + `displayName`, que es la compatible con v3. La excepción es `dropdown-menu.tsx`, que es de la generación nueva (`data-slot`): se conservó tal cual al fusionar porque funciona y no trae ninguna clase rota, y reescribirlo era riesgo sin beneficio.
+
+Pendiente de decidir: `ui-propios/` tiene además un `Dropdown` y un `ActionDropdown` escritos a mano que se solapan con el `dropdown-menu` de shadcn.
 
 El resto de `src/components/` son módulos de dominio: `FlowEditor`, `ExperimentCard`, `ExperimentModal`, `SaveDocumentationModal`, `UsersProjects`, `Filters`, `PieChart`, `cards`, `listItems`, `auth`, `layout`, `ErrorBoundary`.
 

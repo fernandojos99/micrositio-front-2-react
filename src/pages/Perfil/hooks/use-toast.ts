@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import type { ToastActionElement, ToastProps } from '@/components/ui-shadcn2/toast'
+import type { ToastActionElement, ToastProps } from '@/components/ui-shadcn/toast'
 
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 5000 // 5 segundos es lo estándar

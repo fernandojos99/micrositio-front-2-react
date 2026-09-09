@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useState, useCallback, useRef } from "react"
 import { Upload, X, Image as ImageIcon, Loader2 } from "lucide-react"
-import { Button } from "@/components/ui-shadcn2/button"
+import { Button } from "@/components/ui-shadcn/button"
 import { cn } from "@/lib/utils"
 
 interface ImageUploaderProps {

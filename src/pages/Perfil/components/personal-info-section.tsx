@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { User, Mail, Edit3, Save, X } from "lucide-react"
-import { Button } from "@/components/ui-shadcn2/button"
+import { Button } from "@/components/ui-shadcn/button"
 import { Input } from "@/components/ui-shadcn/input"
 import { useToast } from "@/hooks/use-toast"
 // import type { Empleado, User as UserType } from "./../types/profile"

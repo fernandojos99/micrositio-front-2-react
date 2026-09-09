@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui-shadcn/dropdown-menu"
-import { Button } from "../ui-shadcn2/button"
+import { Button } from "../ui-shadcn/button"
 import { Accionable } from "@/pages/Interfaces/accionablesPoints"
 
 

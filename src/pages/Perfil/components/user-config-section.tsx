@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Shield, User, Key, Edit3, Save, X, Eye, EyeOff } from "lucide-react"
-import { Button } from "@/components/ui-shadcn2/button"
+import { Button } from "@/components/ui-shadcn/button"
 import { Input } from "@/components/ui-shadcn/input"
 //import { useToast } from "./../hooks/use-toast"
 import { useToast } from "@/hooks/use-toast"

@@ -18,13 +18,13 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui-shadcn2/card"
+} from "@/components/ui-shadcn/card"
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui-shadcn2/collapsible"
-import { ChartContainer } from "@/components/ui-shadcn2/chart"
+} from "@/components/ui-shadcn/collapsible"
+import { ChartContainer } from "@/components/ui-shadcn/chart"
 import { Check, ChevronDown, ChevronUp } from "lucide-react"
 import { Accionable, createAccionable } from "@/pages/Interfaces/accionablesPoints"
 import { actualizarAccionable } from "@/services/accionableService"

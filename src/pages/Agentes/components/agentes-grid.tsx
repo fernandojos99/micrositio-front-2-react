@@ -6,15 +6,15 @@ import { Plus, Search } from "lucide-react"
 import { obtenerAgentes, CATEGORIAS_AGENTE, type Agente } from "@/services/agenteService.ts"
 import { AgenteCard } from "./agente-card"
 import { AgenteCreateModal } from "./agente-create-modal"
-import { Skeleton } from "@/components/ui-shadcn2/skeleton"
-import { Input } from "@/components/ui-shadcn2/input"
+import { Skeleton } from "@/components/ui-shadcn/skeleton"
+import { Input } from "@/components/ui-shadcn/input"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui-shadcn2/select"
+} from "@/components/ui-shadcn/select"
 
 function getCategoriaLabel(categoria: string | undefined): string {
   return categoria || "default"

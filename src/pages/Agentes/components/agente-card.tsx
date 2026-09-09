@@ -10,8 +10,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui-shadcn2/card"
-import { Button } from "@/components/ui-shadcn2/button"
+} from "@/components/ui-shadcn/card"
+import { Button } from "@/components/ui-shadcn/button"
 import { AgenteModal } from "./agente-modal"
 
 interface AgenteCardProps {

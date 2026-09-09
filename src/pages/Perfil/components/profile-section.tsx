@@ -1,16 +1,16 @@
 import { useState, useEffect, useMemo } from "react"
 import { Info, Briefcase, Building, X, Plus, Save, Loader2, Undo2 } from "lucide-react"
-import { Button } from "@/components/ui-shadcn2/button"
-import { Textarea } from "@/components/ui-shadcn2/textarea"
+import { Button } from "@/components/ui-shadcn/button"
+import { Textarea } from "@/components/ui-shadcn/textarea"
 import { Input } from "@/components/ui-shadcn/input"
-import { Label } from "@/components/ui-shadcn2/label"
+import { Label } from "@/components/ui-shadcn/label"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui-shadcn2/select"
+} from "@/components/ui-shadcn/select"
 import type {
   AboutMeData,
   SkillsData,

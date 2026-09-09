@@ -5,7 +5,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { AppProvider } from './contexts/AppContext';
 import AppRoutes from './routes/AppRoutes';
 import { UIProvider } from './contexts/UIContext';
-import { Toaster } from './components/ui-shadcn2/toaster';
+import { Toaster } from './components/ui-shadcn/toaster';
 
 import { pingBackend } from './services/chatService';
 

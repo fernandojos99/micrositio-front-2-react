@@ -1,7 +1,7 @@
 "use client"
 
 import { Moon, Sun } from "lucide-react"
-import { Button } from "@/components/ui-shadcn2/button"
+import { Button } from "@/components/ui-shadcn/button"
 import { useTheme } from "@/hooks/useTheme"
 
 export function ThemeToggle() {

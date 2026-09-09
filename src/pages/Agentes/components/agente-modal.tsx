@@ -10,18 +10,18 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui-shadcn2/dialog"
-import { Button } from "@/components/ui-shadcn2/button"
-import { Input } from "@/components/ui-shadcn2/input"
-import { Textarea } from "@/components/ui-shadcn2/textarea"
-import { Label } from "@/components/ui-shadcn2/label"
+} from "@/components/ui-shadcn/dialog"
+import { Button } from "@/components/ui-shadcn/button"
+import { Input } from "@/components/ui-shadcn/input"
+import { Textarea } from "@/components/ui-shadcn/textarea"
+import { Label } from "@/components/ui-shadcn/label"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui-shadcn2/select"
+} from "@/components/ui-shadcn/select"
 
 type EditableField = "nombre" | "descripcion" | "prompt" | "categoria"
 

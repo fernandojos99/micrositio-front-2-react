@@ -38,17 +38,17 @@
      CardContent,
      CardHeader,
      CardTitle,
-   } from "@/components/ui-shadcn2/card"
+   } from "@/components/ui-shadcn/card"
    
-   import { Input } from "@/components/ui-shadcn2/input"
+   import { Input } from "@/components/ui-shadcn/input"
    
-   import { Textarea } from "@/components/ui-shadcn2/textarea"
+   import { Textarea } from "@/components/ui-shadcn/textarea"
    
-   import { Button } from "@/components/ui-shadcn2/button"
+   import { Button } from "@/components/ui-shadcn/button"
    
-   import { Label } from "@/components/ui-shadcn2/label"
+   import { Label } from "@/components/ui-shadcn/label"
    
-   import { Spinner } from "@/components/ui-shadcn2/spinner"
+   import { Spinner } from "@/components/ui-shadcn/spinner"
    
    import { cn } from "@/lib/utils"
    

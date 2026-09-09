@@ -29,7 +29,7 @@ export const obtenerTodos = async (): Promise<LearningCard[]> => {
  * @returns {Promise<LearningCard>} Learning Card encontrada.
  */
 export const obtenerPorId = async (id_learning_card: string | number): Promise<LearningCard> => {
-  const response = await apiClient.get(`/learning_card/l`, { params: { id_learning_card } });
+  const response = await apiClient.get(`/learning_card/${id_learning_card}`);
   return response.data;
 };
 
@@ -60,7 +60,7 @@ export const crear = async (data: Partial<LearningCard>): Promise<LearningCard> 
  * @returns {Promise<LearningCard>} Learning Card actualizada.
  */
 export const actualizar = async (id_learning_card: string | number, data: Partial<LearningCard>): Promise<LearningCard> => {
-  const response = await apiClient.patch('/learning_card/', { id_learning_card, ...data });
+  const response = await apiClient.patch(`/learning_card/${id_learning_card}`, data);
   return response.data;
 };
 
@@ -70,6 +70,6 @@ export const actualizar = async (id_learning_card: string | number, data: Partia
  * @returns {Promise<void>}
  */
 export const eliminar = async (id_learning_card: string | number): Promise<void> => {
-  const response = await apiClient.delete('/learning_card/', { data: { id_learning_card } });
+  const response = await apiClient.delete(`/learning_card/${id_learning_card}`);
   return response.data;
 };

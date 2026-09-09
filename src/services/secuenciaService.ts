@@ -24,7 +24,7 @@ export const crearSecuencia = async (data: any) => {
 
 // Actualizar secuencia
 export const actualizarSecuencia = async (id: number, data: any) => {
-  const response = await apiClient.patch('/secuencias', { id_secuencia: id, ...data });
+  const response = await apiClient.patch(`/secuencias/${id}`, data);
   return response.data;
 };
 
@@ -42,6 +42,6 @@ export const aplicarPlantillaSecuencia = async (id_secuencia: number, id_plantil
 
 // Eliminar secuencia
 export const eliminarSecuencia = async (id: number) => {
-  await apiClient.delete('/secuencias', { data: { id_secuencia: id } });
+  await apiClient.delete(`/secuencias/${id}`);
 };
 

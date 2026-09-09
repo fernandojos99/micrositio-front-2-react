@@ -246,15 +246,7 @@ export const obtenerEmpleados = async (): Promise<Empleado[]> => {
  * @returns {Promise<Empleado>} Los datos del empleado
  */
 export const obtenerEmpleadoPorId = async (id: number): Promise<Empleado> => {
-  const response = await apiClient.request({
-    method: 'POST',
-    url: '/empleados',
-    data: { id },
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
-  
+  const response = await apiClient.get(`/empleados/${id}`);
   return response.data;
 };
 
@@ -274,7 +266,7 @@ export const crearEmpleado = async (empleadoData: CrearEmpleadoData): Promise<Em
  * @returns {Promise<Empleado>} El empleado actualizado
  */
 export const actualizarEmpleado = async (empleadoData: ActualizarEmpleadoData): Promise<Empleado> => {
-  const response = await apiClient.patch('/empleados/', empleadoData);
+  const response = await apiClient.patch(`/empleados/${empleadoData.id}`, empleadoData);
   return response.data;
 };
 
@@ -284,9 +276,7 @@ export const actualizarEmpleado = async (empleadoData: ActualizarEmpleadoData): 
  * @returns {Promise<Empleado>} El empleado desactivado
  */
 export const desactivarEmpleado = async (id: number): Promise<Empleado> => {
-  const response = await apiClient.delete('/empleados/', {
-    data: { id }
-  });
+  const response = await apiClient.delete(`/empleados/${id}`);
   return response.data;
 };
 

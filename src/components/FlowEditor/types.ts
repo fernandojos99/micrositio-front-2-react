@@ -16,12 +16,6 @@ export type ExperimentType = 'Entrevista' | 'Prototipo' | 'Encuesta' | 'A/B Test
 export type ExperimentCategory = 'Descubrimiento' | 'Validación';
 
 /**
- * Estados posibles de un experimento
- * @typedef {string} ExperimentStatus
- */
-export type ExperimentStatus = 'En desarrollo' | 'En validación' | 'En proceso' | 'En ejecución' | 'Cancelado' | 'Terminado';
-
-/**
  * Estructura de datos para archivos adjuntos
  * @interface Attachment
  */

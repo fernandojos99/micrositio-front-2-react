@@ -1053,7 +1053,6 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
             >
               <option value="EN PLANEACION">EN PLANEACIÓN</option>
               <option value="EN VALIDACION">EN VALIDACIÓN</option>
-              <option value="EN EJECUCION">EN EJECUCIÓN</option>
               <option value="EN ANALISIS">EN ANALISIS</option>
               <option value="CANCELADO">CANCELADO</option>
               <option value="TERMINADO">TERMINADO</option>

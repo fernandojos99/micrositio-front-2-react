@@ -75,8 +75,28 @@
      "https://4qfkozr56fmq4mnlpx67u2eucu0badws.lambda-url.us-east-1.on.aws/transcripts"
 
 
-     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 10 * 60 * 1000) // 10 min
+  /**
+   * Aqui habia un AbortController y un setTimeout de 10 minutos creados a
+   * nivel de modulo, es decir una sola vez al cargar el archivo y no por
+   * peticion. El controller nunca se pasaba como signal a ninguno de los tres
+   * fetch, asi que no abortaba nada: era un timer colgado que aparentaba ser
+   * una proteccion. Este helper si aplica el timeout, y uno por llamada.
+   */
+  const TIMEOUT_PROCESADO_MS = 10 * 60 * 1000 // 10 min
+
+  async function fetchConTimeout(
+    url: string,
+    options: RequestInit = {},
+    ms: number = TIMEOUT_PROCESADO_MS
+  ): Promise<Response> {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), ms)
+    try {
+      return await fetch(url, { ...options, signal: controller.signal })
+    } finally {
+      clearTimeout(timeoutId)
+    }
+  }
 
    
    /* ============================================================================
@@ -394,7 +414,7 @@
             }
 
 
-           const res = await fetch(
+           const res = await fetchConTimeout(
              `${BASE_URL}/api/process-file`,
              {
                method: "POST",
@@ -417,7 +437,7 @@
         else {
           const cleanedTranscript = cleanTranscript(transcript)
     
-          const res = await fetch(`${BASE_URL}/api/process-text`, {
+          const res = await fetchConTimeout(`${BASE_URL}/api/process-text`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -448,7 +468,7 @@
           ====================================================================== */
     
         if (result.id) {
-          const lambdaRes = await fetch(`${LAMBDA_URL}/${result.id}`)
+          const lambdaRes = await fetchConTimeout(`${LAMBDA_URL}/${result.id}`)
     
           if (lambdaRes.ok) {
             const lambdaData = await lambdaRes.json()

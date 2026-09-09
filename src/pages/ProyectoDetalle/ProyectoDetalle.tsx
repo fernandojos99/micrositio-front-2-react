@@ -176,6 +176,11 @@ const ProyectoDetalle: React.FC = () => {
    * @function useEffect
    */
   useEffect(() => {
+    // Guarda contra condicion de carrera: al navegar rapido entre secuencias
+    // quedaban dos fetch en vuelo y, si el mas viejo resolvia despues, pisaba
+    // con datos rancios lo que ya habia puesto el mas reciente.
+    let cancelado = false;
+
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -196,6 +201,7 @@ const ProyectoDetalle: React.FC = () => {
             creado: proyectoData.creado,
             colaboradores: [],
           };
+          if (cancelado) return;
           setProyecto(proyectoMapeado);
 
           // 2. Obtener secuencias y calcular conteos de testing cards
@@ -206,6 +212,7 @@ const ProyectoDetalle: React.FC = () => {
 
           // Usar helper para calcular conteos
           const secuenciasMapeadas = await recalcularTestingCardsCount(secuenciasArray);
+          if (cancelado) return;
           setSecuencias(secuenciasMapeadas);
 
           // 3. Sincronizar secuencia seleccionada con URL
@@ -225,15 +232,20 @@ const ProyectoDetalle: React.FC = () => {
           }
         }
       } catch (err) {
+        if (cancelado) return;
         console.error('Error al cargar datos:', err);
         setProyecto(null);
         setSecuencias([]);
       } finally {
-        setLoading(false);
+        if (!cancelado) setLoading(false);
       }
     };
 
     fetchData();
+
+    return () => {
+      cancelado = true;
+    };
   }, [proyectoId, secuenciaId]);
 
   /**

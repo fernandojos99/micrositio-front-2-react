@@ -347,35 +347,41 @@ function ClusterPopover({
     y: cluster.cy - 16
   });
 
-  const dragging = useRef(false);
   const offset = useRef({ x: 0, y: 0 });
+  const [arrastrando, setArrastrando] = useState(false);
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    dragging.current = true;
-
     offset.current = {
       x: e.clientX - pos.x,
       y: e.clientY - pos.y
     };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
+    setArrastrando(true);
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!dragging.current) return;
+  // Los listeners se anadian a window desde handleMouseDown, fuera de todo
+  // useEffect, y solo se quitaban si llegaba a dispararse el mouseup: si el
+  // popover se cerraba a mitad de un arrastre quedaban colgados en window y
+  // setPos acababa llamandose sobre un componente ya desmontado. Dentro de un
+  // efecto, el cleanup cubre tambien el desmontaje.
+  useEffect(() => {
+    if (!arrastrando) return;
 
-    setPos({
-      x: e.clientX - offset.current.x,
-      y: e.clientY - offset.current.y
-    });
-  };
+    const onMouseMove = (e: MouseEvent) => {
+      setPos({
+        x: e.clientX - offset.current.x,
+        y: e.clientY - offset.current.y
+      });
+    };
+    const onMouseUp = () => setArrastrando(false);
 
-  const handleMouseUp = () => {
-    dragging.current = false;
-    window.removeEventListener("mousemove", handleMouseMove);
-    window.removeEventListener("mouseup", handleMouseUp);
-  };
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+  }, [arrastrando]);
 
   const isSingle = cluster.cluster.count === 1
   const firstPoint = cluster.cluster.points[0]

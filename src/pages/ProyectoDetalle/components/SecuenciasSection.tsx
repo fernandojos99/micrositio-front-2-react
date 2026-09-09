@@ -212,10 +212,19 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
 
   // Handler para cuando se edita una secuencia (refresca la lista en el padre)
   const handleSecuenciaEditada = async () => {
-    if (typeof onEditarSecuencia === 'function') {
-      await onEditarSecuencia();
+    // Sin try/catch, un fallo al refrescar (red caida) dejaba una promesa
+    // rechazada sin capturar: el usuario no veia nada y el modal ni siquiera
+    // se cerraba. El refresco es secundario; el cierre del modal no debe
+    // depender de que salga bien.
+    try {
+      if (typeof onEditarSecuencia === 'function') {
+        await onEditarSecuencia();
+      }
+    } catch (error) {
+      console.error('No se pudo refrescar la lista de secuencias:', error);
+    } finally {
+      handleCloseEditModal();
     }
-    handleCloseEditModal();
   };
 
   /**
@@ -309,16 +318,18 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
   /**
    * Maneja cuando se aplica una plantilla exitosamente
    */
-  const handleTemplateApplied = (secuenciaPlantilla: Secuencia) => {
-    console.log('Plantilla aplicada exitosamente:', secuenciaPlantilla);
-    
-    // Opcional: Refrescar datos si es necesario
-    if (typeof onEditarSecuencia === 'function') {
-      onEditarSecuencia();
+  const handleTemplateApplied = async () => {
+    // onEditarSecuencia se llamaba sin await y sin catch: promesa flotante,
+    // fallo invisible.
+    try {
+      if (typeof onEditarSecuencia === 'function') {
+        await onEditarSecuencia();
+      }
+    } catch (error) {
+      console.error('No se pudo refrescar tras aplicar la plantilla:', error);
+    } finally {
+      handleCloseTemplateModal();
     }
-    
-    // Cerrar el modal
-    handleCloseTemplateModal();
   };
 
   /**

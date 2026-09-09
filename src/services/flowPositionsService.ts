@@ -38,26 +38,12 @@ export const guardarPosicionesLote = async (posiciones: Array<{
   position_x: number;
   position_y: number;
 }>) => {
-  // Intentar diferentes formatos según lo que espere tu backend
-  try {
-    // Opción 1: endpoint /flow-positions/batch con array directo
-    const response = await apiClient.post('/flow-positions/batch', posiciones);
-    return response.data;
-  } catch (error) {
-    console.log('Fallo opción 1, intentando opción 2...');
-    
-    try {
-      // Opción 2: endpoint /flow-positions con array envuelto
-      const response = await apiClient.post('/flow-positions', { posiciones });
-      return response.data;
-    } catch (error2) {
-      console.log('Fallo opción 2, intentando opción 3...');
-      
-      // Opción 3: endpoint /flow-positions con array directo
-      const response = await apiClient.post('/flow-positions', posiciones);
-      return response.data;
-    }
-  }
+  // Antes se intentaban tres formatos en cascada contra un endpoint que no
+  // existía en el backend, así que las tres llamadas fallaban siempre y el
+  // guardado acababa en el fallback de una petición por nodo. El endpoint ya
+  // existe: POST /flow-positions/batch con { posiciones }.
+  const response = await apiClient.post('/flow-positions/batch', { posiciones });
+  return response.data;
 };
 
 // Guardar múltiples posiciones una por una (fallback)

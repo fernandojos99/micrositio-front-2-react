@@ -3,8 +3,8 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Edit, Trash2 } from 'lucide-react';
 import { Proyecto } from '../../types/proyecto';
 import { Secuencia, CreateSecuenciaData } from '../../types/secuencia';
-import ActionDropdown from '../../components/ui/ActionDropdown/ActionDropdown';
-import ConfirmationModal from '../../components/ui/ConfirmationModal/ConfirmationModal';
+import ActionDropdown from '../../components/ui-propios/ActionDropdown/ActionDropdown';
+import ConfirmationModal from '../../components/ui-propios/ConfirmationModal/ConfirmationModal';
 import EditarProyectoModal from './components/EditarProyectoModal';
 import SecuenciasSection from './components/SecuenciasSection';
 import FlowEditorSection from './components/FlowEditorSection';
@@ -255,12 +255,10 @@ const ProyectoDetalle: React.FC = () => {
   useEffect(() => {
     // Este efecto se ejecuta cuando cambian los parámetros de las cards
     if (testingCardId) {
-      console.log('Testing card seleccionada desde URL:', testingCardId);
       // @todo: Implementar lógica para seleccionar la testing card específica
     }
     
     if (learningCardId) {
-      console.log('Learning card seleccionada desde URL:', learningCardId);
       // @todo: Implementar lógica para seleccionar la learning card específica
     }
   }, [testingCardId, learningCardId]);
@@ -468,7 +466,6 @@ const ProyectoDetalle: React.FC = () => {
       await eliminarProyecto(Number(proyecto.id));
       
       // Feedback de éxito (podría implementarse con un toast/notificación)
-      console.log('Proyecto eliminado exitosamente');
       
       // Redirigir a la lista de proyectos
       //navigator('/proyectos');
@@ -498,7 +495,6 @@ const ProyectoDetalle: React.FC = () => {
    * @function handleGuardarCambios
    */
   const handleGuardarCambios = () => {
-    console.log('Guardar cambios de la secuencia:', secuenciaSeleccionada?.id);
     // @todo: Implementar lógica para guardar los cambios del FlowEditor
   };
 

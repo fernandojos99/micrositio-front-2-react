@@ -1,7 +1,7 @@
 // src/pages/Busqueda/Busqueda.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import SearchBar from '../../components/ui/Busqueda/SearchBar';
+import SearchBar from '../../components/ui-propios/Busqueda/SearchBar';
 import { search, SearchResults, SearchScope } from '../../services/searchService';
 import './Busqueda.css';
 

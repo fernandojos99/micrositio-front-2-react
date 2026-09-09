@@ -153,7 +153,6 @@ export const obtenerEmpleadosResumen = async (): Promise<EmpleadoResumen[]> => {
   //       };
 
   //     } catch (error) {
-  //       console.error(
   //         `Error obteniendo info para empleado ${empleado.id_empleado}:`,
   //         error
   //       );
@@ -188,8 +187,6 @@ export const obtenerEmpleadosResumen = async (): Promise<EmpleadoResumen[]> => {
         //   : [usuarioResponse.data];
         const usuarios = usuarioResponse.data?.data || [];
 
-          console.log(`Empleado ${empleado.id_empleado} - usuarioResponse.data:`, usuarioResponse.data)
-          console.log(`Empleado ${empleado.id_empleado} - imageUrl:`, usuarios[0]?.image)
 
         const imageUrl = usuarios[0]?.image || null;
   

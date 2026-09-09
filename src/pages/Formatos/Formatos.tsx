@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './Formatos.module.css';
 import DocumentationModal from '../../components/FlowEditor/components/DocumentationModal';
 import SaveDocumentationModal from '../../components/SaveDocumentationModal/SaveDocumentationModal';
-import ActionDropdown from '../../components/ui/ActionDropdown/ActionDropdown';
+import ActionDropdown from '../../components/ui-propios/ActionDropdown/ActionDropdown';
 import { Edit, Trash2 } from 'lucide-react';
 import { 
   uploadFormatoDocument, 
@@ -53,14 +53,10 @@ const Formatos: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      console.log('[Formatos] Cargando documentos...');
       
       const docs = await getFormatoDocuments();
-      console.log('[Formatos] Datos recibidos:', docs);
-      console.log('[Formatos] Tipo de datos:', typeof docs, Array.isArray(docs));
       setDocumentos(docs);
       
-      console.log('[Formatos] ✅ Documentos cargados:', docs.length);
     } catch (err: any) {
       console.error('[Formatos] ❌ Error al cargar documentos:', err);
       setError('Error al cargar los documentos');
@@ -74,13 +70,10 @@ const Formatos: React.FC = () => {
    */
   const loadUrlFormatos = async () => {
     try {
-      console.log('[Formatos] Cargando URLs...');
       
       const urls = await obtenerTodas();
-      console.log('[Formatos] URLs recibidas:', urls);
       setUrlFormatos(urls);
       
-      console.log('[Formatos] ✅ URLs cargadas:', urls.length);
     } catch (err: any) {
       console.error('[Formatos] ❌ Error al cargar URLs:', err);
     }
@@ -116,12 +109,6 @@ const Formatos: React.FC = () => {
   const handleSaveDocumentation = async (categoria: string, descripcion?: string) => {
     if (!pendingItem) return;
 
-    console.log('[Formatos] ===== DEBUG SAVE =====');
-    console.log('[Formatos] pendingItem:', pendingItem);
-    console.log('[Formatos] categoria recibida:', categoria);
-    console.log('[Formatos] descripcion recibida:', descripcion);
-    console.log('[Formatos] isEditMode:', isEditMode);
-    console.log('[Formatos] =======================');
 
     try {
       if (isEditMode) {
@@ -132,25 +119,18 @@ const Formatos: React.FC = () => {
             categoria: categoria,
             descripcion: descripcion
           };
-          console.log('[Formatos] Actualizando URL:', pendingItem.id);
-          console.log('[Formatos] Data a enviar:', dataToUpdate);
           await actualizar(pendingItem.id, dataToUpdate);
-          console.log('[Formatos] ✅ URL actualizada');
           await loadUrlFormatos();
         } else if (pendingItem.type === 'file' && pendingItem.id) {
-          console.log('[Formatos] Actualizando categoría del documento:', pendingItem.id);
           await updateFormatoDocument(pendingItem.id as string, {
             categoria: categoria
           });
-          console.log('[Formatos] ✅ Categoría del documento actualizada');
           await loadDocumentos();
         }
       } else {
         // Modo creación
         if (pendingItem.type === 'file') {
-          console.log('[Formatos] Subiendo archivo:', pendingItem.name);
           await uploadFormatoDocument(pendingItem.data as File);
-          console.log('[Formatos] ✅ Archivo subido');
           await loadDocumentos();
         } else {
           const dataToCreate = { 
@@ -158,8 +138,6 @@ const Formatos: React.FC = () => {
             categoria: categoria,
             descripcion: descripcion 
           };
-          console.log('[Formatos] Guardando URL:', pendingItem.data);
-          console.log('[Formatos] Data a enviar:', dataToCreate);
           const resultado = await crear(dataToCreate);
           
           // Verificar si la descripción se guardó correctamente
@@ -168,7 +146,6 @@ const Formatos: React.FC = () => {
             console.warn('[Formatos] ⚠️ Verifica el endpoint del backend: /url_formato/crear');
           }
           
-          console.log('[Formatos] ✅ URL guardada');
           await loadUrlFormatos();
         }
       }
@@ -222,9 +199,7 @@ const Formatos: React.FC = () => {
     }
 
     try {
-      console.log('[Formatos] Eliminando documento:', documento.id);
       await deleteFormatoDocument(documento.id);
-      console.log('[Formatos] ✅ Documento eliminado');
       await loadDocumentos();
     } catch (err: any) {
       console.error('[Formatos] ❌ Error al eliminar documento:', err);
@@ -241,9 +216,7 @@ const Formatos: React.FC = () => {
     }
 
     try {
-      console.log('[Formatos] Eliminando URL:', urlFormato.id_url_formato);
       await eliminar(urlFormato.id_url_formato);
-      console.log('[Formatos] ✅ URL eliminada');
       await loadUrlFormatos();
     } catch (err: any) {
       console.error('[Formatos] ❌ Error al eliminar URL:', err);

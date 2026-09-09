@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Mail, Lock, Eye, EyeOff, LogIn, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import Button from '../ui/Button/Button';
+import Button from '../ui-propios/Button/Button';
 import styles from './LoginModal.module.css';
 
 /**

@@ -88,7 +88,6 @@ export default function ProfilePage() {
         obtenerHabilidadesPorEmpleado(idEmpleado)
       ]);
 
-      // console.log("Esto contiene un empleado",empleadoRes)
       setEmpleado(empleadoRes);
       setAboutMe({ description: empleadoRes.infopersonal ?? "" });
 
@@ -108,7 +107,6 @@ export default function ProfilePage() {
 
 
       //  Cargamos las fechas si vienen del backend
-      // console.log("La fecha de ingreso es ",empleadoRes.fecha_ingreso)
       if (empleadoRes.fecha_ingreso) {
         const [year, month] = empleadoRes.fecha_ingreso.split("-") // asume formato "YYYY-MM"
         setStartDate({ month, year })
@@ -155,7 +153,6 @@ useEffect(() => {
   const handleSaveEmail = useCallback(async (correo: string) => {
     if (!empleado) return
     try {
-      // console.log(empleado.id)
       const updated = await actualizarEmpleado({
         id:Number( empleado.id),
         correo,
@@ -172,7 +169,6 @@ const handleSaveAlias = useCallback(async (alias: string) => {
   if (!user) return
   
   try {
-    // console.log("Enviando actualización de alias...")
     // le puse la palabra any porque el backend devuelve un objeto con { success, message, data: { alias, ... } }
     // y no coincide con el tipo Usuario que espera el contexto, así que hacemos un cast temporal para evitar errores de tipos
     const response = await actualizarUsuario(user.id, { alias })as any;
@@ -181,7 +177,6 @@ const handleSaveAlias = useCallback(async (alias: string) => {
     // response tiene { success, message, data: { alias, ... } }
     
     if (response && response.success && response.data) {
-      // console.log("Actualización exitosa en BD:", response.data.alias)
       
       if (updateUser) {
         updateUser({ 
@@ -215,12 +210,10 @@ const handleSaveAlias = useCallback(async (alias: string) => {
 
   // Modificar contrasenia
   const handleChangePassword = useCallback(async (data: PasswordChangeData) => {
-    // console.log("almenos entro a lafuncion cambiar contrasenia")
     if (!user ) return
     
     try {
       await cambiarPasswordUsuario(user.id, data)
-      // console.log("si la cambio")
     } catch (error) {
       console.error("❌ Error cambiando contraseña:", error)
     }
@@ -431,8 +424,6 @@ if (authLoading || loading || !mappedUserForUI || !empleado) {
   return <div className="p-6 text-center">Cargando perfil...</div>
 }
 
-console.log("empleado completo:", empleado)
-console.log("apellido_materno:", JSON.stringify(empleado?.apellido_materno))
 
  
 

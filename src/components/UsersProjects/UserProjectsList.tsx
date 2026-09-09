@@ -96,17 +96,12 @@ const UserProjectsList: React.FC<UserProjectsListProps> = ({
     try {
       // Obtener IDs de proyectos asignados al usuario
       const response = await obtenerProyectosPorIdUsuario(userId);
-      console.log('🔍 Respuesta completa para usuario', userId, ':', response);
       
       // Extraer el array de proyectos de la respuesta
       const proyectosIds = (response as any)?.data || [];
-      console.log('🔍 Proyectos IDs extraídos:', proyectosIds);
-      console.log('🔍 Tipo de datos:', typeof proyectosIds, 'Es array?', Array.isArray(proyectosIds));
-      console.log('🔍 Longitud:', proyectosIds?.length);
 
       // Validar que se obtuvieron proyectos
       if (!Array.isArray(proyectosIds) || proyectosIds.length === 0) {
-        console.log('ℹ️ Usuario sin proyectos asignados - Array?', Array.isArray(proyectosIds), 'Length:', proyectosIds?.length);
         setProyectos([]);
         return;
       }
@@ -133,9 +128,7 @@ const UserProjectsList: React.FC<UserProjectsListProps> = ({
         })
       );
 
-      console.log('✅ Proyectos completos cargados:', proyectosCompletos);
       setProyectos(proyectosCompletos);
-      console.log('🔄 Estado actualizado, proyectos en componente:', proyectosCompletos.length);
 
     } catch (error) {
       console.error('❌ Error cargando proyectos del usuario:', error);
@@ -172,7 +165,6 @@ const UserProjectsList: React.FC<UserProjectsListProps> = ({
       // Notificar al componente padre que se eliminó un proyecto
       onProjectRemoved?.();
 
-      console.log('✅ Proyecto eliminado exitosamente de la asignación del usuario');
 
     } catch (error) {
       console.error('❌ Error al eliminar proyecto del usuario:', error);
@@ -204,7 +196,6 @@ const UserProjectsList: React.FC<UserProjectsListProps> = ({
 
   // @render: Mostrar mensaje cuando no hay proyectos asignados
   if (proyectos.length === 0) {
-    console.log('🔍 Renderizando: No hay proyectos para mostrar, userId:', userId);
     return (
       <div className={`${styles.projectsList} ${className}`}>
         <div className={styles.noProjects}>
@@ -214,7 +205,6 @@ const UserProjectsList: React.FC<UserProjectsListProps> = ({
     );
   }
 
-  console.log('🎯 Renderizando proyectos:', proyectos.length, 'para usuario:', userId);
   return (
     <div className={`${styles.projectsList} ${className}`}>
       {proyectos.map((proyecto) => (

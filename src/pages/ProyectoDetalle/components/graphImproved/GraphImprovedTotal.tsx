@@ -84,7 +84,6 @@ export default function DemoPage() {
   const [lastAction, setLastAction] = useState<string | null>(null)
 
   const { idProyecto } = useParams();
-  console.log("ID del proyecto desde URL:", idProyecto);
 
   const [accionables, setAccionables] = useState<Accionable[]>([]); //Guarda todos los accionables de todas las secuencias 
   const [proyecto, setProyecto] = useState<any>(null);
@@ -109,7 +108,6 @@ export default function DemoPage() {
     const cargarSecuencias = async () => {
       const data = await obtenerSecuenciasPorProyecto(parseInt(idProyecto!));
       setSecuencias(data);
-      console.log("Secuencias cargadas:", data);
     };
 
     cargarSecuencias();
@@ -182,7 +180,6 @@ export default function DemoPage() {
     if (secuenciasConAccionables.length === 0) return;
     const todos = secuenciasConAccionables.flatMap(s => s.accionables);
     setAccionables(todos);
-     // console.log("Accionables combinados:", todos);
   }, [secuenciasConAccionables]);
 
 

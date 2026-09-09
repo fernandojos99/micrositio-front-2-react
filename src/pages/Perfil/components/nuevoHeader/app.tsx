@@ -37,7 +37,6 @@ export default function Header({
 
       // ✅ REEMPLAZA todo el fetch hardcodeado con esto:
       const data = await subirImagenUsuario(formData)
-      console.log("Respuesta completa del backend:", data)
 
       const imageUrl = data.image || data.url
 

@@ -79,7 +79,6 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
   onTemplateApplied
 }) => {
   // Estados locales para el manejo de datos y UI
-  //console.log('TemplateViewerModalSecuencia renderizado:', { isOpen, id_secuencia_destino, id_proyecto });
   
   const [, setTemplateData] = useState<TemplateSecuenciaServiceResponse | null>(null);
   const [loadingState, setLoadingState] = useState<LoadingState>('idle');
@@ -91,7 +90,6 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
   const [loadingSelectedSecuencia, setLoadingSelectedSecuencia] = useState(false);
 
   // Log para confirmar que se recibe el id_secuencia_destino
-  //console.log('TemplateViewerModalSecuencia recibió id_secuencia_destino:', id_secuencia_destino);
 
   // Ref al FlowEditor para poder forzar fitView cuando se monte dentro del modal
   const flowEditorRef = React.useRef<FlowEditorRef | null>(null);
@@ -104,7 +102,6 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
       setLoadingState('loading');
       setError(null);
       
-      //console.log('Cargando datos de plantilla para secuencia:', id_secuencia_destino);
 
       // Simular carga de datos de plantilla
       // TODO: Reemplazar con llamada real al servicio cuando esté disponible
@@ -140,7 +137,6 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
       setTemplateData(mockTemplateData);
       setLoadingState('success');
       
-      //console.log('Datos de plantilla de secuencia cargados exitosamente');
     } catch (err) {
       console.error('Error cargando datos de plantilla de secuencia:', err);
       setError(
@@ -178,11 +174,9 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
    * Maneja la selección de una Secuencia para mostrar su flujo
    */
   const handleSelectSecuencia = async (secuenciaData: Secuencia) => {
-    //console.log('🔄 Seleccionando nueva secuencia:', secuenciaData.id, secuenciaData.nombre);
     
     // Si es la misma secuencia, no hacer nada
     if (selectedSecuencia && selectedSecuencia.id === secuenciaData.id) {
-      //console.log('⚠️ Secuencia ya seleccionada, omitiendo cambio');
       return;
     }
     
@@ -190,14 +184,12 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
     
     try {
       // Limpiar secuencia anterior primero
-      //console.log('🧹 Limpiando secuencia anterior...');
       setSelectedSecuencia(null);
       
       // Pequeño delay para asegurar que el FlowEditor se desmonte completamente
       await new Promise(resolve => setTimeout(resolve, 100));
       
       // Establecer la nueva secuencia
-      //console.log('✅ Estableciendo nueva secuencia:', secuenciaData.id);
       setSelectedSecuencia(secuenciaData);
       
     } catch (error) {
@@ -211,7 +203,6 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
   // Cuando cambia la secuencia seleccionada o se abre el modal, forzar fitView en el FlowEditor
   useEffect(() => {
     if (isOpen && selectedSecuencia && flowEditorRef.current) {
-      //console.log('🎯 Aplicando fitView para secuencia:', selectedSecuencia.id);
       // Timeout más largo para esperar a que el layout del modal esté completamente listo
       setTimeout(() => {
         try {
@@ -219,7 +210,6 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
           // Segundo fitView para asegurar que las dimensiones son correctas
           setTimeout(() => {
             flowEditorRef.current?.fitViewNow();
-            //console.log('✅ fitView aplicado completamente');
           }, 200);
         } catch (e) {
           console.warn('⚠️ [TemplateViewerModalSecuencia] fitViewNow falló:', e);
@@ -232,7 +222,6 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
    * Maneja la aplicación de una Secuencia como plantilla
    */
   const handleApplySecuencia = (secuenciaData: Secuencia) => {
-    //console.log('Aplicar secuencia como plantilla:', secuenciaData);
     
     // Notificar al componente padre
     if (onTemplateApplied) {
@@ -304,11 +293,9 @@ const TemplateViewerModalSecuencia: React.FC<TemplateViewerModalSecuenciaProps> 
 
   // No renderizar nada si el modal no está abierto
   if (!isOpen) {
-    //console.log('TemplateViewerModalSecuencia: Modal no está abierto, retornando null');
     return null;
   }
 
-  //console.log('TemplateViewerModalSecuencia: Modal está abierto, renderizando contenido');
   
   // Renderizado del componente
   return (

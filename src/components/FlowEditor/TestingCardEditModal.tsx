@@ -77,8 +77,6 @@ interface TestingCardEditModalProps {
 const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSave, onClose, editingId }) => {
   // @state: Datos del formulario
   const [formData, setFormData] = useState<TestingCardData & { metricas?: MetricaWithFrontendProps[] }>(() => {
-    //console.log('[TestingCardEditModal] Inicializando formData con node.data:', node.data);
-    //console.log('[TestingCardEditModal] id_experimento_tipo inicial:', node.data.id_experimento_tipo);
     
     return {
       ...node.data,
@@ -174,9 +172,6 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
       setLoading(true);
       obtenerTestingCardPorId(node.data.id)
         .then((data) => {
-          //console.log('[useEffect BD] Datos cargados desde BD:', data);
-          //console.log('[useEffect BD] id_experimento_tipo desde BD:', data.id_experimento_tipo);
-          //console.log('[useEffect BD] status desde BD:', data.status);
           setFormData(prev => ({ 
             ...prev, 
             ...data,
@@ -196,15 +191,10 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
    */
   useEffect(() => {
     if (testingCardPlaybooks.length > 0 && formData.id_experimento_tipo) {
-      //console.log('[useEffect preselección] TestingCardPlaybooks cargados:', testingCardPlaybooks.length);
-      //console.log('[useEffect preselección] id_experimento_tipo actual:', formData.id_experimento_tipo);
       
       const playbookEncontrado = testingCardPlaybooks.find(p => p.pagina === formData.id_experimento_tipo);
       if (playbookEncontrado) {
-        //console.log('[useEffect preselección] ✅ Playbook encontrado:', playbookEncontrado.titulo);
       } else {
-        //console.log('[useEffect preselección] ⚠️ Playbook no encontrado para id:', formData.id_experimento_tipo);
-        //console.log('[useEffect preselección] IDs disponibles:', testingCardPlaybooks.map(p => p.pagina));
       }
     }
   }, [testingCardPlaybooks, formData.id_experimento_tipo]);
@@ -214,12 +204,9 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
    * @function useEffect
    */
   useEffect(() => {
-    //console.log('[useEffect métricas] showMetrics:', showMetrics, 'editingId:', editingId);
     if (showMetrics && editingId) {
-      //console.log('[useEffect métricas] Condiciones cumplidas, llamando a cargarMetricas()');
       cargarMetricas();
     } else {
-      //console.log('[useEffect métricas] Condiciones no cumplidas, no se cargan métricas');
     }
     // eslint-disable-next-line
   }, [showMetrics, editingId]);
@@ -229,13 +216,10 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
    * @function useEffect
    */
   useEffect(() => {
-    //console.log('[useEffect URLs] showDocumentation:', showDocumentation, 'editingId:', editingId);
     if (showDocumentation && editingId) {
-      //console.log('[useEffect URLs] Condiciones cumplidas, llamando a cargarUrls()');
       cargarUrls();
       cargarDocumentos(); // También cargar documentos cuando se abre la sección
     } else {
-      //console.log('[useEffect URLs] Condiciones no cumplidas, no se cargan URLs');
     }
   }, [showDocumentation, editingId]);
 
@@ -300,7 +284,6 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
         //anexo_url,
       };
       // Log para depuración
-      //console.log('[TestingCardEditModal] Payload enviado:', payload, 'editingId:', editingId);
       try {
         await actualizarTestingCard(editingId, payload); // <-- Aquí usas editingId
         setSuccessMsg('¡Guardado exitosamente!');
@@ -315,7 +298,6 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
         }
         setErrorMsg(backendMsg);
         // Log para depuración
-        //console.error('[TestingCardEditModal] Error al actualizar:', err);
       } finally {
         setLoading(false);
       }
@@ -350,11 +332,6 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
   // Elimina una métrica por índice
   const removeMetric = (index: number) => {
     const metricToRemove = (formData.metricas || [])[index];
-    //console.log('[removeMetric] Índice:', index);
-    //console.log('[removeMetric] Métrica a eliminar:', metricToRemove);
-    //console.log('[removeMetric] ID de la métrica (id_metrica):', metricToRemove?.id_metrica);
-    //console.log('[removeMetric] ID de la métrica (id):', (metricToRemove as any)?.id);
-    //console.log('[removeMetric] Todas las métricas:', formData.metricas);
     setMetricaAEliminar({ index, metrica: metricToRemove });
   };
 
@@ -364,28 +341,17 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
     
     const { index, metrica } = metricaAEliminar;
     
-    //console.log('[confirmarEliminacionMetrica] Iniciando eliminación...');
-    //console.log('[confirmarEliminacionMetrica] Índice:', index);
-    //console.log('[confirmarEliminacionMetrica] Métrica completa:', metrica);
-    //console.log('[confirmarEliminacionMetrica] ID de métrica (id_metrica):', metrica?.id_metrica);
-    //console.log('[confirmarEliminacionMetrica] ID de métrica (id):', (metrica as any)?.id);
-    //console.log('[confirmarEliminacionMetrica] Tipo de ID (id_metrica):', typeof metrica?.id_metrica);
-    //console.log('[confirmarEliminacionMetrica] Tipo de ID (id):', typeof (metrica as any)?.id);
     
     // Usar tanto id_metrica como id para mayor compatibilidad
     const metricaId = metrica?.id_metrica || (metrica as any)?.id;
     
     // Si la métrica tiene un ID válido, eliminarla de la BD
     if (metrica && metricaId && metricaId > 0) {
-      //console.log('[confirmarEliminacionMetrica] ID válido detectado, procediendo a eliminar de BD...');
       try {
         setLoadingMetricas(true);
-        //console.log('[confirmarEliminacionMetrica] Llamando a eliminar() con ID:', metricaId);
         await eliminar(metricaId);
-        //console.log(`[confirmarEliminacionMetrica] ✅ Métrica ${metricaId} eliminada exitosamente de la BD`);
         setSuccessMsg('Métrica eliminada exitosamente');
       } catch (error) {
-        //console.error('[confirmarEliminacionMetrica] ❌ Error al eliminar métrica de la BD:', error);
         setErrorMsg('Error al eliminar la métrica');
         setLoadingMetricas(false);
         setMetricaAEliminar(null);
@@ -394,21 +360,12 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
         setLoadingMetricas(false);
       }
     } else {
-      //console.log('[confirmarEliminacionMetrica] ⚠️ ID no válido, solo eliminando del estado local');
-      //console.log('[confirmarEliminacionMetrica] Razones posibles:');
-      //console.log('  - metrica es null/undefined:', !metrica);
-      //console.log('  - metricaId es null/undefined:', !metricaId);
-      //console.log('  - metricaId <= 0:', metricaId <= 0);
     }
     
     // Actualizar el estado local
-    //console.log('[confirmarEliminacionMetrica] Actualizando estado local...');
     const updatedMetricas = (formData.metricas || []).filter((_, i) => i !== index);
-    //console.log('[confirmarEliminacionMetrica] Métricas antes del filtro:', formData.metricas);
-    //console.log('[confirmarEliminacionMetrica] Métricas después del filtro:', updatedMetricas);
     setFormData({ ...formData, metricas: updatedMetricas });
     setMetricaAEliminar(null);
-    //console.log('[confirmarEliminacionMetrica] ✅ Estado local actualizado');
   };
 
   // Cancela la eliminación de una métrica
@@ -419,7 +376,6 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
   // Inicia el proceso de creación de una métrica en la BD
   const iniciarCreacionMetrica = (index: number) => {
     const metricToCreate = (formData.metricas || [])[index];
-    //console.log('[iniciarCreacionMetrica] Métrica a crear:', metricToCreate);
     setMetricaACrear({ index, metrica: metricToCreate });
   };
 
@@ -429,8 +385,6 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
     
     const { index, metrica } = metricaACrear;
     
-    //console.log('[confirmarCreacionMetrica] Iniciando creación...');
-    //console.log('[confirmarCreacionMetrica] Métrica a crear:', metrica);
     
     // Validar que la métrica tenga datos requeridos
     if (!metrica.nombre || !metrica.operador || !metrica.criterio) {
@@ -450,9 +404,7 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
         criterio: metrica.criterio
       };
       
-      //console.log('[confirmarCreacionMetrica] Datos a enviar:', dataToCreate);
       const metricaCreada = await crear(dataToCreate);
-      //console.log('[confirmarCreacionMetrica] ✅ Métrica creada exitosamente:', metricaCreada);
       
       // Actualizar el estado local con la métrica creada
       const updatedMetricas = [...(formData.metricas || [])];
@@ -465,7 +417,6 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
       setSuccessMsg('Métrica creada exitosamente');
       
     } catch (error) {
-      //console.error('[confirmarCreacionMetrica] ❌ Error al crear métrica:', error);
       setErrorMsg('Error al crear la métrica en la base de datos');
     } finally {
       setLoadingMetricas(false);
@@ -484,23 +435,18 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
    */
   const cargarMetricas = async () => {
     if (!editingId) {
-      //console.log('[cargarMetricas] ⚠️ No hay editingId, saliendo...');
       return;
     }
     
-    //console.log('[cargarMetricas] Iniciando carga de métricas para editingId:', editingId);
     
     try {
       setLoadingMetricas(true);
       const metricasData = await obtenerPorTestingCard(editingId);
       
-      //console.log('[cargarMetricas] ✅ Métricas recibidas de la BD:', metricasData);
-      //console.log('[cargarMetricas] Cantidad de métricas:', metricasData?.length || 0);
       
       // Log detallado de cada métrica
       //if (metricasData && metricasData.length > 0) {
       //  metricasData.forEach((metrica, index) => {
-      //    console.log(`[cargarMetricas] Métrica ${index}:`, {
       //      id_metrica: metrica.id_metrica,
       //      nombre: metrica.nombre,
       //      operador: metrica.operador,
@@ -516,9 +462,7 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
         metricas: metricasData as MetricaWithFrontendProps[]
       }));
       
-      //console.log('[cargarMetricas] ✅ FormData actualizado con las métricas');
     } catch (error) {
-      //console.error('[cargarMetricas] ❌ Error al cargar métricas:', error);
       // En caso de error, mantener el array vacío
       setFormData(prev => ({
         ...prev,
@@ -535,18 +479,14 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
    */
   const cargarUrls = async () => {
     if (!editingId) {
-      //console.log('[cargarUrls] ⚠️ No hay editingId, saliendo...');
       return;
     }
     
-    //console.log('[cargarUrls] Iniciando carga de URLs para editingId:', editingId);
     
     try {
       setLoadingUrls(true);
       const urlsData = await obtenerUrlsPorTestingCard(editingId);
       
-      //console.log('[cargarUrls] ✅ URLs recibidas de la BD:', urlsData);
-      //console.log('[cargarUrls] Cantidad de URLs:', urlsData?.length || 0);
       
       // Actualizar el estado con las URLs cargadas
       setDocumentationUrls(urlsData || []);
@@ -556,9 +496,7 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
         setShowDocumentation(true);
       }
       
-      //console.log('[cargarUrls] ✅ Estado actualizado con las URLs');
     } catch (error) {
-      //console.error('[cargarUrls] ❌ Error al cargar URLs:', error);
       // En caso de error, mantener el array vacío
       setDocumentationUrls([]);
     } finally {
@@ -572,25 +510,19 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
    */
   const cargarDocumentos = async () => {
     if (!editingId) {
-      //console.log('[cargarDocumentos] ⚠️ No hay editingId, saliendo...');
       return;
     }
     
-    //console.log('[cargarDocumentos] Iniciando carga de documentos para editingId:', editingId);
     
     try {
       setLoadingDocumentos(true);
       const documentosData = await getDocumentsByTestingCard(editingId);
       
-      //console.log('[cargarDocumentos] ✅ Documentos recibidos de la BD:', documentosData);
-      //console.log('[cargarDocumentos] Cantidad de documentos:', documentosData?.length || 0);
       
       // Actualizar el estado con los documentos cargados
       setDocumentos(documentosData || []);
       
-      //console.log('[cargarDocumentos] ✅ Estado actualizado con los documentos');
     } catch (error) {
-      //console.error('[cargarDocumentos] ❌ Error al cargar documentos:', error);
       // En caso de error, mantener el array vacío
       setDocumentos([]);
     } finally {
@@ -605,17 +537,14 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
    */
   const addDocumentationUrl = async (url: string) => {
     try {
-      //console.log('[addDocumentationUrl] Agregando URL:', url, 'para TC:', editingId);
       const nuevaUrl = await crearUrl({
         id_testing_card: editingId,
         url: url
       });
-      //console.log('[addDocumentationUrl] URL creada:', nuevaUrl);
       setDocumentationUrls(prev => [...prev, nuevaUrl]);
       setSuccessMsg('URL agregada exitosamente');
       setTimeout(() => setSuccessMsg(''), 3000);
     } catch (error) {
-      //console.error('[addDocumentationUrl] Error al agregar URL:', error);
       setErrorMsg('Error al agregar la URL');
       setTimeout(() => setErrorMsg(''), 3000);
     }
@@ -638,13 +567,11 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
   const confirmDeleteUrl = async () => {
     if (urlToDelete) {
       try {
-        //console.log('[confirmDeleteUrl] Eliminando URL:', urlToDelete.id_url_tc);
         await eliminarUrl(urlToDelete.id_url_tc);
         setDocumentationUrls(prev => prev.filter(url => url.id_url_tc !== urlToDelete.id_url_tc));
         setSuccessMsg('URL eliminada exitosamente');
         setTimeout(() => setSuccessMsg(''), 3000);
       } catch (error) {
-        //console.error('[confirmDeleteUrl] Error al eliminar URL:', error);
         setErrorMsg('Error al eliminar la URL');
         setTimeout(() => setErrorMsg(''), 3000);
       }
@@ -703,7 +630,6 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
    * @param {TestingCardDocument} documento - Documento a visualizar
    */
   const handleViewDocument = (documento: TestingCardDocument) => {
-    //console.log('[handleViewDocument] Abriendo documento:', documento.document_name);
     
     if (isImage(documento.document_type) || documento.document_type === 'application/pdf') {
       // Abrir en nueva pestaña para PDFs e imágenes
@@ -720,7 +646,6 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
    * @param {TestingCardDocument} documento - Documento a descargar
    */
   const handleDownloadDocument = (documento: TestingCardDocument) => {
-    //console.log('[handleDownloadDocument] Descargando documento:', documento.document_name);
     
     const link = document.createElement('a');
     link.href = documento.document_url;
@@ -745,15 +670,12 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
   const confirmDeleteDocument = async () => {
     if (documentoAEliminar) {
       try {
-        //console.log('[confirmDeleteDocument] Eliminando documento:', documentoAEliminar.id);
         await deleteDocument(documentoAEliminar.id);
         
         // Actualizar la lista eliminando el documento
         setDocumentos(prev => prev.filter(doc => doc.id !== documentoAEliminar.id));
         
-        //console.log('[confirmDeleteDocument] ✅ Documento eliminado exitosamente');
       } catch (error) {
-        //console.error('[confirmDeleteDocument] Error al eliminar documento:', error);
       }
     }
     setShowDeleteDocumentConfirmation(false);
@@ -894,25 +816,20 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
    */
   const addDocumentationFiles = async (files: File[]) => {
     if (!editingId) {
-      //console.error('[addDocumentationFiles] No hay editingId disponible');
       setErrorMsg('Error: No se puede identificar la Testing Card');
       return;
     }
 
-    //console.log('[addDocumentationFiles] Subiendo archivos:', files.length, 'para TC:', editingId);
     
     try {
       setLoadingDocumentos(true);
       
       // Subir cada archivo individualmente
       const uploadPromises = files.map(async (file) => {
-        //console.log('[addDocumentationFiles] Subiendo archivo:', file.name);
         try {
           const documentoSubido = await uploadDocument(editingId, file);
-          //console.log('[addDocumentationFiles] ✅ Archivo subido exitosamente:', documentoSubido);
           return documentoSubido;
         } catch (error) {
-          //console.error('[addDocumentationFiles] ❌ Error al subir archivo:', file.name, error);
           throw error;
         }
       });
@@ -926,10 +843,8 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
       setSuccessMsg(`${documentosSubidos.length} archivo(s) subido(s) exitosamente`);
       setTimeout(() => setSuccessMsg(''), 3000);
       
-      //console.log('[addDocumentationFiles] ✅ Todos los archivos subidos exitosamente');
       
     } catch (error) {
-      //console.error('[addDocumentationFiles] ❌ Error al subir archivos:', error);
       setErrorMsg('Error al subir los archivos');
       setTimeout(() => setErrorMsg(''), 3000);
     } finally {
@@ -966,7 +881,6 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
       const data = await playbookService.listarTodos();
       setTestingCardPlaybooks(data);
     } catch (error: any) {
-      //console.error('Error al cargar TestingCardPlaybooks:', error);
       setPlaybooksError('Error al cargar tipos de experimento');
     } finally {
       setLoadingPlaybooks(false);
@@ -1006,7 +920,6 @@ const TestingCardEditModal: React.FC<TestingCardEditModalProps> = ({ node, onSav
   const getAvatarColor = (index: number) => avatarColors[index % avatarColors.length];
 
   useEffect(() => {
-    //console.log('[TestingCardEditModal] editingId recibido:', editingId);
   }, [editingId]);
 
   return (

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 
 import { Proyecto } from '../../types/proyecto';
-import Button from '../../components/ui/Button/Button';
+import Button from '../../components/ui-propios/Button/Button';
 import NuevoProyectoModal from './components/NuevoProyectoModal';
 import ColaboradoresPreview from './components/ColaboradoresPreview';
 import LiderProyecto from './components/LiderProyecto';

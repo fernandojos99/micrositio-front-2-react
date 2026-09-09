@@ -3,7 +3,7 @@ import { Play, GitBranch, Save, Bot } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Secuencia } from '../../../types/secuencia';
 import FlowEditor, { FlowEditorRef } from '../../../components/FlowEditor/FlowEditor';
-import Button from '../../../components/ui/Button/Button';
+import Button from '../../../components/ui-propios/Button/Button';
 import styles from './FlowEditorSection.module.css';
 
 interface FlowEditorSectionProps {
@@ -34,7 +34,6 @@ const FlowEditorSection: React.FC<FlowEditorSectionProps> = ({
       if (flowEditorRef.current) {
         // Guardar las posiciones de los nodos
         await flowEditorRef.current.saveCurrentPositions();
-        console.log('Posiciones de nodos guardadas exitosamente');
       }
       
       // Llamar al callback original si existe

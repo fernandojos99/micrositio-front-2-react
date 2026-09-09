@@ -12,8 +12,6 @@ import {
   Award,
   TrendingUp
 } from 'lucide-react';
-/* import { colaboradoresDisponibles } from '../../data/mockData';
-import Button from '../../components/ui/Button/Button'; */
 import styles from './Equipo.module.css';
 import { ProfileCard, ProfileCardProps } from './CardProfile';
 import { EmpleadoResumen, obtenerEmpleadosResumen } from '@/services/empleadosService';
@@ -142,13 +140,10 @@ const mapToProfileCard = (emp: EmpleadoResumen, index: number): ProfileCardProps
     
       // Esto se hace para convertir la fecha de ingreso a un formato legible y mostrar solo el mes y año.
       // ademas porque  restaba un mes por la zona horaria 
-      // console.log("Fecha original (backend):", emp.fecha_ingreso);
       const date = emp.fecha_ingreso
       ? new Date(emp.fecha_ingreso + "T00:00:00")
       : null;
 
-      // console.log("Date parseada:", date);
-      // console.log("Mes (getMonth):", date ? date.getMonth() + 1 : null);
 
 /*       const formattedDate = date
         ? date.toLocaleDateString("es-MX", {
@@ -167,7 +162,6 @@ const mapToProfileCard = (emp: EmpleadoResumen, index: number): ProfileCardProps
           .replace(/^./, (c) => c.toUpperCase())
       : "";
 
-      // console.log("Fecha formateada FINAL:", formattedDate);
 
       return {
 
@@ -207,7 +201,6 @@ useEffect(() => {
   const fetchData = async () => {
     try {
       const empleados = await obtenerEmpleadosResumen();
-      // console.log(empleados)
 
       const mappedUsers = empleados.map(mapToProfileCard);
 
@@ -232,7 +225,6 @@ Filtrado de usuarios según búsqueda y departamento
 */
 const filteredUsers = users.filter((user) => {
   const search = normalizeText(searchTerm);
-  //console.log("texto normalizado," , search)
 
   // Normalizamos campos del usuario
   const name = normalizeText(user.name || "");

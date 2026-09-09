@@ -102,14 +102,9 @@ export const actualizarResultado = async (
     resultado: resultado 
   };
   
-  //console.log('[actualizarResultado] Datos de la petición:', requestData);
-  //console.log('[actualizarResultado] Resultado convertido:', `"${resultado}" `);
-  //console.log('[actualizarResultado] Endpoint:', '/metrica_testing_card/resultado');
-  //console.log('[actualizarResultado] Método: PATCH');
   
   try {
     const response = await apiClient.patch('/metrica_testing_card/resultado', requestData);
-    //console.log('[actualizarResultado] Respuesta exitosa:', response.data);
     return response.data;
   } catch (error) {
     console.error('[actualizarResultado] Error en la petición:', error);

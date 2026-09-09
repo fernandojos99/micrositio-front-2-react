@@ -65,9 +65,6 @@ export default function Chat() {
     const check = async () => {
       try {
         const data = await pingBackend();
-        console.log("Backend disponible");
-        console.log(data.status);
-        console.log(data.service);
       } catch (err) {
         console.error("Backend no disponible", err);
       }

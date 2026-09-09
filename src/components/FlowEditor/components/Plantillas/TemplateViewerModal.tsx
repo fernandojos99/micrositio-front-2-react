@@ -52,7 +52,6 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
   //onUseTemplate,
 }) => {
   // Estados locales para el manejo de datos y UI
-  //console.log('TemplateViewerModal renderizado:', { isOpen, id_testing_card });
   const [templateData, setTemplateData] = useState<TemplateServiceResponse | null>(null);
   const [loadingState, setLoadingState] = useState<LoadingState>(TEMPLATE_CONSTANTS.LOADING_STATES.IDLE);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +67,6 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
   const [loadingSelectedCardMetricas, setLoadingSelectedCardMetricas] = useState(false);
 
   // Log para confirmar que se recibe el id_testing_card
-  //console.log('TemplateViewerModal recibió id_testing_card:', id_testing_card);
 
   /**
    * Función para cargar datos de plantilla
@@ -78,7 +76,6 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
       setLoadingState(TEMPLATE_CONSTANTS.LOADING_STATES.LOADING);
       setError(null);
       
-      //console.log('Cargando datos de plantilla para testing card:', id_testing_card);
 
       // Simular carga de datos de plantilla
       // TODO: Reemplazar con llamada real al servicio cuando esté disponible
@@ -108,7 +105,6 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
       setTemplateData(mockTemplateData);
       setLoadingState(TEMPLATE_CONSTANTS.LOADING_STATES.SUCCESS);
       
-      //console.log('Datos de plantilla cargados exitosamente');
     } catch (err) {
       console.error('Error cargando datos de plantilla:', err);
       setError(
@@ -124,7 +120,6 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
    * Función placeholder para aplicar testing card
    */
   const handleApplyTestingCard = () => {
-    //console.log('Aplicar testing card para:', id_testing_card);
   };
 
   /**
@@ -164,7 +159,6 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
    * Maneja la aplicación de una Testing Card individual
    
   const handleApplyTestingCard = (testingCardData: any) => {
-    console.log('Aplicar Testing Card individual:', testingCardData);
     // TODO: Implementar lógica para crear una nueva Testing Card basada en la plantilla
     // Por ahora, usar el callback general de usar plantilla
     if (onUseTemplate && plantillaId) {
@@ -177,7 +171,6 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
    * Maneja la selección de una Testing Card para mostrar detalles
    */
   const handleSelectTestingCard = async (testingCardData: any) => {
-    console.log('Testing Card seleccionada:', testingCardData);
     setLoadingSelectedCard(true);
     setLoadingSelectedCardMetricas(true);
     
@@ -451,15 +444,12 @@ const TemplateViewerModal: React.FC<TemplateViewerModalProps> = ({
   };
 
   // Debug: Log del estado del modal
-  //console.log('TemplateViewerModal renderizando:', { isOpen, plantillaId });
 
   // No renderizar nada si el modal no está abierto
   if (!isOpen) {
-    console.log('TemplateViewerModal: Modal no está abierto, retornando null');
     return null;
   }
 
-  console.log('TemplateViewerModal: Modal está abierto, renderizando contenido');
   
   // Renderizado del componente
   return (

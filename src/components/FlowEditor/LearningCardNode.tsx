@@ -102,7 +102,6 @@ const LearningCardNode: React.FC<LearningCardNodeProps> = ({ data, selected }) =
     const fetchAccionables = async () => {
       try {
         const result = await obtenerAccionablesPorLearningCard(Number(data.id_learning_card));
-        console.log("Accionables de la Learning Card : useEffect", result);
         setAccionables(result);
       } catch (error) {
         console.error("Error al obtener accionables:", error);

@@ -16,7 +16,6 @@ const SearchBar: React.FC = () => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
 
-    console.log('🔎 Barra superior, buscando:', searchQuery);
 
     // Redirige a /buscar con el término y scope=all
     navigate(

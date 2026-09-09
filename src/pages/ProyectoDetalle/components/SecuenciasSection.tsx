@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Plus, Trash2, Edit, FlaskConical, Save, Check } from 'lucide-react';
 import { Secuencia } from '../../../types/secuencia';
-import Button from '../../../components/ui/Button/Button';
-import ConfirmationModal from '../../../components/ui/ConfirmationModal/ConfirmationModal';
+import Button from '../../../components/ui-propios/Button/Button';
+import ConfirmationModal from '../../../components/ui-propios/ConfirmationModal/ConfirmationModal';
 import styles from './SecuenciasSection.module.css';
-import ActionDropdown from '../../../components/ui/ActionDropdown/ActionDropdown';
+import ActionDropdown from '../../../components/ui-propios/ActionDropdown/ActionDropdown';
 import EditSecuenciaModal from './EditSecuenciaModal';
 import TemplateDropdown from '../../../components/FlowEditor/components/Plantillas/TemplateDropdown';
 import TemplateViewerModalSecuencia from '../../../components/FlowEditor/components/Plantillas/TemplateViewerModalSecuencia';
@@ -233,7 +233,6 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
    * @param {string} secuenciaId - ID de la secuencia
    */
   const handleApplyTemplate = (secuenciaId: string) => {
-    console.log('Aplicar plantilla para secuencia:', secuenciaId);
     
     // Buscar la secuencia por ID
     const secuencia = secuencias.find(s => s.id === secuenciaId);
@@ -249,7 +248,6 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
    * @param {string} secuenciaId - ID de la secuencia
    */
   const handleSaveTemplate = async (secuenciaId: string) => {
-    console.log('Guardar como plantilla para secuencia:', secuenciaId);
     
     try {
       // Verificar que el usuario esté autenticado y tenga id_empleado
@@ -281,12 +279,10 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
         id_empleado: user.id_empleado
       };
 
-      console.log('Creando plantilla con datos:', plantillaData);
 
       // Llamar al endpoint para crear la plantilla
       const nuevaPlantilla = await crearPlantillaSecuencia(plantillaData);
       
-      console.log('Plantilla creada exitosamente:', nuevaPlantilla);
       alert(`¡Plantilla guardada exitosamente para la secuencia "${secuencia.nombre}"!`);
       
     } catch (error: any) {
@@ -349,7 +345,6 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
     Función para navegar a la página grafica de accionables del proyecto
   **/
   const gotoAccionables = () => {
-    console.log('Navegando a accionables del proyecto:', idProyecto);
     navigate(`/proyecto/grafica/${idProyecto}`)
 
 
@@ -389,7 +384,6 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
               onClick={() => {
                 if (tieneSecciones) {
                   gotoAccionables();
-                  // console.log('Navegando a accionables del proyectdesde botono:', secuencias[0].proyectoId);
                 }
               }}
             >

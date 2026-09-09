@@ -90,11 +90,9 @@ const UsersProjectsList: React.FC = () => {
     setError(null);
     
     try {
-      console.log('🔍 Cargando usuarios del sistema...');
       
       // Obtener lista completa de usuarios
       const response = await obtenerTodosUsuarios();
-      console.log('📊 Respuesta del servicio obtenerTodosUsuarios:', response);
       
       // Validar y procesar la respuesta del servicio
       let usuariosData: Usuario[] = [];
@@ -117,7 +115,6 @@ const UsersProjectsList: React.FC = () => {
         usuariosData = [];
       }
       
-      console.log('✅ Usuarios procesados exitosamente:', usuariosData.length);
       console.log('📈 Distribución:', {
         visitantes: usuariosData.filter(u => u.tipo === 'VISITANTE').length,
         editores: usuariosData.filter(u => u.tipo === 'EDITOR').length
@@ -143,7 +140,6 @@ const UsersProjectsList: React.FC = () => {
    */
   const handleUserSelect = (userId: string) => {
     setSelectedUserId(prevId => prevId === userId ? null : userId);
-    console.log('👤 Usuario seleccionado:', userId);
   };
 
   /**
@@ -151,7 +147,6 @@ const UsersProjectsList: React.FC = () => {
    * Se ejecuta cuando se eliminan usuarios, cambian estados, etc.
    */
   const handleUserUpdated = () => {
-    console.log('🔄 Recargando usuarios tras actualización...');
     loadUsuarios();
   };
 
@@ -160,7 +155,6 @@ const UsersProjectsList: React.FC = () => {
    * Limpia la selección si el usuario eliminado estaba seleccionado y recarga datos
    */
   const handleUserDeleted = () => {
-    console.log('🗑️ Usuario eliminado, recargando datos...');
     setSelectedUserId(null); // Limpiar selección
     loadUsuarios();
   };

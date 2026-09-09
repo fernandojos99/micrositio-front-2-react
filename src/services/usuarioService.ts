@@ -44,11 +44,7 @@ export const obtenerUsuarioPorIdEmpleado = async (id_empleado: number): Promise<
 
 export const obtenerTodosUsuarios = async (): Promise<Usuario[]> => {
   try {
-    console.log('🔍 Llamando al endpoint: GET /usuarios/');
     const response = await apiClient.get('/usuarios/');
-    console.log('📊 Respuesta completa del servidor:', response);
-    console.log('📋 Datos recibidos:', response.data);
-    console.log('🔍 Tipo de datos:', typeof response.data, 'Es array?', Array.isArray(response.data));
     return response.data;
   } catch (error) {
     console.error('❌ Error en obtenerTodosUsuarios:', error);

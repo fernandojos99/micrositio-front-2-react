@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Mail, Lock, Eye, EyeOff, UserPlus, AlertCircle } from 'lucide-react';
-import Button from '../ui/Button/Button';
+import Button from '../ui-propios/Button/Button';
 import { crearUsuarioVisitante } from '../../services/usuarioService';
 import styles from './LoginModal.module.css';
 import { useAuth } from '@/contexts/AuthContext';
@@ -161,7 +161,6 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
         activo: true
       });
       
-      console.log('Usuario creado exitosamente:', nuevoUsuario);
       alert(`¡Registro exitoso! Usuario "${formData.alias}" creado correctamente.`);
       onClose();
       

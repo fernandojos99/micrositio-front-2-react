@@ -9,7 +9,7 @@ import { subirImagenUsuario } from "@/services/usuarioService" // ✅ AGREGADO
 interface HeaderProps {
   initialUser: any
   correo: string
-  tipo: "EDITOR" | "VISITANTE"
+  tipo: "EDITOR" | "VISITANTE" | "ADMIN"
   empleado: Empleado | null
   imagen: string
   onImageChange: (nuevaUrl: string) => void

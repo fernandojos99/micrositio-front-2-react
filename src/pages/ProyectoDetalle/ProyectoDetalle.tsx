@@ -16,6 +16,23 @@ import { eliminarSecuencia, obtenerSecuenciasPorProyecto, crearSecuencia } from 
 import { obtenerProyectoPorId } from '../../services/proyectosService';
 import { eliminarProyecto } from '../../services/proyectosService';
 import { obtenerTestingCardsPorSecuencia } from '../../services/testingCardService';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui-shadcn/tabs';
+import { useAuth } from '../../contexts/AuthContext';
+import {
+  ETAPAS,
+  NOMBRE_ETAPA,
+  obtenerEtapa,
+  guardarEtapa,
+  aprobarProyecto,
+  type Etapa,
+  type DatosEtapa,
+  type ProyectoEtapa as EtapaProyecto,
+} from '../../services/proyectoEtapaService';
+import BriefTab from './etapas/BriefTab';
+import PlanTab from './etapas/PlanTab';
+import EjecucionTab from './etapas/EjecucionTab';
+import IdeacionTab from './etapas/IdeacionTab';
+import ResultadosTab from './etapas/ResultadosTab';
 
 
 /**
@@ -79,6 +96,75 @@ const ProyectoDetalle: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isDeletingProject, setIsDeletingProject] = useState(false);
 
+  // @state: Etapas del proyecto (las 5 pestañas)
+  const { user } = useAuth();
+  const esAdmin = user?.tipo === 'ADMIN';
+  const puedeEditar = user?.tipo === 'EDITOR' || esAdmin;
+
+  const [etapa, setEtapa] = useState<EtapaProyecto | null>(null);
+  const [guardandoEtapa, setGuardandoEtapa] = useState(false);
+  const [aprobando, setAprobando] = useState(false);
+
+  // La pestaña activa viaja en la URL (?etapa=BRIEF) para poder compartir el
+  // enlace, igual que ya se hace con la secuencia y las cards.
+  const etapaDeURL = (new URLSearchParams(location.search).get('etapa') ?? '').toUpperCase();
+  const etapaActiva: Etapa = (ETAPAS as readonly string[]).includes(etapaDeURL)
+    ? (etapaDeURL as Etapa)
+    : 'BRIEF';
+
+  const cambiarEtapa = (nueva: string) => {
+    const params = new URLSearchParams(location.search);
+    params.set('etapa', nueva);
+    navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+  };
+
+  useEffect(() => {
+    if (!proyectoId) return;
+    let cancelado = false;
+
+    obtenerEtapa(Number(proyectoId))
+      .then((datos) => { if (!cancelado) setEtapa(datos); })
+      .catch((error) => {
+        // Que falle la etapa no debe tumbar la pantalla: el resto del proyecto
+        // (secuencias y flujo) funciona igual sin ella.
+        console.warn('No se pudo cargar la etapa del proyecto:', error);
+      });
+
+    return () => { cancelado = true; };
+  }, [proyectoId]);
+
+  /** Mezcla lo capturado en una pestaña con lo que ya había guardado. */
+  const guardarDatosEtapa = async (parcial: DatosEtapa) => {
+    if (!proyectoId) return;
+    setGuardandoEtapa(true);
+    try {
+      const actualizada = await guardarEtapa(Number(proyectoId), {
+        etapa_actual: etapaActiva,
+        datos: { ...(etapa?.datos ?? {}), ...parcial },
+      });
+      setEtapa(actualizada);
+    } catch (error) {
+      console.error('Error al guardar la etapa:', error);
+      alert('No se pudo guardar. Revisa la consola para más detalles.');
+    } finally {
+      setGuardandoEtapa(false);
+    }
+  };
+
+  const handleAprobarProyecto = async () => {
+    if (!proyectoId) return;
+    setAprobando(true);
+    try {
+      const resultado = await aprobarProyecto(Number(proyectoId));
+      setEtapa(resultado);
+    } catch (error) {
+      console.error('Error al aprobar el proyecto:', error);
+      alert('No se pudo aprobar el proyecto. Revisa la consola para más detalles.');
+    } finally {
+      setAprobando(false);
+    }
+  };
+
   /**
    * Actualiza la URL basada en la selección actual
    * @function updateURL
@@ -97,9 +183,10 @@ const ProyectoDetalle: React.FC = () => {
       newPath += `/${cardType}-card/${cardId}`;
     }
     
-    // Solo navegar si la URL ha cambiado
+    // Solo navegar si la URL ha cambiado. Se conserva la query (?etapa=) para
+    // no perder la pestaña abierta al cambiar de secuencia o de card.
     if (location.pathname !== newPath) {
-      navigate(newPath, { replace: true });
+      navigate(`${newPath}${location.search}`, { replace: true });
     }
   };
 
@@ -584,9 +671,56 @@ const ProyectoDetalle: React.FC = () => {
           </div>
         </div>
 
-        {/* @section: Secuencias del proyecto */}
+        {/* @section: Etapas del proyecto */}
+        <Tabs value={etapaActiva} onValueChange={cambiarEtapa} className="mt-4">
+          <TabsList className="flex w-full flex-wrap justify-start gap-1 h-auto">
+            {ETAPAS.map((nombre) => (
+              <TabsTrigger key={nombre} value={nombre}>
+                {NOMBRE_ETAPA[nombre]}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          <TabsContent value="BRIEF">
+            <BriefTab
+              idProyecto={Number(proyecto.id)}
+              nombreProyecto={proyecto.nombre}
+            />
+          </TabsContent>
+
+          <TabsContent value="PLAN">
+            <PlanTab
+              idProyecto={Number(proyecto.id)}
+              esAdmin={esAdmin}
+              puedeEditar={puedeEditar}
+              guardando={guardandoEtapa}
+              aprobando={aprobando}
+              onAprobar={handleAprobarProyecto}
+            />
+          </TabsContent>
+
+          <TabsContent value="IDEACION">
+            <IdeacionTab
+              idProyecto={Number(proyecto.id)}
+              puedeEditar={puedeEditar}
+            />
+          </TabsContent>
+
+          <TabsContent value="RESULTADOS">
+            <ResultadosTab
+              idProyecto={Number(proyecto.id)}
+              bloqueado={!etapa?.aprobado}
+              etapa={etapa}
+              puedeEditar={puedeEditar}
+              onGuardar={guardarDatosEtapa}
+            />
+          </TabsContent>
+
+          {/* La ejecución conserva tal cual la caja de secuencias y el editor
+              de flujo que ya existían en esta pantalla. */}
+          <TabsContent value="EJECUCION">
+            <EjecucionTab idProyecto={Number(proyecto.id)} puedeEditar={puedeEditar}>
         <SecuenciasSection
-          idProyecto={Number(proyecto.id)}
           secuencias={secuencias}
           secuenciaSeleccionada={secuenciaSeleccionada}
           tituloProyecto={proyecto.nombre}
@@ -630,6 +764,9 @@ const ProyectoDetalle: React.FC = () => {
           selectedTestingCardId={testingCardId}
           selectedLearningCardId={learningCardId}
         />
+            </EjecucionTab>
+          </TabsContent>
+        </Tabs>
 
         {/* @component: Modal de edición de proyecto */}
         <EditarProyectoModal

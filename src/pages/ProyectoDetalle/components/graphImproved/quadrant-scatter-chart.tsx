@@ -647,8 +647,16 @@ function QuadrantTable({
     } catch (error) {
       console.error("Error actualizando accionable", error)
     }
-  
+
   }
+
+  // De mayor a menor promedio entre esfuerzo e impacto: lo que pesa en los dos
+  // ejes queda arriba de la tabla.
+  const ordenados = useMemo(
+    () => [...points].sort((a, b) => (b.point.x + b.point.y) - (a.point.x + a.point.y)),
+    [points]
+  )
+
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger asChild>
@@ -717,7 +725,7 @@ function QuadrantTable({
                     >
                       <th className="w-[5%] px-3 py-2"></th>
 
-                      <th className="w-[60%] px-3 py-2 text-left font-medium text-xs">
+                      <th className="w-[45%] px-3 py-2 text-left font-medium text-xs">
                         <span style={{ color: 'var(--theme-text-secondary)' }}>Accionable</span>
                       </th>
 
@@ -732,18 +740,24 @@ function QuadrantTable({
                       <th className="w-[10%] px-3 py-2 text-right font-medium text-xs">
                         <span style={{ color: 'var(--theme-text-secondary)' }}>Impacto</span>
                       </th>
+
+                      <th className="w-[15%] px-3 py-2 text-right font-medium text-xs">
+                        <span style={{ color: 'var(--theme-text-secondary)' }}>Promedio</span>
+                      </th>
                     </tr>
                   </thead>
 
                   <tbody>
-                    {points.map((p) => {
+                    {ordenados.map((p) => {
                       const isChecked = checkedRows.has(p.point.label||"") // Verifica si la fila actual está marcada
+                      const promedio = (p.point.x + p.point.y) / 2
 
                       return (
                         <tr
                         key={p.point.label}
-                          className="border-b last:border-b-0 transition-colors"
+                          className="border-b last:border-b-0 transition-colors cursor-pointer"
                           style={{ borderColor: 'var(--theme-border)' }}
+                          onClick={() => onRowClick?.(p.point, p.seriesName, accionables.find(a => a.contenido === p.point.label) || createAccionable(0))}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.backgroundColor = 'var(--theme-bg-tertiary)'
                           }}
@@ -770,9 +784,9 @@ function QuadrantTable({
                           </td>
 
                           <td
-                            className="px-3 py-2 font-medium truncate cursor-pointer"
+                            className="px-3 py-2 font-medium truncate"
                             style={{ color: 'var(--theme-text-primary)' }}
-                            onClick={() => onRowClick?.(p.point, p.seriesName,accionables.find(a => a.contenido === p.point.label) ||createAccionable(0))}
+                            title={p.point.label}
                           >
                             {p.point.label || "-"}
                           </td>
@@ -804,6 +818,13 @@ function QuadrantTable({
                             style={{ color: 'var(--theme-text-primary)' }}
                           >
                             {p.point.y}
+                          </td>
+
+                          <td
+                            className="px-3 py-2 text-right tabular-nums font-medium"
+                            style={{ color: 'var(--theme-text-primary)' }}
+                          >
+                            {promedio.toFixed(1)}
                           </td>
                         </tr>
                       )

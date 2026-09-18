@@ -26,8 +26,8 @@ import styles from './Administracion.module.css';
 const Administracion: React.FC = () => {
   const { user } = useAuth();
 
-  // Verificar que el usuario sea EDITOR
-  if (!user || user.tipo !== 'EDITOR') {
+  // Verificar que el usuario sea EDITOR o ADMIN
+  if (!user || (user.tipo !== 'EDITOR' && user.tipo !== 'ADMIN')) {
     return (
       <div className={styles.accessDenied}>
         <Shield size={48} />

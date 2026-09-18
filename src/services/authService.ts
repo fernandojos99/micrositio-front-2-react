@@ -14,7 +14,7 @@ export interface LoginData {
 export interface RegisterData {
   alias: string;
   password: string;
-  tipo: 'EDITOR' | 'VISITANTE';
+  tipo: 'EDITOR' | 'VISITANTE' | 'ADMIN';
   id_empleado?: number | null;
 }
 
@@ -26,7 +26,7 @@ export interface BackendUser {
   id_usuario?: string; // Cuando viene del objeto usuario directo
   user_id?: string;    // Cuando viene del JWT decodificado
   alias: string;
-  tipo: 'EDITOR' | 'VISITANTE';
+  tipo: 'EDITOR' | 'VISITANTE' | 'ADMIN';
   id_empleado: number | null;
   activo?: boolean;
   proyectos?: number[] | null;

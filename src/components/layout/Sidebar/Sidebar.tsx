@@ -8,7 +8,6 @@ import {
   ChevronLeft,
   ChevronRight,
   BookOpen,
-  MessageCircle ,
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 import { useAuth } from '@/contexts/AuthContext';
@@ -47,18 +46,9 @@ const menuItems: MenuItem[] = [
     name: 'Libro Digital',
     icon: <BookOpen size={20} />
   },
-  {
-    path: '/transcripts',
-    name: 'Transcripts',
-    icon: <MessageCircle size={20} />
-  },
-
-  // Descomentar cuando me aprueben el subirlo
-    {
-    path: '/chatAgente',
-    name: 'Chat Agente',
-    icon: <Bot size={20} />
-   }, 
+  // Transcripts ya no va aquí: vive dentro de la pestaña Brief y Propuesta de
+  // cada proyecto, que es donde queda guardado. El chat tampoco: se abre con
+  // el botón "Asistente" de la barra de búsqueda.
 ];
 
 const Sidebar: React.FC = () => {

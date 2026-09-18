@@ -14,7 +14,8 @@ export interface User {
   role?: string;
   // Datos adicionales del backend
   alias: string;
-  tipo: 'EDITOR' | 'VISITANTE';
+  // ADMIN es un EDITOR que además aprueba proyectos.
+  tipo: 'EDITOR' | 'VISITANTE' | 'ADMIN';
   id_empleado: number | null;
   activo: boolean;
   proyectosIds?: number[];

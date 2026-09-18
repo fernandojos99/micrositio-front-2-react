@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Edit, FlaskConical, Check } from 'lucide-react';
+import { Plus, Trash2, Edit, FlaskConical } from 'lucide-react';
 import { Secuencia } from '../../../types/secuencia';
 import Button from '../../../components/ui-propios/Button/Button';
 import ConfirmationModal from '../../../components/ui-propios/ConfirmationModal/ConfirmationModal';
@@ -10,7 +10,6 @@ import TemplateDropdown from '../../../components/FlowEditor/components/Plantill
 import TemplateViewerModalSecuencia from '../../../components/FlowEditor/components/Plantillas/TemplateViewerModalSecuencia';
 import { useAuth } from '../../../contexts/AuthContext';
 import { crearPlantillaSecuencia } from '../../../services/plantillaSecuenciaService';
-import { useNavigate } from 'react-router-dom';
 
 /**
  * Props para el componente SecuenciasSection
@@ -18,7 +17,6 @@ import { useNavigate } from 'react-router-dom';
  */
 interface SecuenciasSectionProps {
   /** Lista de secuencias del proyecto */
-  idProyecto: Number;
   secuencias: Secuencia[];
   /** Secuencia actualmente seleccionada */
   secuenciaSeleccionada: Secuencia | null;
@@ -70,7 +68,6 @@ interface SecuenciasSectionProps {
  * @returns {JSX.Element} Sección de secuencias
  */
 const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
-  idProyecto,
   secuencias,
   secuenciaSeleccionada,
   tituloProyecto,
@@ -337,20 +334,6 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
     return estado.replace(/\s+/g, '_');
   };
 
-
-  const navigate = useNavigate()
-
-  /*
-    Función para navegar a la página grafica de accionables del proyecto
-  **/
-  const gotoAccionables = () => {
-    navigate(`/proyecto/grafica/${idProyecto}`)
-
-
-    
-  }
-  const tieneSecciones = secuencias && secuencias.length > 0;
-
   return (
     <div className={styles['secuencias-section']}>
       {/* @section: Header de la sección */}
@@ -366,29 +349,6 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
             <h3 className={styles['proyecto-titulo']}>
               {tituloProyecto || 'Sin título'}
             </h3>
-
-
-            <Button
-            variant="primary"
-              size="small"
-              icon={<Check size={16} />}
-              disabled={!tieneSecciones}
-              style={{
-                height: "3rem",
-                paddingTop: "0.75rem",
-                paddingBottom: "0.75rem",
-                backgroundColor: tieneSecciones ? "#22c55e" : "#9ca3af",
-                cursor: tieneSecciones ? "pointer" : "not-allowed"
-              }}
-              onClick={() => {
-                if (tieneSecciones) {
-                  gotoAccionables();
-                }
-              }}
-            >
-              Accionables
-            </Button>
-
 
 
           </div>

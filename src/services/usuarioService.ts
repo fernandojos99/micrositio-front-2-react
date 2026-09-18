@@ -7,7 +7,7 @@ export interface Usuario {
   id_usuario: string;
   alias: string;
   password_hash: string;
-  tipo: 'EDITOR' | 'VISITANTE';
+  tipo: 'EDITOR' | 'VISITANTE' | 'ADMIN';
   id_empleado?: number;
   activo: boolean;
   created_at: string;
@@ -17,14 +17,14 @@ export interface Usuario {
 export interface CrearUsuarioData {
   alias: string;
   password: string;
-  tipo: 'EDITOR' | 'VISITANTE';
+  tipo: 'EDITOR' | 'VISITANTE' | 'ADMIN';
   id_empleado?: number;
   activo?: boolean;
 }
 
 export interface ActualizarUsuarioData {
   alias?: string;
-  tipo?: 'EDITOR' | 'VISITANTE';
+  tipo?: 'EDITOR' | 'VISITANTE' | 'ADMIN';
   id_empleado?: number;
   activo?: boolean;
 }

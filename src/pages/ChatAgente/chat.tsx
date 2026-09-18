@@ -196,6 +196,25 @@ export default function Chat() {
     setSidebarOpen(false);
   };
 
+  // ─── Retomar la última conversación ──────────────────────────────────────────
+  // Al abrir el chat se cargaban las sesiones solo para listarlas, y se entraba
+  // siempre a una conversación nueva y vacía: parecía que el historial se había
+  // perdido cuando en realidad estaba en el panel, a un clic. Se abre la más
+  // reciente (fetchSessions ya las ordena por fecha descendente).
+  //
+  // Solo ocurre la primera vez: si pulsas "+ Nuevo" o eliges otra sesión, no
+  // vuelve a entrometerse.
+  const sesionRestaurada = useRef(false);
+
+  useEffect(() => {
+    if (sesionRestaurada.current) return;
+    if (sessionsLoading || sessions.length === 0) return;
+    if (selectedSession || threadIdRef.current) return;
+
+    sesionRestaurada.current = true;
+    handleSelectSession(sessions[0].thread_id);
+  }, [sessions, sessionsLoading, selectedSession]);
+
   const handleDeleteSession = async (e: React.MouseEvent, threadId: string) => {
     e.stopPropagation();
     if (!window.confirm("¿Eliminar esta sesión?")) return;

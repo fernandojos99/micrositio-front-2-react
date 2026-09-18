@@ -33,6 +33,18 @@
   --color-warning: #f59e0b;
   --color-error: #ef4444;
   --color-info: #3b82f6;
+
+  /* Estado: tono de texto y fondo suave (tema claro).
+     Los de arriba son el color puro; estos son los que se leen bien sobre
+     fondo claro y los que sirven de relleno de una etiqueta. */
+  --color-success-text: #15803d;
+  --color-success-soft: #dcfce7;
+  --color-warning-text: #b45309;
+  --color-warning-soft: #fef3c7;
+  --color-danger-text: #b91c1c;
+  --color-danger-soft: #fee2e2;
+  --color-info-text: #1d4ed8;
+  --color-info-soft: #dbeafe;
   
   /* Espaciado */
   --spacing-xs: 0.25rem;

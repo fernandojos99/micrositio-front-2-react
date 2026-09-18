@@ -31,7 +31,15 @@
 
    ============================================================================ */
 
-   import { useState, useCallback, useRef } from "react"
+   import { useState, useCallback, useEffect, useRef } from "react"
+
+   import {
+     obtenerBrief,
+     guardarBrief,
+     subirArchivoBrief,
+     subirPptxBrief,
+     type ArchivoBrief,
+   } from "@/services/proyectoBriefService"
 
    import {
      Card,
@@ -117,12 +125,19 @@
       COMPONENTE PRINCIPAL
       ============================================================================ */
    
-   export default function TranscriptProcessor() {
+   export default function TranscriptProcessor({
+     idProyecto,
+     nombreProyectoInicial,
+   }: {
+     /** Con proyecto, lo ejecutado se guarda y se recupera al volver a entrar. */
+     idProyecto?: number
+     nombreProyectoInicial?: string
+   } = {}) {
      /* ==========================================================================
         FORM STATE
         ========================================================================== */
-   
-     const [projectName, setProjectName] = useState("")
+
+     const [projectName, setProjectName] = useState(nombreProyectoInicial ?? "")
    
      const [transcript, setTranscript] = useState("")
    
@@ -165,13 +180,85 @@
    
      const [isDragging, setIsDragging] =
        useState(false)
-   
+
+     /* ==========================================================================
+        BRIEF GUARDADO — solo tiene sentido dentro de un proyecto
+        ========================================================================== */
+
+     const [archivoGuardado, setArchivoGuardado] =
+       useState<ArchivoBrief | null>(null)
+
+     const [pptx, setPptx] =
+       useState<ArchivoBrief | null>(null)
+
+     const [guardando, setGuardando] =
+       useState(false)
+
+     const [subiendoPptx, setSubiendoPptx] =
+       useState(false)
+
      /* ==========================================================================
         FILE INPUT REF
         ========================================================================== */
-   
+
      const fileInputRef =
        useRef<HTMLInputElement>(null)
+
+     const inputPptxRef =
+       useRef<HTMLInputElement>(null)
+
+     /* ==========================================================================
+        RECUPERAR LO YA GUARDADO
+        ========================================================================== */
+
+     useEffect(() => {
+       if (!idProyecto) return
+       let cancelado = false
+
+       obtenerBrief(idProyecto)
+         .then((brief) => {
+           if (cancelado) return
+
+           if (brief.nombre_proyecto) setProjectName(brief.nombre_proyecto)
+
+           if (brief.ejecutado) {
+             setResponse({
+               id: brief.transcript_id ?? undefined,
+               url: brief.url ?? undefined,
+             })
+             setLambdaResponse(brief.resumen_estructurado ?? null)
+           }
+
+           setArchivoGuardado(brief.archivo)
+           setPptx(brief.pptx)
+         })
+         .catch((error) =>
+           console.error("No se pudo cargar el brief guardado:", error)
+         )
+
+       return () => {
+         cancelado = true
+       }
+     }, [idProyecto])
+
+     /* ==========================================================================
+        SUBIR LA PRESENTACIÓN — no exige haber ejecutado nada
+        ========================================================================== */
+
+     const handlePptx = async (archivo: File) => {
+       if (!idProyecto) return
+
+       setSubiendoPptx(true)
+       try {
+         const brief = await subirPptxBrief(idProyecto, archivo)
+         setPptx(brief.pptx)
+       } catch (errorSubida) {
+         console.error("No se pudo subir la presentación:", errorSubida)
+         setError("No se pudo subir la presentación.")
+       } finally {
+         setSubiendoPptx(false)
+       }
+     }
    
      /* ==========================================================================
         DISABLE LOGIC
@@ -465,15 +552,59 @@
           AUTO FETCH LAMBDA
           ====================================================================== */
     
+        let resumenEstructurado: unknown = null
+        let resumenTexto: string | null = null
+
         if (result.id) {
           const lambdaRes = await fetchConTimeout(`${LAMBDA_URL}/${result.id}`)
-    
+
           if (lambdaRes.ok) {
             const lambdaData = await lambdaRes.json()
-    
-            setLambdaResponse(
+
+            resumenEstructurado =
               lambdaData?.data?.resumen_estructurado ?? null
+
+            // La Lambda guarda también el resumen en texto. No se pinta, pero
+            // se conserva: es lo que se puede leer o buscar sin desplegar el JSON.
+            resumenTexto =
+              typeof lambdaData?.data?.resumen === "string"
+                ? lambdaData.data.resumen
+                : null
+
+            setLambdaResponse(resumenEstructurado)
+          }
+        }
+
+        /* ======================================================================
+          GUARDAR EN EL PROYECTO
+          Sin proyecto no hay dónde guardarlo y todo sigue siendo volátil.
+          El .docx se sube también a nuestro servidor: a la Lambda ya fue, pero
+          de ahí no se puede recuperar.
+          ====================================================================== */
+
+        if (idProyecto) {
+          setGuardando(true)
+          try {
+            if (docxFile) {
+              const conArchivo = await subirArchivoBrief(idProyecto, docxFile)
+              setArchivoGuardado(conArchivo.archivo)
+            }
+
+            await guardarBrief(idProyecto, {
+              nombre_proyecto: projectName,
+              transcript_id: result.id ?? null,
+              url: result.url ?? null,
+              resumen: resumenTexto,
+              resumen_estructurado: resumenEstructurado,
+              origen: docxFile ? "docx" : "texto",
+            })
+          } catch (errorGuardado) {
+            console.error("No se pudo guardar el brief:", errorGuardado)
+            setError(
+              "Se procesó el transcript, pero no se pudo guardar en el proyecto."
             )
+          } finally {
+            setGuardando(false)
           }
         }
       } catch (err) {
@@ -1132,38 +1263,42 @@
                       AVISO: copiar antes de cerrar
                       ---------------------------------------------------------- */}
 
-                   <div
-                     className="
-                       flex
-                       items-start
-                       gap-3
-                       rounded-t-xl
-                       border-b
-                       px-5
-                       py-4
-                     "
-                     style={{
-                       background: "rgba(234,179,8,0.08)",
-                       borderColor: "rgba(234,179,8,0.35)",
-                     }}
-                   >
-                     <AlertTriangle
-                       className="size-5 shrink-0 mt-0.5"
-                       style={{ color: "rgb(234,179,8)" }}
-                     />
-
-                     <p
-                       className="text-sm leading-relaxed"
-                       style={{ color: "rgb(234,179,8)" }}
+                   {/* Dentro de un proyecto el aviso ya no es cierto: esto
+                       queda guardado y reaparece al volver a entrar. */}
+                   {!idProyecto && (
+                     <div
+                       className="
+                         flex
+                         items-start
+                         gap-3
+                         rounded-t-xl
+                         border-b
+                         px-5
+                         py-4
+                       "
+                       style={{
+                         background: "rgba(234,179,8,0.08)",
+                         borderColor: "rgba(234,179,8,0.35)",
+                       }}
                      >
-                       <span className="font-semibold">
-                         Copia esta información antes de cerrar.
-                       </span>{" "}
-                       Por el momento no es posible recuperarla
-                       una vez que abandones o recargues esta
-                       página.
-                     </p>
-                   </div>
+                       <AlertTriangle
+                         className="size-5 shrink-0 mt-0.5"
+                         style={{ color: "rgb(234,179,8)" }}
+                       />
+
+                       <p
+                         className="text-sm leading-relaxed"
+                         style={{ color: "rgb(234,179,8)" }}
+                       >
+                         <span className="font-semibold">
+                           Copia esta información antes de cerrar.
+                         </span>{" "}
+                         Por el momento no es posible recuperarla
+                         una vez que abandones o recargues esta
+                         página.
+                       </p>
+                     </div>
+                   )}
 
                    {/* ----------------------------------------------------------
                       HEADER CON BOTÓN COPIAR JSON
@@ -1219,6 +1354,116 @@
 
                    <div className="p-5">
                      <JsonViewer data={lambdaResponse} />
+                   </div>
+                 </div>
+               )}
+
+               {/* ==========================================================
+                  GUARDADO
+                  ========================================================== */}
+
+               {guardando && (
+                 <p
+                   className="text-sm"
+                   style={{ color: "var(--theme-text-secondary)" }}
+                 >
+                   Guardando en el proyecto…
+                 </p>
+               )}
+
+               {archivoGuardado && (
+                 <p
+                   className="text-sm"
+                   style={{ color: "var(--theme-text-secondary)" }}
+                 >
+                   Documento del brief:{" "}
+                   <a
+                     href={archivoGuardado.url}
+                     target="_blank"
+                     rel="noreferrer"
+                     className="underline"
+                     style={{ color: "var(--theme-text-primary)" }}
+                   >
+                     {archivoGuardado.nombre}
+                   </a>
+                 </p>
+               )}
+
+               {/* ==========================================================
+                  PRESENTACIÓN (.pptx)
+                  Se puede subir sin haber pulsado Ejecutar.
+                  ========================================================== */}
+
+               {idProyecto && (
+                 <div
+                   className="rounded-xl border p-5"
+                   style={{
+                     background: "var(--theme-bg-secondary)",
+                     borderColor: "var(--theme-border)",
+                   }}
+                 >
+                   <h3 className="font-semibold mb-1">Presentación</h3>
+
+                   <p
+                     className="text-sm mb-4"
+                     style={{ color: "var(--theme-text-secondary)" }}
+                   >
+                     Sube el .pptx del proyecto. No hace falta haber ejecutado
+                     el transcript.
+                   </p>
+
+                   <input
+                     ref={inputPptxRef}
+                     type="file"
+                     accept=".pptx,.ppt"
+                     className="hidden"
+                     onChange={(e) => {
+                       const elegido = e.target.files?.[0]
+                       if (elegido) handlePptx(elegido)
+                       e.target.value = ""
+                     }}
+                   />
+
+                   <div className="flex flex-wrap items-center gap-3">
+                     <Button
+                       variant="outline"
+                       disabled={subiendoPptx}
+                       onClick={() => inputPptxRef.current?.click()}
+                       className="gap-2"
+                     >
+                       {subiendoPptx ? (
+                         <>
+                           <Spinner className="size-4" />
+                           Subiendo...
+                         </>
+                       ) : (
+                         <>
+                           <Upload className="size-4" />
+                           {pptx ? "Reemplazar" : "Subir .pptx"}
+                         </>
+                       )}
+                     </Button>
+
+                     {pptx && (
+                       <a
+                         href={pptx.url}
+                         target="_blank"
+                         rel="noreferrer"
+                         className="text-sm underline"
+                         style={{ color: "var(--theme-text-primary)" }}
+                       >
+                         {pptx.nombre}
+                       </a>
+                     )}
+
+                     {!pptx && (
+                       <span
+                         className="text-sm"
+                         style={{ color: "var(--theme-text-secondary)" }}
+                       >
+                         Todavía no hay ninguna.
+                       </span>
+                     )}
                    </div>
                  </div>
                )}

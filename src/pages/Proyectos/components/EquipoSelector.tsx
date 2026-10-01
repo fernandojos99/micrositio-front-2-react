@@ -1,7 +1,6 @@
 import React from 'react';
-import Button from '../../../components/ui/Button/Button';
+import Button from '../../../components/ui-propios/Button/Button';
 import styles from './NuevoProyectoModal.module.css';
-import { CelulaProyecto } from '../../../services/celulaProyectoService';
 
 interface Empleado {
   id_empleado: number;

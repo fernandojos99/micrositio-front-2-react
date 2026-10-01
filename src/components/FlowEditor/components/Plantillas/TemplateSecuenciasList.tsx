@@ -11,7 +11,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Loader2, AlertCircle, FileText, CheckCircle } from 'lucide-react';
-import ConfirmationModal from '../../../../components/ui/ConfirmationModal/ConfirmationModal';
+import ConfirmationModal from '../../../../components/ui-propios/ConfirmationModal/ConfirmationModal';
 import { Secuencia } from '../../../../types/secuencia';
 import { obtenerSecuenciasId, aplicarPlantillaSecuencia } from '../../../../services/secuenciaService';
 import { obtenerPlantillasSecuencia, obtenerPlantillaSecuenciaPorIdSecuencia } from '../../../../services/plantillaSecuenciaService';
@@ -52,7 +52,6 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
   const [isApplying, setIsApplying] = useState(false);
 
   // Log para confirmar que se reciben los parámetros
-  //console.log('TemplateSecuenciasList recibió:', { id_secuencia_destino, id_proyecto });
 
   /**
    * Carga las Secuencias disponibles
@@ -69,18 +68,15 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
       setLoading(true);
       setError(null);
 
-      //console.log('Cargando plantillas de secuencias disponibles...');
 
       let secuenciasObtenidas: Secuencia[] = [];
       
       try {
         // Paso 1: Obtener todas las plantillas de secuencia disponibles
         const plantillasResponse = await obtenerPlantillasSecuencia();
-        //console.log('Respuesta completa de plantillas:', plantillasResponse);
         
         // Extraer el array de plantillas de la respuesta del backend
         const plantillas = plantillasResponse.data || [];
-        //console.log('Plantillas de secuencia extraídas:', plantillas);
         
         // Verificar que tengamos un array válido
         if (!Array.isArray(plantillas)) {
@@ -91,7 +87,6 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
         for (const plantilla of plantillas) {
           try {
             const secuenciaResponse = await obtenerSecuenciasId(plantilla.id_secuencia);
-            //console.log(`Respuesta de secuencia para plantilla ${plantilla.id_plantilla_secuencia}:`, secuenciaResponse);
             
             // Extraer la secuencia de la respuesta (puede tener estructura similar al backend)
             const secuencia = secuenciaResponse?.data || secuenciaResponse;
@@ -106,7 +101,6 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
           }
         }
         
-        //console.log('Secuencias procesadas desde plantillas:', secuenciasObtenidas);
         
         // Verificar que tenemos datos válidos
         if (!Array.isArray(secuenciasObtenidas)) {
@@ -122,7 +116,6 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
         console.error('Error al usar API de plantillas/secuencias:', apiError);
         
         // Fallback: usar datos mock si la API no está disponible
-        //console.log('Usando datos mock como fallback');
         const mockSecuencias: Secuencia[] = [
           {
             id: 'mock-1',
@@ -181,7 +174,6 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
           }
         ];
         
-        //console.log('Datos mock establecidos:', mockSecuencias);
         setSecuencias(mockSecuencias);
       }
     } catch (err) {
@@ -217,14 +209,9 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
    */
   const handleApplySecuencia = async (secuenciaPlantilla: Secuencia) => {
     try {
-      //console.log('Iniciando aplicación de plantilla de secuencia...');
-      //console.log('Secuencia Plantilla:', secuenciaPlantilla);
-      //console.log('Secuencia destino ID:', id_secuencia_destino);
 
       // Paso 1: Obtener la plantilla de secuencia existente
-      //console.log('Obteniendo plantilla para secuencia ID:', parseInt(secuenciaPlantilla.id));
       const plantilla = await obtenerPlantillaSecuenciaPorIdSecuencia(parseInt(secuenciaPlantilla.id));
-      //console.log('Plantilla de secuencia obtenida:', plantilla);
       
       // Verificar que la plantilla sea válida
       if (!plantilla) {
@@ -235,18 +222,13 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
         throw new Error(`Plantilla obtenida no tiene id_plantilla_secuencia válido: ${JSON.stringify(plantilla)}`);
       }
       
-      //console.log('ID de plantilla extraído:', plantilla.id_plantilla_secuencia);
 
       // Paso 2: Aplicar la plantilla a la secuencia destino usando secuenciaService
-      //console.log(`Aplicando plantilla de secuencia ${plantilla.id_plantilla_secuencia} a secuencia ${id_secuencia_destino}`);
       
       // Verificar que los parámetros no sean undefined/null antes de enviar
       const secuenciaDestinoId = parseInt(id_secuencia_destino);
       const plantillaId = plantilla.id_plantilla_secuencia;
       
-      //console.log('Parámetros para aplicarPlantillaSecuencia:');
-      //console.log('- id_secuencia (número):', secuenciaDestinoId, 'tipo:', typeof secuenciaDestinoId);
-      //console.log('- id_plantilla_secuencia (string):', plantillaId, 'tipo:', typeof plantillaId);
       
       // Validar que los parámetros sean válidos
       if (!secuenciaDestinoId || isNaN(secuenciaDestinoId)) {
@@ -257,13 +239,10 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
         throw new Error(`ID de plantilla secuencia inválido: ${plantillaId}`);
       }
       
-      const aplicacionResponse = await aplicarPlantillaSecuencia(
-        secuenciaDestinoId, 
+      await aplicarPlantillaSecuencia(        secuenciaDestinoId, 
         plantillaId
       );
-      //console.log('Respuesta de aplicación de plantilla:', aplicacionResponse);
 
-      //console.log('Plantilla de secuencia aplicada exitosamente');
 
       // Disparar evento global para notificar a editores que deben recargar datos
       try {
@@ -301,11 +280,9 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
   };
 
   // Debug logs
-  //console.log('Estado actual - Loading:', loading, 'Error:', error, 'Secuencias count:', secuencias.length);
 
   // Estado de carga
   if (loading) {
-    //console.log('Renderizando estado de carga');
     return (
       <div className={`template-list-container ${className}`}>
         <div className="template-list-loading">
@@ -318,7 +295,6 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
 
   // Estado de error
   if (error) {
-    //console.log('Renderizando estado de error:', error);
     return (
       <div className={`template-list-container ${className}`}>
         <div className="template-list-error">
@@ -332,7 +308,6 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
 
   // Lista vacía
   if (secuencias.length === 0) {
-    //console.log('Renderizando estado de lista vacía');
     return (
       <div className={`template-list-container ${className}`}>
         <div className="template-list-empty">
@@ -345,7 +320,6 @@ const TemplateSecuenciasList: React.FC<TemplateSecuenciasListProps> = ({
   }
 
   // Renderizar lista de Secuencias
-  //console.log('Renderizando lista de Secuencias:', secuencias);
   return (
     <div className={`template-list-container ${className}`}>
       <div className="template-list-header">

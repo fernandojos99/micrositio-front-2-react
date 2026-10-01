@@ -37,16 +37,9 @@ export const obtenerPorId = async (id_url_formato: string | number): Promise<Url
  * @returns {Promise<UrlFormato>} URL de Formato creada.
  */
 export const crear = async (data: Partial<UrlFormato>): Promise<UrlFormato> => {
-  console.log('[urlFormatoService] ===== CREAR URL =====');
-  console.log('[urlFormatoService] Data recibida:', data);
-  console.log('[urlFormatoService] URL:', data.url);
-  console.log('[urlFormatoService] Categoría:', data.categoria);
-  console.log('[urlFormatoService] Descripción:', data.descripcion);
-  console.log('[urlFormatoService] =======================');
   
   const response = await apiClient.post('/url_formato/crear', data);
   
-  console.log('[urlFormatoService] Respuesta del backend:', response.data);
   return response.data;
 };
 
@@ -57,17 +50,9 @@ export const crear = async (data: Partial<UrlFormato>): Promise<UrlFormato> => {
  * @returns {Promise<UrlFormato>} URL de Formato actualizada.
  */
 export const actualizar = async (id_url_formato: string | number, data: Partial<UrlFormato>): Promise<UrlFormato> => {
-  console.log('[urlFormatoService] ===== ACTUALIZAR URL =====');
-  console.log('[urlFormatoService] ID:', id_url_formato);
-  console.log('[urlFormatoService] Data recibida:', data);
-  console.log('[urlFormatoService] URL:', data.url);
-  console.log('[urlFormatoService] Categoría:', data.categoria);
-  console.log('[urlFormatoService] Descripción:', data.descripcion);
-  console.log('[urlFormatoService] =======================');
   
   const response = await apiClient.patch(`/url_formato/${id_url_formato}`, data);
   
-  console.log('[urlFormatoService] Respuesta del backend:', response.data);
   return response.data;
 };
 

@@ -149,8 +149,6 @@ export const getDocumentsByTestingCard = async (
   testingCardId: number
 ): Promise<TestingCardDocument[]> => {
   const endpoint = `/api/testing-card/${testingCardId}/documents`;
-  console.log('[testingCardDocumentService] Llamando endpoint:', endpoint);
-  console.log('[testingCardDocumentService] URL completa:', `http://localhost:3000${endpoint}`);
   
   const response = await apiClient.get<DocumentListResponse>(endpoint);
 

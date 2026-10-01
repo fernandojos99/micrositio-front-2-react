@@ -125,12 +125,10 @@ const useEmpleados = (): UseEmpleadosReturn => {
     setError(null);
     
     try {
-      console.log('🔍 Cargando todos los empleados...');
       
       // Obtener todos los empleados del sistema
       const empleadosData = await obtenerEmpleados();
       
-      console.log('📋 Empleados obtenidos:', empleadosData);
       
       // Procesar empleados y añadir información calculada
       const empleadosProcesados = empleadosData.map(procesarEmpleado);
@@ -145,7 +143,6 @@ const useEmpleados = (): UseEmpleadosReturn => {
       setEmpleados(empleadosProcesados);
       setEmpleadosMap(mapeo);
       
-      console.log('✅ Empleados cargados exitosamente:', empleadosProcesados.length);
       
     } catch (err) {
       const errorMessage = 'Error al cargar empleados del sistema';
@@ -171,12 +168,10 @@ const useEmpleados = (): UseEmpleadosReturn => {
   const obtenerEmpleado = useCallback(async (id: number): Promise<EmpleadoCompleto | null> => {
     // Verificar si ya tenemos el empleado en cache
     if (empleadosMap[id]) {
-      console.log(`✅ Empleado ${id} encontrado en cache`);
       return empleadosMap[id];
     }
     
     try {
-      console.log(`🔍 Cargando empleado ${id} desde servidor...`);
       
       // Cargar empleado específico desde el servidor
       const empleadoData = await obtenerEmpleadoPorId(id);
@@ -196,7 +191,6 @@ const useEmpleados = (): UseEmpleadosReturn => {
         return existe ? prev : [...prev, empleadoProcesado];
       });
       
-      console.log('✅ Empleado cargado exitosamente:', empleadoProcesado);
       return empleadoProcesado;
       
     } catch (err) {

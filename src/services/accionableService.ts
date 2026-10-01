@@ -52,3 +52,19 @@ export async function actualizarAccionable(
 }
 
 
+/**
+ * Cambia el contenido, el impacto o el esfuerzo de un accionable.
+ * Es el mismo PUT que `actualizarAccionable`, que solo sabe mandar `realizado`.
+ */
+export async function editarAccionable(
+  idAccionable: number,
+  cambios: Partial<Pick<Accionable, 'contenido' | 'impacto' | 'esfuerzo' | 'realizado'>>
+): Promise<Accionable> {
+
+  const response = await apiClient.put(`/accionables/${idAccionable}`, cambios);
+
+  return response.data.data;
+
+}
+
+

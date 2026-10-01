@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, User } from 'lucide-react';
-import SearchBar from '../ui/Busqueda/SearchBar'; // 👈 ruta desde UsersProjects a ui
+import SearchBar from '../ui-propios/Busqueda/SearchBar'; // 👈 ruta desde UsersProjects a ui
 import { Empleado, obtenerEmpleadosSinUsuario } from '../../services/empleadosService';
 import { asignarEmpleadoUsuario } from '../../services/usuarioService';
 import styles from './AssignEmployeeModal.module.css';
@@ -84,7 +84,6 @@ const AssignEmployeeModal: React.FC<AssignEmployeeModalProps> = ({
         id_empleado: empleado.id_empleado || empleado.id // Mapear 'id' a 'id_empleado' si es necesario
       }));
       setEmpleados(transformedData);
-      console.log('📦 Empleados transformados y establecidos:', transformedData.length);
     } else {
       console.warn('⚠️ Intentando establecer empleados con datos no válidos:', data);
       setEmpleados([]);
@@ -112,28 +111,20 @@ const AssignEmployeeModal: React.FC<AssignEmployeeModalProps> = ({
     setError(null);
     
     try {
-      console.log('🔍 Cargando empleados sin usuario...');
       const response = await obtenerEmpleadosSinUsuario();
-      console.log('📋 Respuesta completa del servidor:', response);
-      console.log('📊 Tipo de respuesta:', typeof response, 'Es array?', Array.isArray(response));
       
       // Verificar que los datos sean un array o un objeto con la propiedad data
       if (Array.isArray(response)) {
         setEmpleadosSafely(response);
-        console.log('✅ Empleados cargados exitosamente (array directo):', response.length, 'empleados');
       } else if (response && typeof response === 'object' && 'data' in response && Array.isArray((response as any).data)) {
         // El backend devuelve {success: true, data: [...], total: number}
         const responseData = (response as any).data;
-        const responseTotal = (response as any).total;
         setEmpleadosSafely(responseData);
-        console.log('✅ Empleados cargados exitosamente (objeto con data):', responseData.length, 'empleados');
-        console.log('📊 Total disponibles según backend:', responseTotal);
       } else {
         console.error('❌ Los datos recibidos no tienen el formato esperado:', response);
         
         // Intentar verificar si hay una propiedad que contenga el array
         if (response && typeof response === 'object') {
-          console.log('🔍 Propiedades del objeto respuesta:', Object.keys(response));
           
           // Buscar propiedades comunes que podrían contener el array
           const possibleArrayProps = ['empleados', 'results', 'items'];
@@ -141,7 +132,6 @@ const AssignEmployeeModal: React.FC<AssignEmployeeModalProps> = ({
           
           for (const prop of possibleArrayProps) {
             if ((response as any)[prop] && Array.isArray((response as any)[prop])) {
-              console.log(`✅ Array encontrado en la propiedad '${prop}':`, (response as any)[prop]);
               setEmpleadosSafely((response as any)[prop]);
               foundArray = true;
               break;
@@ -201,7 +191,6 @@ const AssignEmployeeModal: React.FC<AssignEmployeeModalProps> = ({
     // Si el empleado ya está seleccionado, lo deseleccionamos
     if (selectedEmployee && getEmpleadoId(selectedEmployee) === getEmpleadoId(empleado)) {
       setSelectedEmployee(null);
-      console.log('🚫 Empleado deseleccionado');
     } else {
       setSelectedEmployee(empleado);
       console.log('✅ Empleado seleccionado:', {
@@ -240,9 +229,7 @@ const AssignEmployeeModal: React.FC<AssignEmployeeModalProps> = ({
         usuarioId: userId
       });
       
-      const resultado = await asignarEmpleadoUsuario(userId, empleadoId);
-      
-      console.log('✅ Empleado asignado exitosamente:', resultado);
+      await asignarEmpleadoUsuario(userId, empleadoId);      
       
       // Notificar éxito
       onEmployeeAssigned?.();

@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+# Nota sobre los umbrales de abajo: el proyecto arrastra deuda (errores de
+# TypeScript que nunca se veian porque el build no ejecuta tsc, y avisos de
+# ESLint que no se ejecutaban porque el lint estaba roto). En vez de bloquear
+# de golpe, el CI actua de trinquete: falla solo si los numeros SUBEN. Al ir
+# bajandolos, se bajan tambien estos limites, hasta poder ponerlos en 0 y
+# convertir el typecheck en parte del build.
+env:
+  MAX_ERRORES_TS: 19
+  MAX_ERRORES_LINT: 173
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Typecheck
+        run: |
+          set +e
+          npx tsc --noEmit -p tsconfig.app.json > tsc.log 2>&1
+          set -e
+          N=$(grep -c "error TS" tsc.log || true)
+          echo "Errores de TypeScript: $N (limite $MAX_ERRORES_TS)"
+          cat tsc.log
+          if [ "$N" -gt "$MAX_ERRORES_TS" ]; then
+            echo "::error::El typecheck empeoro: $N errores, el limite es $MAX_ERRORES_TS."
+            exit 1
+          fi
+
+      - name: Lint
+        run: |
+          set +e
+          npm run lint > lint.log 2>&1
+          set -e
+          N=$(grep -oE "\([0-9]+ errors?" lint.log | tail -1 | grep -oE "[0-9]+" || echo 0)
+          echo "Errores de ESLint: $N (limite $MAX_ERRORES_LINT)"
+          tail -40 lint.log
+          if [ "$N" -gt "$MAX_ERRORES_LINT" ]; then
+            echo "::error::El lint empeoro: $N errores, el limite es $MAX_ERRORES_LINT."
+            exit 1
+          fi
+
+      - name: Build
+        run: npm run build

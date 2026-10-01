@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Plus, CheckCircle, Zap, Target, Users } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import styles from './EmptyFlowState.module.css';
 
 /**

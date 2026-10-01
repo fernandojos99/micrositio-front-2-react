@@ -7,9 +7,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui-shadcn/dropdown-menu"
-import { Button } from "../ui-shadcn2/button"
+import { Button } from "../ui-shadcn/button"
 import { Accionable } from "@/pages/Interfaces/accionablesPoints"
-import { randomInt } from "crypto"
 
 
 
@@ -40,7 +39,7 @@ function NumberDropdown({
 
   return (
     <div className="flex flex-col gap-1">
-      <span className="contenido-xs contenido-muted-foreground">{label}</span>
+      <span className="contenido-xs" style={{ color: 'var(--theme-text-secondary)' }}>{label}</span>
 
       <DropdownMenu>
 
@@ -50,6 +49,11 @@ function NumberDropdown({
               variant="outline"
               type="button"
               className="w-16 justify-between"
+              style={{
+                backgroundColor: 'var(--theme-bg-secondary)',
+                borderColor: 'var(--theme-border)',
+                color: 'var(--theme-text-primary)'
+              }}
             >
               {value}
               <ChevronDown className="ml-1 h-4 w-4" />
@@ -57,13 +61,30 @@ function NumberDropdown({
         </DropdownMenuTrigger>
 
         {/* Es el contenido que se despliega */}
-        <DropdownMenuContent className="w-16 min-w-0 z-[9999]">
+        <DropdownMenuContent 
+          className="w-16 min-w-0 z-[9999]"
+          style={{
+            backgroundColor: 'var(--theme-bg-secondary)',
+            borderColor: 'var(--theme-border)',
+            color: 'var(--theme-text-primary)'
+          }}
+        >
           {/*  Genera un mapa con objetos sencillos(solo numeros por defecto) */}
           {numbers.map((num) => (
             <DropdownMenuItem
               key={num} // cada item debe tener una key unica, en este caso el numero es unico
               onSelect={() => onChange(num)} // cuando se selecciona un numero, se llama a onChange (que viene de las props) 
               className="justify-center"
+              style={{
+                color: 'var(--theme-text-primary)',
+                backgroundColor: 'transparent'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--theme-bg-tertiary)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent'
+              }}
             >
               {num}
             </DropdownMenuItem>
@@ -104,7 +125,7 @@ function ExpandableInput({
 
   return (
     <div className="relative flex-1">
-      <span className="contenido-xs contenido-muted-foreground">Texto</span>
+      <span className="contenido-xs" style={{ color: 'var(--theme-text-secondary)' }}>Texto</span>
 
       <div className="relative h-10">
         {!isExpanded ? (
@@ -117,6 +138,14 @@ function ExpandableInput({
               setIsExpanded(true)
             }}
             className="w-full truncate"
+            style={{
+              backgroundColor: 'var(--theme-bg-secondary)',
+              borderColor: 'var(--theme-border)',
+              color: 'var(--theme-text-primary)',
+              '::placeholder': {
+                color: 'var(--theme-text-tertiary)'
+              }
+            } as React.CSSProperties}
           />
         ) : (
           <div className="absolute left-0 top-0 z-50 min-w-[280px] w-full">
@@ -131,7 +160,14 @@ function ExpandableInput({
                 setIsExpanded(false)
               }}
               rows={calculateRows()}
-              className="w-full resize-none rounded-md border-2 border-primary bg-background px-3 py-2 contenido-sm shadow-xl placeholder:contenido-muted-foreground focus:outline-none"
+              className="w-full resize-none rounded-md border-2 shadow-xl px-3 py-2 contenido-sm focus:outline-none"
+              style={{
+                borderColor: 'var(--theme-border-hover)',
+                backgroundColor: 'var(--theme-bg-primary)',
+                color: 'var(--theme-text-primary)',
+                borderWidth: '2px',
+                borderStyle: 'solid'
+              }}
             />
           </div>
         )}
@@ -160,7 +196,11 @@ function ItemRow({
 }) {
   return (
     <div
-      className={`flex flex-col gap-2 rounded-lg border border-border bg-card p-3 `}
+      className={`flex flex-col gap-2 rounded-lg border p-3`}
+      style={{
+        borderColor: 'var(--theme-border)',
+        backgroundColor: 'var(--theme-bg-secondary)'
+      }}
     >
 
       {/* descomentar si quiero poner un titulo */}
@@ -197,7 +237,16 @@ function ItemRow({
           type="button"
           size="icon"
           onClick={() => onDelete(item.idF!)}
-          className="h-10 w-10 contenido-muted-foreground hover:contenido-destructive"
+          className="h-10 w-10"
+          style={{
+            color: 'var(--theme-text-secondary)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = 'var(--color-text-destructive)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = 'var(--theme-text-secondary)'
+          }}
         >
           <Trash2 className="h-4 w-4" />
         </Button>
@@ -259,7 +308,12 @@ const addItem = () => {
   return (
     <main className="w-full space-y-4 mb-5">
       <div className="w-full max-w-2xl space-y-4">
-        <h1 className="font-semibold contenido-foreground">Accionables</h1>
+        <h1 
+          className="font-semibold"
+          style={{ color: 'var(--theme-text-primary)' }}
+        >
+          Accionables
+        </h1>
 
         <div className="space-y-3">
           {/* si vemos inicialmente no tiene ningun item */}
@@ -283,6 +337,17 @@ const addItem = () => {
           type="button"
           variant="outline"
           className="w-full , mb-4"
+          style={{
+            backgroundColor: 'transparent',
+            borderColor: 'var(--theme-border)',
+            color: 'var(--theme-text-primary)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--theme-bg-tertiary)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent'
+          }}
         >
           <Plus className="mr-2 h-4 w-4" />
           Agregar Accionable

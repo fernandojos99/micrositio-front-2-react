@@ -1,11 +1,22 @@
 import apiClient from '../apiClient';
 
+export const CATEGORIAS_AGENTE = [
+  "Descubrimiento",
+  "Ideación",
+  "Investigación",
+  "Prototipado",
+  "Validación",
+] as const
+
+export type CategoriaAgente = typeof CATEGORIAS_AGENTE[number]
+
 export interface Agente {
   id_agente: number;
   nombre: string;
   link?: string;
   descripcion?: string;
   prompt?: string;
+  categoria?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -15,14 +26,16 @@ export interface CrearAgenteData {
   link?: string;
   descripcion?: string;
   prompt?: string;
+  categoria?: string;
 }
 
 export interface ActualizarAgenteData {
-  id: number;
+  id_agente: number;
   nombre?: string;
   link?: string;
   descripcion?: string;
   prompt?: string;
+  categoria?: string;
 }
 
 /**
@@ -48,8 +61,6 @@ export const listarPorCategoria = async (idCategoria: number): Promise<Agente[]>
  * @returns {Promise<Agente>} Los datos del agente
  */
 export const obtenerAgentePorId = async (idAgente: number): Promise<Agente> => {
-  // console.log('Obteniendo agente por ID:', id);
-  // console.log('Tipo de ID:', typeof id);
   
   // Para GET con body en axios, usar request con configuración específica
   const response = await apiClient.request({
@@ -60,7 +71,6 @@ export const obtenerAgentePorId = async (idAgente: number): Promise<Agente> => {
     }
   });
   
-  // console.log('Respuesta del servidor:', response.data);
   return response.data;
 };
 
@@ -80,8 +90,6 @@ export const crearAgente = async (agenteData: CrearAgenteData): Promise<Agente> 
  * @returns {Promise<Agente>} El agente actualizado
  */
 export const actualizarAgente = async (agenteData: ActualizarAgenteData): Promise<Agente> => {
-  // console.log('actualizarAgente - Datos recibidos:', JSON.stringify(agenteData, null, 2));
-  // console.log('actualizarAgente - Tipo de ID:', typeof agenteData.id);
   
   const response = await apiClient.patch('/agentes/', agenteData);
   return response.data;

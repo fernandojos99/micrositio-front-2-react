@@ -6,8 +6,8 @@
 import React, { useState, useEffect } from 'react';
 import { UserCheck, UserX, FolderPlus, UserPlus } from 'lucide-react';
 import { Usuario, darBajaUsuario, darAltaUsuario } from '../../services/usuarioService';
-import ActionDropdown from '../ui/ActionDropdown/ActionDropdown';
-import ConfirmationModal from '../ui/ConfirmationModal/ConfirmationModal';
+import ActionDropdown from '../ui-propios/ActionDropdown/ActionDropdown';
+import ConfirmationModal from '../ui-propios/ConfirmationModal/ConfirmationModal';
 import UserProjectsList from './UserProjectsList';
 import AssignProjectModal from './AssignProjectModal';
 import AssignEmployeeModal from './AssignEmployeeModal';
@@ -153,11 +153,9 @@ const EditorUserItem: React.FC<EditorUserItemProps> = ({
       if (statusAction === 'deactivate') {
         // Dar de baja al usuario (pasar a inactivo)
         await darBajaUsuario(usuario.id_usuario);
-        console.log('✅ Usuario desactivado exitosamente');
       } else {
         // Dar de alta al usuario (pasar a activo)
         await darAltaUsuario(usuario.id_usuario);
-        console.log('✅ Usuario activado exitosamente');
       }
       
       // Cerrar modal de confirmación

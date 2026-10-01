@@ -133,8 +133,6 @@ export const uploadFormatoDocument = async (file: File): Promise<FormatoDocument
   formData.append('document', file);
 
   const endpoint = '/formato/upload';
-  console.log('[formatoDocumentService] Subiendo documento a:', endpoint);
-  console.log('[formatoDocumentService] Archivo:', file.name);
 
   const response = await apiClient.post<FormatoUploadResponse>(
     endpoint,
@@ -160,8 +158,6 @@ export const uploadFormatoDocument = async (file: File): Promise<FormatoDocument
 export const getFormatoDocuments = async (): Promise<FormatoDocument[]> => {
   try {
     const endpoint = '/formato/';
-    console.log('[formatoDocumentService] Llamando endpoint:', endpoint);
-    //console.log('[formatoDocumentService] URL completa:', `http://localhost:3000${endpoint}`);
     
     const response = await apiClient.get<FormatoListResponse>(endpoint);
 
@@ -188,22 +184,15 @@ export const getFormatoDocuments = async (): Promise<FormatoDocument[]> => {
     
     if (Array.isArray(responseData)) {
       // Caso 1: La API devuelve directamente un array
-      console.log('[formatoDocumentService] API devolvió un array directo');
       documents = responseData;
     } else if (typeof responseData === 'object' && responseData.hasOwnProperty('documents')) {
       // Caso 2: La API devuelve un objeto con propiedad documents
-      console.log('[formatoDocumentService] API devolvió objeto con propiedad documents');
       documents = responseData.documents;
     } else {
       console.warn('[formatoDocumentService] API no devolvió la estructura esperada:', responseData);
       return [];
     }
 
-    console.log('[formatoDocumentService] Estructura de respuesta completa:', JSON.stringify(response.data, null, 2));
-    console.log('[formatoDocumentService] Tipo de documents:', typeof documents);
-    console.log('[formatoDocumentService] Es array?:', Array.isArray(documents));
-    console.log('[formatoDocumentService] Contenido de documents:', documents);
-    console.log('[formatoDocumentService] Total documentos:', documents.length);
     
     if (!Array.isArray(documents)) {
       console.warn('[formatoDocumentService] documents no es un array, devolviendo array vacío');
@@ -217,7 +206,6 @@ export const getFormatoDocuments = async (): Promise<FormatoDocument[]> => {
     
     // Si el error es 404 (no found), devolver array vacío en lugar de error
     if (error.response?.status === 404) {
-      console.log('[formatoDocumentService] Sin documentos de formato (404), devolviendo array vacío');
       return [];
     }
     
@@ -234,7 +222,6 @@ export const getFormatoDocuments = async (): Promise<FormatoDocument[]> => {
  */
 export const getFormatoDocumentById = async (documentId: string): Promise<FormatoDocument> => {
   const endpoint = `/formato/${documentId}`;
-  console.log('[formatoDocumentService] Obteniendo documento:', endpoint);
   
   const response = await apiClient.get<{ success: boolean; data: FormatoDocument }>(endpoint);
 
@@ -262,18 +249,13 @@ export const updateFormatoDocument = async (
     }
 
     const endpoint = `/formato/${documentId}`;
-    console.log('[formatoDocumentService] Actualizando documento:', endpoint);
-    console.log('[formatoDocumentService] Document ID:', documentId);
-    console.log('[formatoDocumentService] Update data:', updateData);
     
     const response = await apiClient.patch<FormatoUpdateResponse>(endpoint, updateData);
-    console.log('[formatoDocumentService] Respuesta del servidor:', response.data);
 
     if (!response.data.success) {
       throw new Error(response.data.message || 'Error al actualizar documento de formato');
     }
     
-    console.log('[formatoDocumentService] ✅ Documento actualizado exitosamente');
     return response.data.data;
   } catch (error: any) {
     console.error('[formatoDocumentService] ❌ Error al actualizar documento:', error);
@@ -310,17 +292,13 @@ export const deleteFormatoDocument = async (documentId: string): Promise<void> =
     }
 
     const endpoint = `/formato/${documentId}`;
-    console.log('[formatoDocumentService] Eliminando documento:', endpoint);
-    console.log('[formatoDocumentService] Document ID:', documentId);
     
     const response = await apiClient.delete<FormatoDeleteResponse>(endpoint);
-    console.log('[formatoDocumentService] Respuesta del servidor:', response.data);
 
     if (!response.data.success) {
       throw new Error(response.data.message || 'Error al eliminar documento de formato');
     }
     
-    console.log('[formatoDocumentService] ✅ Documento eliminado exitosamente');
   } catch (error: any) {
     console.error('[formatoDocumentService] ❌ Error al eliminar documento:', error);
     

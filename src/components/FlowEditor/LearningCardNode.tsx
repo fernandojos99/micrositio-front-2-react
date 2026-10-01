@@ -16,6 +16,8 @@ import { UrlLearningCard, obtenerPorLearningCard } from '../../services/urlLearn
 import { MetricaTestingCard, obtenerPorTestingCard } from '../../services/metricaTestingCardService';
 import { Empleado, obtenerEmpleados } from '../../services/empleadosService';
 import './styles/LearningCardNode.css';
+import { obtenerAccionablesPorLearningCard } from '@/services/accionableService';
+import { Accionable } from '@/pages/Interfaces/accionablesPoints';
 
 /**
  * Props para el componente LearningCardNode
@@ -89,6 +91,25 @@ const LearningCardNode: React.FC<LearningCardNodeProps> = ({ data, selected }) =
     }
     // eslint-disable-next-line
   }, [isExpanded, data.id_learning_card, data.id_testing_card, data.id_responsable]);
+
+
+    // Obtener accionables de cada secuencia y guardarlos en un nuevo estado que combine
+  // ambos datos para facilitar el acceso a la hora de generar los puntos del grafico.
+  // const [accionables, setAccionables] = useState(Accionable[]); (MAL)
+  const [accionables, setAccionables] = useState<Accionable[]>([]);
+
+  useEffect(() => {
+    const fetchAccionables = async () => {
+      try {
+        const result = await obtenerAccionablesPorLearningCard(Number(data.id_learning_card));
+        setAccionables(result);
+      } catch (error) {
+        console.error("Error al obtener accionables:", error);
+      }
+    };
+  
+    fetchAccionables();
+  }, [data.id_learning_card]);
 
   /**
    * Carga las URLs desde la base de datos
@@ -371,16 +392,90 @@ const LearningCardNode: React.FC<LearningCardNodeProps> = ({ data, selected }) =
           </p>
         </div>
         
+     
+        {/* Sección de hallazgos accionables */}
         {/* Sección de hallazgos accionables */}
         <div className="insight-section">
           <h4>
             <Lightbulb size={12} style={{ marginRight: '4px' }} />
             Hallazgo Accionable
           </h4>
-          <p className={isExpanded ? 'section-text-expanded' : 'section-text-collapsed'}>
-            {isExpanded ? data.hallazgo : truncateText(data.hallazgo || 'Sin hallazgos registrados')}
-          </p>
+
+          {!accionables?.length ? (
+            <div className={isExpanded ? 'section-text-expanded' : 'section-text-collapsed'}>
+              Sin hallazgos registrados
+            </div>
+          ) : isExpanded ? (
+            <ul style={{
+              margin: '8px 0 0 0',
+              paddingLeft: '20px',
+              listStyleType: 'disc',
+              listStylePosition: 'outside'
+            }}>
+              {accionables.map((accionable, index) => {
+                return (
+                  <li key={index} style={{
+                    marginBottom: '12px',
+                    display: 'list-item',
+                    whiteSpace: 'normal'
+                  }}>
+                    <div style={{ marginBottom: '4px', fontWeight: '500' }}>
+                      {accionable.contenido}
+                    </div>
+                    <div style={{
+                      display: 'flex',
+                      gap: '16px',
+                      fontSize: '11px',
+                      color: 'var(--theme-text-secondary)',
+                      marginTop: '4px'
+                    }}>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        <span style={{ fontWeight: '600' }}>Impacto:</span> {accionable.impacto}/10
+                      </span>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        <span style={{ fontWeight: '600' }}>Esfuerzo:</span> {accionable.esfuerzo}/10
+                      </span>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <div className="section-text-collapsed" style={{
+              whiteSpace: 'normal',
+              overflow: 'hidden',    // trucaso para esconder todo lo que este afuera del contenedor 
+              wordBreak: 'break-word',
+              overflowWrap: 'break-word',
+              maxWidth: '100%'
+            }}>
+              {(() => {
+                // Truncar a 3 palabras en la vista colapsada
+                const truncarAPalabras = (texto: string, maxPalabras: number = 3) => {
+                  if (!texto) return '';
+                  const palabras = texto.split(' ');
+                  if (palabras.length <= maxPalabras) return texto;
+                  return palabras.slice(0, maxPalabras).join(' ') + '...';
+                };
+                
+                const contenidos = accionables.map(a => truncarAPalabras(a.contenido));
+                const primeros3 = contenidos.slice(0, 3);
+                const textoMostrado = primeros3.join(', ');
+                return contenidos.length > 3 
+                  ? `${textoMostrado}... (+${contenidos.length - 3} más)`
+                  : textoMostrado;
+              })()}
+            </div>
+          )}
         </div>
+
 
         {/* Botón para expandir/contraer contenido adicional */}
         <button 

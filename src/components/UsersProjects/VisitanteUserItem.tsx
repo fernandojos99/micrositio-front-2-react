@@ -6,8 +6,8 @@
 import React, { useState } from 'react';
 import { UserPlus, UserX, FolderPlus } from 'lucide-react';
 import { Usuario, eliminarUsuario, actualizarTipoUsuario } from '../../services/usuarioService';
-import ActionDropdown from '../ui/ActionDropdown/ActionDropdown';
-import ConfirmationModal from '../ui/ConfirmationModal/ConfirmationModal';
+import ActionDropdown from '../ui-propios/ActionDropdown/ActionDropdown';
+import ConfirmationModal from '../ui-propios/ConfirmationModal/ConfirmationModal';
 import UserProjectsList from './UserProjectsList';
 import AssignProjectModal from './AssignProjectModal';
 import styles from './VisitanteUserItem.module.css';
@@ -116,7 +116,6 @@ const VisitanteUserItem: React.FC<VisitanteUserItemProps> = ({
       // Notificar al componente padre que el usuario fue actualizado
       onUserUpdated?.();
       
-      console.log('✅ Usuario promovido a EDITOR exitosamente');
       
     } catch (error) {
       console.error('❌ Error al promover usuario a EDITOR:', error);
@@ -143,7 +142,6 @@ const VisitanteUserItem: React.FC<VisitanteUserItemProps> = ({
       // Notificar al componente padre que el usuario fue eliminado
       onUserDeleted?.();
       
-      console.log('✅ Usuario visitante eliminado exitosamente');
       
     } catch (error) {
       console.error('❌ Error al eliminar usuario visitante:', error);

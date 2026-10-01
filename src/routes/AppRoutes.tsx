@@ -26,17 +26,17 @@ import MainLayout from '../layouts/MainLayout/MainLayout';
 import HomePage from '../pages/HomePage';
 import Proyectos from '../pages/Proyectos/Proyectos';
 import ProyectoDetalle from '../pages/ProyectoDetalle/ProyectoDetalle';
+// import Agentes from '../pages/Agentes-old/Agentes';
 import Agentes from '../pages/Agentes/Agentes';
-import AgenteDetalle from '../pages/Agentes/AgenteDetalle';
+import AgenteDetalle from '../pages/Agentes-old/AgenteDetalle';
 import Formatos from '../pages/Formatos/Formatos';
 import Equipo from '../pages/Equipo/Equipo';
 import Perfil from '../pages/Perfil/Perfil';
-import Assistant from '../pages/Assistant';
 import LibroDigital from '../pages/LibroDigital/LibroDigital';
 import Administracion from '../pages/Administracion/Administracion';
 import Busqueda from '../pages/Busqueda/Busqueda';
-import { GraphTotal } from '../pages/ProyectoDetalle/components/graph/GraphTotal';
-import GraphImprovedTotal from '@/pages/ProyectoDetalle/components/graphImproved/GraphImprovedTotal';
+import TranscriptProcessor from '@/pages/Transcripts/page';
+import Chat from '@/pages/ChatAgente/chat';
 
 
 function AppRoutes() {
@@ -55,14 +55,16 @@ function AppRoutes() {
           <Route path="agentes/:agenteId" element={<AgenteDetalle />} />
 
           <Route path="formatos" element={<Formatos />} />
-          <Route path="assistant" element={<Assistant />} />
+          {/* El botón "Asistente" (barra de búsqueda y editor de flujo) abre
+              el chat; la página de relleno que había aquí se eliminó. */}
+          <Route path="assistant" element={<Chat />} />
           <Route path="libro-digital" element={<LibroDigital />} />
           <Route path="administracion" element={<Administracion />} />
           <Route path="buscar" element={<Busqueda />} />
-          <Route 
-            path="proyecto/grafica/:idProyecto" 
-            element={<GraphImprovedTotal />}
-          />
+          <Route path="transcripts" element={<TranscriptProcessor/>} />
+          <Route path="chatAgente" element={<Chat/>} />
+
+
 
 
           {/* Rutas alternativas que ya tenías */}

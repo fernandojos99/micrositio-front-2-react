@@ -11,7 +11,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FileText, Play, AlertCircle, Loader2 } from 'lucide-react';
-import ConfirmationModal from '../../../../components/ui/ConfirmationModal/ConfirmationModal';
+import ConfirmationModal from '../../../../components/ui-propios/ConfirmationModal/ConfirmationModal';
 
 interface TestingCardData {
   id_testing_card: number;
@@ -52,7 +52,6 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
 
 
   // Log para confirmar que se recibe el id_testing_card
-  ////console.log('TemplateTestingCardList recibió id_testing_card:', id_testing_card);
 
   /**
    * Carga las Testing Cards
@@ -69,7 +68,6 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
       setLoading(true);
       setError(null);
 
-      //console.log('Cargando Testing Cards disponibles');
 
       // Cargar testing cards directamente del servicio
       try {
@@ -80,12 +78,10 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
         
         try {
           todasLasTestingCards = await obtenerTodasTestingCardsDePlantillas();
-          //console.log('Testing Cards de plantillas obtenidas:', todasLasTestingCards);
         } catch (plantillasError) {
           console.warn('Error al obtener testing cards de plantillas, usando todas las testing cards:', plantillasError);
           // Si falla, obtener todas las testing cards
           todasLasTestingCards = await listarTodasTestingCards();
-          //console.log('Todas las Testing Cards obtenidas:', todasLasTestingCards);
         }
         
         // Verificar que tenemos datos
@@ -102,14 +98,12 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
           descripcion: testingCard.descripcion || 'Sin descripción disponible'
         }));
 
-        //console.log('Testing Cards procesadas:', testingCardsData);
         setTestingCards(testingCardsData);
         
       } catch (apiError) {
         console.error('Error al usar API de testing cards:', apiError);
         
         // Fallback: usar datos mock si la API no está disponible
-        //console.log('Usando datos mock como fallback');
         const mockTestingCards: TestingCardData[] = [
           {
             id_testing_card: 1,
@@ -138,7 +132,6 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
           }
         ];
         
-        //console.log('Datos mock establecidos:', mockTestingCards);
         setTestingCards(mockTestingCards);
       }
     } catch (err) {
@@ -156,18 +149,13 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
    */
   const handleApplyTestingCard = async (testingCardTemplate: TestingCardData) => {
     try {
-      //console.log('Iniciando aplicación de plantilla...');
-      //console.log('Testing Card Template:', testingCardTemplate);
-      //console.log('Testing Card destino ID:', id_testing_card);
 
       // Paso 1: Obtener la plantilla de la Testing Card seleccionada
       const { obtenerPlantillasTestingCardPorTestingCard } = await import('../../../../services/plantillaTestingCardService');
       const { aplicarPlantillaATestingCard } = await import('../../../../services/testingCardService');
       
-      //console.log('Obteniendo plantillas para Testing Card:', testingCardTemplate.id_testing_card);
       const plantillasResponse = await obtenerPlantillasTestingCardPorTestingCard(testingCardTemplate.id_testing_card);
       
-      //console.log('Plantillas obtenidas:', plantillasResponse);
       
       // Verificar que se obtuvieron plantillas
       if (!plantillasResponse || plantillasResponse.length === 0) {
@@ -178,15 +166,10 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
       const plantillaSeleccionada = plantillasResponse[0];
       const id_plantilla_testing_card = plantillaSeleccionada.id_plantilla_testing_card;
 
-      //console.log('Plantilla seleccionada:', plantillaSeleccionada);
-      //console.log('ID de plantilla a aplicar:', id_plantilla_testing_card);
 
       // Paso 2: Aplicar la plantilla a la Testing Card actual
-      //console.log(`Aplicando plantilla ${id_plantilla_testing_card} a Testing Card ${id_testing_card}`);
       //const plantillaId = parseInt(id_plantilla_testing_card);
-      const aplicacionResponse = await aplicarPlantillaATestingCard(id_testing_card, id_plantilla_testing_card);
-      
-      //console.log('Plantilla aplicada exitosamente:', aplicacionResponse);
+      await aplicarPlantillaATestingCard(id_testing_card, id_plantilla_testing_card);      
 
       // Disparar evento global para notificar a editores que deben recargar datos
       try {
@@ -234,11 +217,9 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
   };
 
   // Debug logs
-  //console.log('Estado actual - Loading:', loading, 'Error:', error, 'TestingCards count:', testingCards.length);
 
   // Estado de carga
   if (loading) {
-    //console.log('Renderizando estado de carga');
     return (
       <div className={`template-list-container ${className}`}>
         <div className="template-list-loading">
@@ -251,7 +232,6 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
 
   // Estado de error
   if (error) {
-    //console.log('Renderizando estado de error:', error);
     return (
       <div className={`template-list-container ${className}`}>
         <div className="template-list-error">
@@ -264,7 +244,6 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
 
   // Lista vacía
   if (testingCards.length === 0) {
-    //console.log('Renderizando estado de lista vacía');
     return (
       <div className={`template-list-container ${className}`}>
         <div className="template-list-empty">
@@ -277,7 +256,6 @@ const TemplateTestingCardList: React.FC<TemplateTestingCardListProps> = ({
   }
 
   // Renderizar lista de Testing Cards
-  //console.log('Renderizando lista de Testing Cards:', testingCards);
   return (
     <div className={`template-list-container ${className}`}>
       <div className="template-list-header">

@@ -22,7 +22,7 @@ import {
 import { Node } from 'reactflow';
 import { LearningCardData } from './types';
 import DocumentationModal from './components/DocumentationModal';
-import ConfirmationModal from '../ui/ConfirmationModal/ConfirmationModal';
+import ConfirmationModal from '../ui-propios/ConfirmationModal/ConfirmationModal';
 import { obtenerPorId as obtenerLearningCardPorId, actualizar as actualizarLearningCard } from '../../services/learningCardService';
 import { UrlLearningCard, obtenerPorLearningCard, crear as crearUrl, eliminar as eliminarUrl } from '../../services/urlLearningCardService';
 import './styles/TestingCardEditModal.css';
@@ -445,6 +445,11 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
     );
   };
 
+
+
+
+
+  
   // Funciones para manejar URLs
   const addDocumentationUrl = async (url: string) => {
     try {
@@ -1032,7 +1037,6 @@ const LearningCardEditModal: React.FC<LearningCardEditModalProps> = ({ node, onS
         <ListItems
               items={items}
               onItemsChange={(newItems) => {
-                console.log("items:", newItems)
                 setItems(newItems)
               }}
           />

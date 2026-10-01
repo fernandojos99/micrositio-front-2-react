@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   FolderOpen, 
@@ -7,7 +7,7 @@ import {
   Users,
   ChevronLeft,
   ChevronRight,
-  BookOpen
+  BookOpen,
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 import { useAuth } from '@/contexts/AuthContext';
@@ -46,6 +46,9 @@ const menuItems: MenuItem[] = [
     name: 'Libro Digital',
     icon: <BookOpen size={20} />
   },
+  // Transcripts ya no va aquí: vive dentro de la pestaña Brief y Propuesta de
+  // cada proyecto, que es donde queda guardado. El chat tampoco: se abre con
+  // el botón "Asistente" de la barra de búsqueda.
 ];
 
 const Sidebar: React.FC = () => {

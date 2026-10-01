@@ -54,16 +54,13 @@ export const obtenerPlantillaSecuenciaPorId = async (id: string): Promise<Planti
  */
 export const obtenerPlantillaSecuenciaPorIdSecuencia = async (id: number): Promise<PlantillaSecuencia> => {
   const response = await apiClient.get(`/plantilla_secuencia/secuencia/${id}`);
-  console.log('obtenerPlantillaSecuenciaPorIdSecuencia - response completa:', response.data);
   
   // El backend devuelve {success: true, data: PlantillaSecuencia}
   if (response.data && response.data.data) {
-    console.log('Extrayendo plantilla del campo data:', response.data.data);
     return response.data.data;
   }
   
   // Fallback si no tiene la estructura esperada
-  console.log('Usando response.data directamente como fallback');
   return response.data;
 };
 

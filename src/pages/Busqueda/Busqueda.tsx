@@ -1,7 +1,7 @@
 // src/pages/Busqueda/Busqueda.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import SearchBar from '../../components/ui/Busqueda/SearchBar';
+import SearchBar from '../../components/ui-propios/Busqueda/SearchBar';
 import { search, SearchResults, SearchScope } from '../../services/searchService';
 import './Busqueda.css';
 
@@ -27,14 +27,20 @@ const Busqueda: React.FC = () => {
 
   const [searchParams] = useSearchParams(); // leemos ?q=&scope=
 
+  // runSearch se dispara desde tres sitios (el boton, el cambio de scope y el
+  // efecto de los query params). Sin este contador, cambiar de termino antes
+  // de que resolviera la busqueda anterior dejaba en pantalla los resultados
+  // viejos, porque la respuesta tardia pisaba a la reciente. Cada llamada se
+  // queda con su numero y solo escribe si sigue siendo la ultima.
+  const ultimaBusqueda = useRef(0);
+
   // Función reutilizable que hace la llamada al backend
   const runSearch = async (qValue: string, scopeValue: SearchScope) => {
     if (!qValue.trim()) {
-      console.log('⚠️ runSearch: término vacío, no busco');
       return;
     }
 
-    console.log('🚀 runSearch ejecutado:', { qValue, scopeValue });
+    const idBusqueda = ++ultimaBusqueda.current;
 
     setIsLoading(true);
     setError(null);
@@ -42,14 +48,15 @@ const Busqueda: React.FC = () => {
 
     try {
       const data = await search(qValue.trim(), scopeValue);
-      console.log('✅ runSearch: resultados recibidos', data);
+      if (idBusqueda !== ultimaBusqueda.current) return;
       setResults(data);
     } catch (err) {
-      console.error('❌ Error en búsqueda:', err);
+      if (idBusqueda !== ultimaBusqueda.current) return;
+      console.error('Error en búsqueda:', err);
       setError('Ocurrió un error al realizar la búsqueda. Intenta nuevamente.');
       setResults({});
     } finally {
-      setIsLoading(false);
+      if (idBusqueda === ultimaBusqueda.current) setIsLoading(false);
     }
   };
 
@@ -85,14 +92,11 @@ const Busqueda: React.FC = () => {
     const scopeParam = (searchParams.get('scope') as SearchScope) || 'all';
 
     if (qParam) {
-      console.log('🌐 Cargando búsqueda desde URL:', { qParam, scopeParam });
       setSearchTerm(qParam);
       setScope(scopeParam);
       runSearch(qParam, scopeParam);
     }
   }, [searchParams]);
-
-  console.log('👀 Estado actual de results en render:', results);
 
   return (
     <div className="search-page">

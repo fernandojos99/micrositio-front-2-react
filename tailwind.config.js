@@ -1,11 +1,38 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  darkMode: ['class', 'class'],
+  darkMode: 'class',
   theme: {
   	extend: {
   		colors: {
   			background: 'hsl(var(--background))',
+  			theme: {
+  				bg: {
+  					primary: 'var(--theme-bg-primary)',
+  					secondary: 'var(--theme-bg-secondary)',
+  					tertiary: 'var(--theme-bg-tertiary)',
+  				},
+  				text: {
+  					primary: 'var(--theme-text-primary)',
+  					secondary: 'var(--theme-text-secondary)',
+  					tertiary: 'var(--theme-text-tertiary)',
+  					muted: 'var(--theme-text-muted)',
+  				},
+  				border: 'var(--theme-border)',
+  				'border-hover': 'var(--theme-border-hover)',
+  				accent: 'var(--theme-accent)',
+  				'accent-2': 'var(--theme-accent-2)',
+  				'accent-foreground': 'var(--theme-accent-foreground)',
+  				'accent-soft': 'var(--theme-accent-soft)',
+					success: 'var(--theme-success)',
+					'success-soft': 'var(--theme-success-soft)',
+					warning: 'var(--theme-warning)',
+					'warning-soft': 'var(--theme-warning-soft)',
+					danger: 'var(--theme-danger)',
+					'danger-soft': 'var(--theme-danger-soft)',
+					info: 'var(--theme-info)',
+					'info-soft': 'var(--theme-info-soft)',
+  			},
   			primary: {
   				purple: '#864080',
   				yellow: '#FFD00F',

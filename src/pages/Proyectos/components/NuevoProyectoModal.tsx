@@ -3,8 +3,8 @@ import { Save } from 'lucide-react';
 
 import { obtenerEmpleados } from '../../../services/empleadosService';
 import { obtenerTodas as obtenerCategorias } from '../../../services/categoriaService'; // Nuevo import
-import Modal from '../../../components/ui/Modal/Modal';
-import Button from '../../../components/ui/Button/Button';
+import Modal from '../../../components/ui-propios/Modal/Modal';
+import Button from '../../../components/ui-propios/Button/Button';
 import styles from './NuevoProyectoModal.module.css';
 import { crearProyecto } from '../../../services/proyectosService';
 import EmpleadoSelector from './EmpleadoSelector';

@@ -93,13 +93,11 @@ export async function search(
   q: string,
   scope: SearchScope = 'all'
 ): Promise<SearchResults> {
-  console.log('🔍 Lanzando búsqueda al backend:', { q, scope });
 
   const response = await apiClient.get('/search', {
     params: { q, scope },
   });
 
-  console.log('⬅️ Respuesta cruda de /search:', response.data);
 
   const data = response.data?.data ?? {};
 
@@ -112,7 +110,6 @@ export async function search(
     learning_cards: data.learning_cards ?? [],
   };
 
-  console.log('🧩 Resultados parseados:', parsed);
 
   return parsed;
 }

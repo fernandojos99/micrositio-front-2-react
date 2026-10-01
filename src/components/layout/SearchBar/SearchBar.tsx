@@ -16,7 +16,6 @@ const SearchBar: React.FC = () => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
 
-    console.log('🔎 Barra superior, buscando:', searchQuery);
 
     // Redirige a /buscar con el término y scope=all
     navigate(
@@ -59,8 +58,11 @@ const SearchBar: React.FC = () => {
           </div>
         </form>
         
+        {/* Va al chat, no a la rejilla de agentes: el commit 5c24d8d cambió
+            este destino a /agentes y dejó el botón sin llevar a ninguna parte
+            útil. Agentes sigue accesible desde el menú lateral. */}
         <Link
-          to="/agentes"
+          to="/assistant"
           className={styles['assistant-button']}
               // Para que salga el modal si no hay usuario registrado
            onClick={(e) => {

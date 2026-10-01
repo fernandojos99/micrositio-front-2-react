@@ -99,9 +99,9 @@ const Header: React.FC = () => {
               {/* @component: Enlace al perfil */}
               <Link to="/perfil" className={styles['user-profile']}>
                 <div className={styles['user-avatar']}>
-                  {user.avatar ? (
+                  {user.image ? (
                     <img 
-                      src={user.avatar} 
+                      src={user.image} 
                       alt={user.name}
                       className={styles['avatar-image']}
                     />

@@ -8,7 +8,6 @@ import {
   YAxis,
   CartesianGrid,
   ResponsiveContainer,
-  Tooltip,
   Legend,
 } from "recharts"
 import {
@@ -17,12 +16,12 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui-shadcn2/card"
+} from "@/components/ui-shadcn/card"
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui-shadcn2/chart"
+} from "@/components/ui-shadcn/chart"
 
 // --- Types ---
 export interface DataPoint {

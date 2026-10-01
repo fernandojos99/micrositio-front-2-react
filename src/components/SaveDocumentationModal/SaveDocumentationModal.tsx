@@ -39,12 +39,6 @@ const SaveDocumentationModal: React.FC<SaveDocumentationModalProps> = ({
       return;
     }
 
-    console.log('[SaveDocumentationModal] ===== SUBMIT =====');
-    console.log('[SaveDocumentationModal] itemType:', itemType);
-    console.log('[SaveDocumentationModal] categoria:', categoria);
-    console.log('[SaveDocumentationModal] descripcion:', descripcion);
-    console.log('[SaveDocumentationModal] descripcion || undefined:', descripcion || undefined);
-    console.log('[SaveDocumentationModal] =======================');
 
     onSave(categoria, descripcion || undefined);
     handleClose();

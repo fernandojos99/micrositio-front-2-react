@@ -24,17 +24,13 @@ export const crearSecuencia = async (data: any) => {
 
 // Actualizar secuencia
 export const actualizarSecuencia = async (id: number, data: any) => {
-  const response = await apiClient.patch('/secuencias', { id_secuencia: id, ...data });
+  const response = await apiClient.patch(`/secuencias/${id}`, data);
   return response.data;
 };
 
 export const aplicarPlantillaSecuencia = async (id_secuencia: number, id_plantilla_secuencia: string) => {
-  console.log('aplicarPlantillaSecuencia - Enviando parámetros:');
-  console.log('- id_secuencia:', id_secuencia, 'tipo:', typeof id_secuencia);
-  console.log('- id_plantilla_secuencia:', id_plantilla_secuencia, 'tipo:', typeof id_plantilla_secuencia);
   
   const payload = { id_secuencia, id_plantilla_secuencia };
-  console.log('- payload completo:', payload);
   
   const response = await apiClient.patch('/secuencias/aplicar-plantilla', payload);
   return response.data;
@@ -42,6 +38,6 @@ export const aplicarPlantillaSecuencia = async (id_secuencia: number, id_plantil
 
 // Eliminar secuencia
 export const eliminarSecuencia = async (id: number) => {
-  await apiClient.delete('/secuencias', { data: { id_secuencia: id } });
+  await apiClient.delete(`/secuencias/${id}`);
 };
 

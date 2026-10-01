@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Edit, FlaskConical, Save, Check } from 'lucide-react';
+import { Plus, Trash2, Edit, FlaskConical } from 'lucide-react';
 import { Secuencia } from '../../../types/secuencia';
-import Button from '../../../components/ui/Button/Button';
-import ConfirmationModal from '../../../components/ui/ConfirmationModal/ConfirmationModal';
+import Button from '../../../components/ui-propios/Button/Button';
+import ConfirmationModal from '../../../components/ui-propios/ConfirmationModal/ConfirmationModal';
 import styles from './SecuenciasSection.module.css';
-import ActionDropdown from '../../../components/ui/ActionDropdown/ActionDropdown';
+import ActionDropdown from '../../../components/ui-propios/ActionDropdown/ActionDropdown';
 import EditSecuenciaModal from './EditSecuenciaModal';
 import TemplateDropdown from '../../../components/FlowEditor/components/Plantillas/TemplateDropdown';
 import TemplateViewerModalSecuencia from '../../../components/FlowEditor/components/Plantillas/TemplateViewerModalSecuencia';
 import { useAuth } from '../../../contexts/AuthContext';
 import { crearPlantillaSecuencia } from '../../../services/plantillaSecuenciaService';
-import { useNavigate } from 'react-router-dom';
 
 /**
  * Props para el componente SecuenciasSection
@@ -18,7 +17,6 @@ import { useNavigate } from 'react-router-dom';
  */
 interface SecuenciasSectionProps {
   /** Lista de secuencias del proyecto */
-  idProyecto: Number;
   secuencias: Secuencia[];
   /** Secuencia actualmente seleccionada */
   secuenciaSeleccionada: Secuencia | null;
@@ -70,7 +68,6 @@ interface SecuenciasSectionProps {
  * @returns {JSX.Element} Sección de secuencias
  */
 const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
-  idProyecto,
   secuencias,
   secuenciaSeleccionada,
   tituloProyecto,
@@ -212,10 +209,19 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
 
   // Handler para cuando se edita una secuencia (refresca la lista en el padre)
   const handleSecuenciaEditada = async () => {
-    if (typeof onEditarSecuencia === 'function') {
-      await onEditarSecuencia();
+    // Sin try/catch, un fallo al refrescar (red caida) dejaba una promesa
+    // rechazada sin capturar: el usuario no veia nada y el modal ni siquiera
+    // se cerraba. El refresco es secundario; el cierre del modal no debe
+    // depender de que salga bien.
+    try {
+      if (typeof onEditarSecuencia === 'function') {
+        await onEditarSecuencia();
+      }
+    } catch (error) {
+      console.error('No se pudo refrescar la lista de secuencias:', error);
+    } finally {
+      handleCloseEditModal();
     }
-    handleCloseEditModal();
   };
 
   /**
@@ -224,7 +230,6 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
    * @param {string} secuenciaId - ID de la secuencia
    */
   const handleApplyTemplate = (secuenciaId: string) => {
-    console.log('Aplicar plantilla para secuencia:', secuenciaId);
     
     // Buscar la secuencia por ID
     const secuencia = secuencias.find(s => s.id === secuenciaId);
@@ -240,7 +245,6 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
    * @param {string} secuenciaId - ID de la secuencia
    */
   const handleSaveTemplate = async (secuenciaId: string) => {
-    console.log('Guardar como plantilla para secuencia:', secuenciaId);
     
     try {
       // Verificar que el usuario esté autenticado y tenga id_empleado
@@ -272,12 +276,9 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
         id_empleado: user.id_empleado
       };
 
-      console.log('Creando plantilla con datos:', plantillaData);
 
       // Llamar al endpoint para crear la plantilla
-      const nuevaPlantilla = await crearPlantillaSecuencia(plantillaData);
-      
-      console.log('Plantilla creada exitosamente:', nuevaPlantilla);
+      await crearPlantillaSecuencia(plantillaData);      
       alert(`¡Plantilla guardada exitosamente para la secuencia "${secuencia.nombre}"!`);
       
     } catch (error: any) {
@@ -309,16 +310,18 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
   /**
    * Maneja cuando se aplica una plantilla exitosamente
    */
-  const handleTemplateApplied = (secuenciaPlantilla: Secuencia) => {
-    console.log('Plantilla aplicada exitosamente:', secuenciaPlantilla);
-    
-    // Opcional: Refrescar datos si es necesario
-    if (typeof onEditarSecuencia === 'function') {
-      onEditarSecuencia();
+  const handleTemplateApplied = async () => {
+    // onEditarSecuencia se llamaba sin await y sin catch: promesa flotante,
+    // fallo invisible.
+    try {
+      if (typeof onEditarSecuencia === 'function') {
+        await onEditarSecuencia();
+      }
+    } catch (error) {
+      console.error('No se pudo refrescar tras aplicar la plantilla:', error);
+    } finally {
+      handleCloseTemplateModal();
     }
-    
-    // Cerrar el modal
-    handleCloseTemplateModal();
   };
 
   /**
@@ -330,21 +333,6 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
   const getEstadoClassName = (estado: string) => {
     return estado.replace(/\s+/g, '_');
   };
-
-
-  const navigate = useNavigate()
-
-  /*
-    Función para navegar a la página grafica de accionables del proyecto
-  **/
-  const gotoAccionables = () => {
-    console.log('Navegando a accionables del proyecto:', idProyecto);
-    navigate(`/proyecto/grafica/${idProyecto}`)
-
-
-    
-  }
-  const tieneSecciones = secuencias && secuencias.length > 0;
 
   return (
     <div className={styles['secuencias-section']}>
@@ -361,30 +349,6 @@ const SecuenciasSection: React.FC<SecuenciasSectionProps> = ({
             <h3 className={styles['proyecto-titulo']}>
               {tituloProyecto || 'Sin título'}
             </h3>
-
-
-            <Button
-            variant="primary"
-              size="small"
-              icon={<Check size={16} />}
-              disabled={!tieneSecciones}
-              style={{
-                height: "3rem",
-                paddingTop: "0.75rem",
-                paddingBottom: "0.75rem",
-                backgroundColor: tieneSecciones ? "#22c55e" : "#9ca3af",
-                cursor: tieneSecciones ? "pointer" : "not-allowed"
-              }}
-              onClick={() => {
-                if (tieneSecciones) {
-                  gotoAccionables();
-                  // console.log('Navegando a accionables del proyectdesde botono:', secuencias[0].proyectoId);
-                }
-              }}
-            >
-              Accionables
-            </Button>
-
 
 
           </div>

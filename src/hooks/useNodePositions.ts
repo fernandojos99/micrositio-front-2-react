@@ -116,18 +116,15 @@ export const useNodePositions = (idSecuencia?: string | number) => {
       return;
     }
 
-    console.log('[useNodePositions] Intentando guardar posiciones:', posiciones);
 
     try {
       await guardarPosicionesLote(posiciones);
-      console.log('[useNodePositions] Posiciones guardadas en BD exitosamente:', posiciones.length);
     } catch (error) {
       console.error('[useNodePositions] Error guardando posiciones en lote, intentando individual:', error);
       
       // Fallback: intentar guardar una por una
       try {
         await guardarPosicionesIndividual(posiciones);
-        console.log('[useNodePositions] Posiciones guardadas individualmente exitosamente:', posiciones.length);
       } catch (individualError) {
         console.error('[useNodePositions] Error guardando posiciones individualmente:', individualError);
         // Fallback a localStorage si falla todo
@@ -161,7 +158,6 @@ export const useNodePositions = (idSecuencia?: string | number) => {
         });
       }
       
-      console.log('[useNodePositions] Posiciones cargadas desde BD:', Object.keys(positionMap).length);
       return positionMap;
     } catch (error) {
       console.error('[useNodePositions] Error cargando posiciones desde BD:', error);
@@ -187,7 +183,6 @@ export const useNodePositions = (idSecuencia?: string | number) => {
 
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(positions));
-      console.log('[useNodePositions] Posiciones guardadas en localStorage');
     } catch (error) {
       console.error('[useNodePositions] Error guardando en localStorage:', error);
     }
@@ -259,7 +254,6 @@ export const useNodePositions = (idSecuencia?: string | number) => {
     
     try {
       localStorage.removeItem(STORAGE_KEY);
-      console.log('[useNodePositions] Posiciones locales limpiadas');
     } catch (error) {
       console.error('[useNodePositions] Error limpiando localStorage:', error);
     }

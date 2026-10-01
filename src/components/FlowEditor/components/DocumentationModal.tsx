@@ -263,9 +263,7 @@ const DocumentationModal: React.FC<DocumentationModalProps> = ({
       
       // @action: Añadir archivos seleccionados
       if (selectedFiles.length > 0) {
-        //console.log('[DocumentationModal] Subiendo archivos...');
         await onAddFiles(selectedFiles);
-        //console.log('[DocumentationModal] ✅ Archivos subidos exitosamente');
       }
 
       // @action: Resetear estado y cerrar

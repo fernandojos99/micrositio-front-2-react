@@ -1,0 +1,615 @@
+/* Chat.css */
+
+/* El chat no es dueño de la ventana: se monta en el <Outlet> de MainLayout,
+   debajo del Header y la barra de búsqueda y encima del Footer.
+   No se le fija ninguna altura, ni en 100vh ni en 100%:
+   - en 100vh salía más alto que su hueco (doble scroll, el campo de escribir
+     por debajo del corte);
+   - en 100% no resolvía nada, porque .main-layout usa min-height y un
+     porcentaje no puede medirse contra un mínimo.
+   Midiendo por contenido no hay alto sobrante, así que no puede haber hueco
+   en blanco. A cambio, la barra de escribir acompaña al último mensaje en vez
+   de quedar anclada al fondo. */
+.chat-page {
+  width: 100%;
+  display: flex;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+  box-sizing: border-box;
+}
+
+/* Sidebar styles */
+.chat-sidebar {
+  width: 280px;
+  min-width: 280px;
+  /* Sin altura propia: es hijo flex de .chat-page y se estira con él. */
+  display: flex;
+  flex-direction: column;
+  background: var(--theme-bg-secondary);
+  border-right: 1px solid var(--theme-border);
+  transition: width 0.3s ease, min-width 0.3s ease, background-color 0.3s, border-color 0.3s;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Collapsed sidebar (tab mode) */
+.chat-sidebar.collapsed {
+  width: 60px;
+  min-width: 60px;
+}
+
+/* Container for expand button when collapsed */
+.collapsed-expand-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  background: var(--theme-bg-secondary);
+}
+
+.collapsed-expand-button:hover {
+  background: var(--theme-bg-tertiary);
+}
+
+.expand-icon {
+  font-size: 20px;
+  color: var(--theme-text-primary);
+  transform: rotate(0deg);
+  transition: transform 0.2s;
+}
+
+.collapsed-expand-button:hover .expand-icon {
+  transform: scale(1.1);
+}
+
+/* Hide header and sessions when collapsed */
+.chat-sidebar.collapsed .sidebar-header,
+.chat-sidebar.collapsed .sessions-list {
+  display: none;
+}
+
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--theme-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sidebar-header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.sidebar-title {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--theme-text-primary);
+}
+
+.new-chat-button {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--theme-border-hover);
+  background: var(--theme-bg-tertiary);
+  color: var(--theme-text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.new-chat-button:hover {
+  transform: translateY(-1px);
+}
+
+.sidebar-collapse-button {
+  background: transparent;
+  border: 1px solid var(--theme-border-hover);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--theme-text-primary);
+  transition: background-color 0.2s;
+}
+
+.sidebar-collapse-button:hover {
+  background: var(--theme-bg-tertiary);
+}
+
+.sessions-list {
+  flex: 1;
+  /* Tope obligatorio: sin altura fija en el chat, esta lista crecería con
+     todas las conversaciones del historial (son cientos) y estiraría la
+     página entera, dejando otra vez un hueco enorme al lado de una
+     conversación corta. Con el tope, hace su propio scroll. */
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.session-item {
+  padding: 12px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.session-item:hover {
+  background: var(--theme-bg-tertiary);
+}
+
+.session-item.active {
+  background: var(--theme-bg-tertiary);
+  border-color: var(--theme-border-hover);
+}
+
+.session-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.session-preview {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--theme-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.session-date {
+  font-size: 12px;
+  color: var(--theme-text-muted);
+  margin-top: 4px;
+}
+
+.session-delete-btn {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--theme-text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s, background-color 0.2s, color 0.2s;
+}
+
+.session-item:hover .session-delete-btn {
+  opacity: 1;
+}
+
+.session-delete-btn:hover {
+  background: var(--theme-bg-tertiary);
+  color: #dc2626;
+}
+
+.sessions-loading,
+.sessions-empty {
+  padding: 20px;
+  text-align: center;
+  color: var(--theme-text-muted);
+  font-size: 14px;
+}
+
+/* Main chat area */
+.chat-main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  /* flex-start, no center ni stretch: el contenedor mide por contenido, así
+     que no hay nada que centrar ni que estirar. */
+  align-items: flex-start;
+  padding: 24px;
+  transition: padding 0.3s ease;
+}
+
+.chat-container {
+  width: 100%;
+  max-width: 900px;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--theme-bg-secondary);
+  border: 1px solid var(--theme-border);
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
+}
+
+/* Sin flex: 1, pero con tope.
+   - Sin flex: 1 porque con él la lista se quedaba todo el alto sobrante del
+     contenedor y dejaba los mensajes arriba, con un vacío enorme hasta la
+     barra de escribir.
+   - Con max-height porque, midiendo solo por contenido, una conversación
+     larga estiraba el chat más allá de la pantalla.
+   Así crece con el contenido hasta el tope y a partir de ahí hace su propio
+   scroll. De paso vuelve a funcionar el auto-scroll de MessageList, que
+   necesita que sea esta caja la que se desplaza y no la página. */
+.chat-messages {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  /* Evita que el scroll se "escape" al body cuando se llega
+     al inicio o al final de la lista de mensajes */
+  overscroll-behavior: contain;
+}
+
+.chat-message {
+  max-width: 85%;
+  padding: 16px;
+  border-radius: 16px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  transition:
+    background-color 0.3s,
+    color 0.3s,
+    border-color 0.3s;
+}
+
+.user-message {
+  align-self: flex-end;
+  background: var(--theme-bg-tertiary);
+  color: var(--theme-text-primary);
+  border: 1px solid var(--theme-border-hover);
+}
+
+.assistant-message {
+  align-self: flex-start;
+  background: var(--theme-bg-primary);
+  color: var(--theme-text-secondary);
+  border: 1px solid var(--theme-border);
+}
+
+.chat-role {
+  font-weight: 700;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--theme-text-primary);
+}
+
+.chat-content {
+  font-size: 15px;
+}
+
+.chat-agent-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--theme-border);
+  background: var(--theme-bg-secondary);
+}
+
+.agent-select-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--theme-text-muted);
+}
+
+.agent-select {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--theme-border);
+  background: var(--theme-bg-primary);
+  color: var(--theme-text-primary);
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.agent-select:focus {
+  border-color: var(--theme-border-hover);
+}
+
+.chat-input-container {
+  padding: 20px;
+  background: var(--theme-bg-secondary);
+  border-top: 1px solid var(--theme-border);
+}
+
+.chat-textarea {
+  width: 100%;
+  min-height: 64px;
+  resize: none;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--theme-border);
+  background: var(--theme-bg-primary);
+  color: var(--theme-text-primary);
+  font-size: 15px;
+  outline: none;
+  box-sizing: border-box;
+  transition:
+    background-color 0.3s,
+    color 0.3s,
+    border-color 0.3s;
+}
+
+.chat-textarea::placeholder {
+  color: var(--theme-text-muted);
+}
+
+.chat-textarea:focus {
+  border-color: var(--theme-border-hover);
+}
+
+.chat-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+.chat-button {
+  border: none;
+  padding: 11px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  background: var(--theme-bg-tertiary);
+  color: var(--theme-text-primary);
+  border: 1px solid var(--theme-border-hover);
+  transition:
+    background-color 0.3s,
+    transform 0.2s,
+    border-color 0.3s;
+}
+
+.chat-button:hover {
+  transform: translateY(-1px);
+}
+
+.stop-button {
+  background: #dc2626;
+  color: white;
+  border: none;
+}
+
+.chat-cursor {
+  margin-left: 2px;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.chat-messages::-webkit-scrollbar,
+.sessions-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-messages::-webkit-scrollbar-track,
+.sessions-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb,
+.sessions-list::-webkit-scrollbar-thumb {
+  background: var(--theme-border);
+  border-radius: 999px;
+}
+
+/* Loading messages state */
+.messages-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  color: var(--theme-text-muted);
+  font-size: 14px;
+}
+
+/* Mobile sidebar toggle */
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 100;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--theme-border-hover);
+  background: var(--theme-bg-secondary);
+  color: var(--theme-text-primary);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Mobile adjustments: off-canvas drawer, ignore collapsed state */
+@media (max-width: 768px) {
+  .chat-page {
+    flex-direction: column;
+  }
+
+  .chat-sidebar {
+    position: fixed;
+    left: -100%;
+    top: 0;
+    z-index: 50;
+    width: 100%;
+    max-width: 320px;
+    transition: left 0.3s ease;
+  }
+
+  .chat-sidebar.open {
+    left: 0;
+  }
+
+  /* On mobile, we ignore the collapsed state (always behave as off-canvas full sidebar) */
+  .chat-sidebar.collapsed {
+    width: 100%;
+    max-width: 320px;
+    left: -100%;
+  }
+  .chat-sidebar.collapsed.open {
+    left: 0;
+  }
+  /* Show the expand button only on desktop, hide on mobile */
+  .collapsed-expand-button {
+    display: none;
+  }
+
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 40;
+  }
+
+  .sidebar-overlay.visible {
+    display: block;
+  }
+
+  .sidebar-toggle {
+    display: block;
+  }
+
+  /* Hide collapse button on mobile */
+  .sidebar-collapse-button {
+    display: none;
+  }
+
+  .chat-main {
+    padding: 16px;
+    padding-top: 60px;
+  }
+
+  .chat-container {
+    height: auto;
+    border-radius: 16px;
+  }
+
+  .chat-messages {
+    padding: 18px;
+  }
+
+  .chat-message {
+    max-width: 100%;
+  }
+}
+
+/* Markdown styling for assistant messages */
+.markdown-content {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.markdown-content p {
+  margin: 0 0 0.75rem 0;
+}
+
+.markdown-content p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-content code {
+  background: var(--theme-bg-tertiary);
+  padding: 0.2rem 0.4rem;
+  border-radius: 6px;
+  font-size: 0.9em;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  color: var(--theme-text-primary);
+}
+
+.markdown-content pre {
+  background: var(--theme-bg-tertiary);
+  padding: 1rem;
+  border-radius: 12px;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+.markdown-content pre code {
+  background: transparent;
+  padding: 0;
+  font-size: 0.9em;
+}
+
+.markdown-content ul, 
+.markdown-content ol {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.markdown-content li {
+  margin: 0.25rem 0;
+}
+
+.markdown-content blockquote {
+  border-left: 3px solid var(--theme-border-hover);
+  margin: 0.75rem 0;
+  padding-left: 1rem;
+  color: var(--theme-text-muted);
+  font-style: italic;
+}
+
+.markdown-content h1, 
+.markdown-content h2, 
+.markdown-content h3 {
+  margin: 1rem 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.markdown-content h1 { font-size: 1.6em; }
+.markdown-content h2 { font-size: 1.4em; }
+.markdown-content h3 { font-size: 1.2em; }
+
+.markdown-content a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.markdown-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.75rem 0;
+}
+
+.markdown-content th,
+.markdown-content td {
+  border: 1px solid var(--theme-border);
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.markdown-content th {
+  background: var(--theme-bg-tertiary);
+  font-weight: 600;
+}
+
+.markdown-content hr {
+  border: none;
+  border-top: 1px solid var(--theme-border);
+  margin: 1rem 0;
+}

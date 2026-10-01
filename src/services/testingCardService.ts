@@ -2,7 +2,7 @@ import apiClient from '../apiClient';
 
 // Obtener Testing Card por ID
 export const obtenerTestingCardPorId = async (id_testing_card: string | number) => {
-  const response = await apiClient.get(`/testing_card/t/${id_testing_card}`);
+  const response = await apiClient.get(`/testing_card/${id_testing_card}`);
   return response.data;
 };
 
@@ -38,7 +38,7 @@ export const crearTestingCard = async (testingCardData: any) => {
 
 // Actualizar una Testing Card
 export const actualizarTestingCard = async (id_testing_card: string | number, testingCardData: any) => {
-  const response = await apiClient.patch('/testing_card/', { id_testing_card, ...testingCardData });
+  const response = await apiClient.patch(`/testing_card/${id_testing_card}`, testingCardData);
   return response.data;
 };
 
@@ -51,6 +51,6 @@ export const aplicarPlantillaATestingCard = async (id_testing_card:number, id_pl
 
 // Eliminar una Testing Card
 export const eliminarTestingCard = async (id_testing_card: string | number) => {
-  const response = await apiClient.delete('/testing_card/', { data: { id_testing_card } });
+  const response = await apiClient.delete(`/testing_card/${id_testing_card}`);
   return response.data;
 };

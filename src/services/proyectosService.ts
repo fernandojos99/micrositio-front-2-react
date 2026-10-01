@@ -12,8 +12,7 @@ export const obtenerProyectosPorIdUsuario = async (id: string): Promise<any[]> =
 
 
 export const obtenerProyectoPorId = async (id: number) => {
-  // Debe ser POST, no GET
-  const response = await apiClient.post('/proyectos/p', { id_proyecto: id });
+  const response = await apiClient.get(`/proyectos/${id}`);
   return response.data;
 };
 
@@ -23,11 +22,11 @@ export const crearProyecto = async (proyecto: any): Promise<any> => {
 };
 
 export const actualizarProyecto = async (id: number, proyecto: any): Promise<any> => {
-  const response = await apiClient.patch('/proyectos', { id_proyecto: id, ...proyecto });
+  const response = await apiClient.patch(`/proyectos/${id}`, proyecto);
   return response.data;
 };
 
 export const eliminarProyecto = async (id: number): Promise<void> => {
-  await apiClient.delete('/proyectos', { data: { id_proyecto: id } });
+  await apiClient.delete(`/proyectos/${id}`);
 };
 

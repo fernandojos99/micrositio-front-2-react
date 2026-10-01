@@ -1,8 +1,9 @@
 import axios from 'axios';
 
-// export const API_BASE_URL ='https://micrositio-iris-backend.onrender.com';
-
-export const API_BASE_URL ='http://localhost:3001';
+// URL del backend. En Vercel se define VITE_API_URL en las variables del
+// proyecto del front (se incrusta al hacer el build); en local, si no está
+// definida, se usa el backend de `npm run dev` en :3001.
+export const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/+$/, '');
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,

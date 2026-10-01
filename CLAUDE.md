@@ -43,7 +43,7 @@ Componente → src/services/<recurso>Service.ts → src/apiClient.ts → backend
 
 `src/apiClient.ts` es la única instancia de axios del proyecto (ningún archivo fuera de él importa axios — mantenlo así). Contiene:
 
-- `API_BASE_URL` **hardcodeada**, sin variable de entorno: cambiar de entorno = editar este archivo. En el commit apunta a Render; en el árbol de trabajo suele estar cambiada a `http://localhost:3001` con la de Render comentada. Mira `git diff src/apiClient.ts` antes de sacar conclusiones.
+- `API_BASE_URL` sale de **`VITE_API_URL`** (sin `/` final), con fallback a `http://localhost:3001`. Vite la incrusta al hacer el build: en Vercel se define en las variables del proyecto del front, y en local en `.env.local` (ignorado por git; plantilla en `.env.example`). Cambiar de entorno ya no es editar código.
 - Interceptor de request: mete `Authorization: Bearer <token>` leyendo `localStorage.jwt_token`.
 - Interceptor de response: ante un **401** borra `jwt_token` y `auth_user` de `localStorage` y dispara `window.dispatchEvent(new CustomEvent('auth:logout'))`, que `AuthContext` escucha para cerrar sesión.
 - `fetchStream(path, options)` — helper aparte basado en `fetch` (no axios) para consumir **SSE**; aplica el mismo token y el mismo manejo de 401.
@@ -145,7 +145,7 @@ En el código conviven imports con alias (`@/pages/...`) y relativos (`../pages/
 
 - **Vercel**, con `vercel.json` reescribiendo todas las rutas a `/index.html` (necesario para el router del lado cliente).
 - `index.html` carga Google Analytics (`G-FGHRMXS7TY`) y Microsoft Clarity (`w1ex3ex3i3`).
-- El backend en producción es el de Render y **es lo que hay commiteado** en `apiClient.ts`, así que un despliegue desde HEAD sale bien. Lo que rompe un deploy es publicar con el cambio local a `localhost:3001` sin revertir: compruébalo antes.
+- La URL del backend de producción está en **`.env.production`** (`VITE_API_URL=https://micrositio-backend-2-express.vercel.app`, versionado: no es secreto). Vite solo lo lee en `npm run build`, que es lo que corre Vercel; `npm run dev` sigue apuntando a `http://localhost:3001` salvo que `.env.local` diga otra cosa. Una `VITE_API_URL` en el dashboard de Vercel tiene prioridad. El dominio del front tiene que estar en los orígenes CORS del backend (`CORS_ORIGINS`).
 
 ## Ruido en el repositorio — no lo tomes como ejemplo
 
@@ -157,4 +157,4 @@ En el código conviven imports con alias (`@/pages/...`) y relativos (`../pages/
 
 ## Estado del repositorio
 
-Repo git propio (independiente del backend), rama `dev3`. `src/apiClient.ts` apunta a Render en el commit; el cambio a `localhost:3001` es local y no está commiteado.
+Repo git propio (independiente del backend), rama `dev3`.

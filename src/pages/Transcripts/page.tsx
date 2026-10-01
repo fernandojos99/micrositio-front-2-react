@@ -38,8 +38,13 @@
      guardarBrief,
      subirArchivoBrief,
      subirPptxBrief,
+     borrarBrief,
      type ArchivoBrief,
    } from "@/services/proyectoBriefService"
+
+   import { toast } from "@/hooks/use-toast"
+
+   import Modal from "@/components/ui-propios/Modal/Modal"
 
    import {
      Card,
@@ -66,6 +71,7 @@
      Copy,
      Check,
      FileText,
+     Trash2,
      ChevronRight,
      ChevronDown,
      AlertTriangle,
@@ -82,11 +88,11 @@
 
 
   /**
-   * Aqui habia un AbortController y un setTimeout de 10 minutos creados a
-   * nivel de modulo, es decir una sola vez al cargar el archivo y no por
-   * peticion. El controller nunca se pasaba como signal a ninguno de los tres
-   * fetch, asi que no abortaba nada: era un timer colgado que aparentaba ser
-   * una proteccion. Este helper si aplica el timeout, y uno por llamada.
+   * Aquí había un AbortController y un setTimeout de 10 minutos creados a
+   * nivel de módulo, es decir una sola vez al cargar el archivo y no por
+   * petición. El controller nunca se pasaba como signal a ninguno de los tres
+   * fetch, así que no abortaba nada: era un timer colgado que aparentaba ser
+   * una protección. Este helper sí aplica el timeout, y uno por llamada.
    */
   const TIMEOUT_PROCESADO_MS = 10 * 60 * 1000 // 10 min
 
@@ -197,6 +203,28 @@
      const [subiendoPptx, setSubiendoPptx] =
        useState(false)
 
+     /** Los datos del transcript arrancan plegados: son largos y casi
+      *  siempre basta con el enlace. */
+     const [datosAbiertos, setDatosAbiertos] =
+       useState(false)
+
+     /** Con un resultado ya hecho, la zona de entrada se oculta. Esto la
+      *  devuelve para volver a procesar encima. */
+     const [modoEdicion, setModoEdicion] =
+       useState(false)
+
+     const [confirmarBorrado, setConfirmarBorrado] =
+       useState(false)
+
+     const [borrando, setBorrando] =
+       useState(false)
+
+     /** Hay resultado cuando la Lambda ya devolvió algo, no por tener
+      *  archivos sueltos: el .pptx se sube aparte y no cuenta. */
+     const yaHayResultado = Boolean(response?.url || lambdaResponse)
+
+     const mostrarEntrada = !yaHayResultado || modoEdicion
+
      /* ==========================================================================
         FILE INPUT REF
         ========================================================================== */
@@ -242,8 +270,65 @@
      }, [idProyecto])
 
      /* ==========================================================================
+        NO PERDER EL PROCESO EN CURSO
+        Cambiar de pantalla dentro de la aplicación no aborta nada: handleSubmit
+        es async y sigue corriendo aunque el componente se desmonte, incluido el
+        guardado. Lo único que sí mata la petición es cerrar o recargar.
+        ========================================================================== */
+
+     useEffect(() => {
+       if (!isLoading) return
+
+       const avisar = (evento: BeforeUnloadEvent) => {
+         evento.preventDefault()
+         evento.returnValue = ""
+       }
+
+       window.addEventListener("beforeunload", avisar)
+       return () => window.removeEventListener("beforeunload", avisar)
+     }, [isLoading])
+
+     /* ==========================================================================
         SUBIR LA PRESENTACIÓN — no exige haber ejecutado nada
         ========================================================================== */
+
+     const handleBorrar = async () => {
+       setBorrando(true)
+       try {
+         // Sin proyecto no hay nada guardado: basta con limpiar la pantalla.
+         if (idProyecto) await borrarBrief(idProyecto)
+
+         setResponse(null)
+         setLambdaResponse(null)
+         setArchivoGuardado(null)
+         setPptx(null)
+         setTranscript("")
+         setDocxFile(null)
+         if (fileInputRef.current) fileInputRef.current.value = ""
+         setError(null)
+         setModoEdicion(false)
+         setDatosAbiertos(false)
+         setConfirmarBorrado(false)
+
+         toast({
+           title: "Brief borrado",
+           description: "Puedes volver a procesar un transcript desde cero.",
+         })
+       } catch (errorBorrado) {
+         console.error("No se pudo borrar el brief:", errorBorrado)
+
+         toast({
+           title: "No se pudo borrar",
+           description:
+             errorBorrado instanceof Error
+               ? errorBorrado.message
+               : "Error desconocido",
+           variant: "destructive",
+         })
+       } finally {
+         setBorrando(false)
+       }
+     }
 
      const handlePptx = async (archivo: File) => {
        if (!idProyecto) return
@@ -607,10 +692,24 @@
             setGuardando(false)
           }
         }
+
+        toast({
+          title: "Transcript procesado",
+          description: idProyecto
+            ? "El resultado quedó guardado en el proyecto."
+            : "Listo. Copia lo que necesites antes de salir de la página.",
+        })
       } catch (err) {
-        setError(
+        const mensaje =
           err instanceof Error ? err.message : "Error desconocido"
-        )
+
+        setError(mensaje)
+
+        toast({
+          title: "No se pudo procesar el transcript",
+          description: mensaje,
+          variant: "destructive",
+        })
       } finally {
         setIsLoading(false)
       }
@@ -679,7 +778,7 @@
                      "var(--theme-text-primary)",
                  }}
                >
-                 Transcript Processor
+                 Procesador de transcript
                </CardTitle>
              </CardHeader>
    
@@ -708,9 +807,11 @@
                  />
                </div>
    
-               {/* ==========================================================
-                  TEXT + FILE
-                  ========================================================== */}
+               {mostrarEntrada && (
+                 <>
+                   {/* ======================================================
+                      TEXT + FILE
+                      ====================================================== */}
    
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  {/* ======================================================
@@ -1172,6 +1273,19 @@
                    "Ejecutar"
                  )}
                </Button>
+
+               {isLoading && (
+                 <p
+                   className="text-sm"
+                   style={{ color: "var(--theme-text-secondary)" }}
+                 >
+                   Esto tarda varios minutos. Puedes seguir usando la aplicación:
+                   el proceso continúa y te avisamos al terminar. Lo único que lo
+                   interrumpe es cerrar o recargar la pestaña.
+                 </p>
+               )}
+                 </>
+               )}
    
                {/* ==========================================================
                   ERROR
@@ -1199,6 +1313,41 @@
                )}
    
                {/* ==========================================================
+                  GUARDADO
+                  ========================================================== */}
+
+               {guardando && (
+                 <p
+                   className="text-sm"
+                   style={{ color: "var(--theme-text-secondary)" }}
+                 >
+                   Guardando en el proyecto…
+                 </p>
+               )}
+
+               {/* ==========================================================
+                  DOCUMENTO DEL BRIEF
+                  ========================================================== */}
+
+               {archivoGuardado && (
+                 <p
+                   className="text-sm"
+                   style={{ color: "var(--theme-text-secondary)" }}
+                 >
+                   Documento del brief:{" "}
+                   <a
+                     href={archivoGuardado.url}
+                     target="_blank"
+                     rel="noreferrer"
+                     className="underline"
+                     style={{ color: "var(--theme-text-primary)" }}
+                   >
+                     {archivoGuardado.nombre}
+                   </a>
+                 </p>
+               )}
+
+               {/* ==========================================================
                   RESPONSE
                   ========================================================== */}
    
@@ -1222,17 +1371,6 @@
                    </h3>
    
                    <div className="space-y-3">
-                     {response.id && (
-                       <ResponseItem
-                         label="ID"
-                         value={response.id}
-                         copied={copied}
-                         copyToClipboard={
-                           copyToClipboard
-                         }
-                       />
-                     )}
-   
                      {response.url && (
                        <ResponseItem
                          label="URL"
@@ -1247,148 +1385,6 @@
                  </div>
                )}
    
-               {/* ==========================================================
-                  LAMBDA RESPONSE
-                  ========================================================== */}
-   
-               {!!lambdaResponse && (
-                 <div
-                   className="rounded-xl border"
-                   style={{
-                     background: "var(--theme-bg-secondary)",
-                     borderColor: "var(--theme-border)",
-                   }}
-                 >
-                   {/* ----------------------------------------------------------
-                      AVISO: copiar antes de cerrar
-                      ---------------------------------------------------------- */}
-
-                   {/* Dentro de un proyecto el aviso ya no es cierto: esto
-                       queda guardado y reaparece al volver a entrar. */}
-                   {!idProyecto && (
-                     <div
-                       className="
-                         flex
-                         items-start
-                         gap-3
-                         rounded-t-xl
-                         border-b
-                         px-5
-                         py-4
-                       "
-                       style={{
-                         background: "rgba(234,179,8,0.08)",
-                         borderColor: "rgba(234,179,8,0.35)",
-                       }}
-                     >
-                       <AlertTriangle
-                         className="size-5 shrink-0 mt-0.5"
-                         style={{ color: "rgb(234,179,8)" }}
-                       />
-
-                       <p
-                         className="text-sm leading-relaxed"
-                         style={{ color: "rgb(234,179,8)" }}
-                       >
-                         <span className="font-semibold">
-                           Copia esta información antes de cerrar.
-                         </span>{" "}
-                         Por el momento no es posible recuperarla
-                         una vez que abandones o recargues esta
-                         página.
-                       </p>
-                     </div>
-                   )}
-
-                   {/* ----------------------------------------------------------
-                      HEADER CON BOTÓN COPIAR JSON
-                      ---------------------------------------------------------- */}
-
-                   <div
-                     className="
-                       flex
-                       items-center
-                       justify-between
-                       border-b
-                       px-5
-                       py-3
-                     "
-                     style={{
-                       borderColor: "var(--theme-border)",
-                     }}
-                   >
-                     <h3 className="font-semibold">
-                       Datos del Transcript
-                     </h3>
-
-                     <Button
-                       variant="outline"
-                       size="sm"
-                       onClick={() =>
-                         copyToClipboard(
-                           JSON.stringify(lambdaResponse, null, 2),
-                           "lambda-json"
-                         )
-                       }
-                       className="gap-2"
-                     >
-                       {copied === "lambda-json" ? (
-                         <>
-                           <Check className="size-4 text-green-500" />
-                           <span className="text-green-500">
-                             ¡Copiado!
-                           </span>
-                         </>
-                       ) : (
-                         <>
-                           <Copy className="size-4" />
-                           Copiar JSON
-                         </>
-                       )}
-                     </Button>
-                   </div>
-
-                   {/* ----------------------------------------------------------
-                      JSON VIEWER
-                      ---------------------------------------------------------- */}
-
-                   <div className="p-5">
-                     <JsonViewer data={lambdaResponse} />
-                   </div>
-                 </div>
-               )}
-
-               {/* ==========================================================
-                  GUARDADO
-                  ========================================================== */}
-
-               {guardando && (
-                 <p
-                   className="text-sm"
-                   style={{ color: "var(--theme-text-secondary)" }}
-                 >
-                   Guardando en el proyecto…
-                 </p>
-               )}
-
-               {archivoGuardado && (
-                 <p
-                   className="text-sm"
-                   style={{ color: "var(--theme-text-secondary)" }}
-                 >
-                   Documento del brief:{" "}
-                   <a
-                     href={archivoGuardado.url}
-                     target="_blank"
-                     rel="noreferrer"
-                     className="underline"
-                     style={{ color: "var(--theme-text-primary)" }}
-                   >
-                     {archivoGuardado.nombre}
-                   </a>
-                 </p>
-               )}
-
                {/* ==========================================================
                   PRESENTACIÓN (.pptx)
                   Se puede subir sin haber pulsado Ejecutar.
@@ -1467,9 +1463,184 @@
                    </div>
                  </div>
                )}
+
+               {/* ==========================================================
+                  DATOS DEL TRANSCRIPT — plegado, porque es largo
+                  ========================================================== */}
+
+               {!!lambdaResponse && (
+                 <div
+                   className="rounded-xl border"
+                   style={{
+                     background: "var(--theme-bg-secondary)",
+                     borderColor: "var(--theme-border)",
+                   }}
+                 >
+                   {/* Dentro de un proyecto el aviso ya no es cierto: esto
+                       queda guardado y reaparece al volver a entrar. */}
+                   {!idProyecto && (
+                     <div
+                       className="flex items-start gap-3 rounded-t-xl border-b px-5 py-4"
+                       style={{
+                         background: "rgba(234,179,8,0.08)",
+                         borderColor: "rgba(234,179,8,0.35)",
+                       }}
+                     >
+                       <AlertTriangle
+                         className="size-5 shrink-0 mt-0.5"
+                         style={{ color: "rgb(234,179,8)" }}
+                       />
+
+                       <p
+                         className="text-sm leading-relaxed"
+                         style={{ color: "rgb(234,179,8)" }}
+                       >
+                         <span className="font-semibold">
+                           Copia esta información antes de cerrar.
+                         </span>{" "}
+                         Por el momento no es posible recuperarla una vez que
+                         abandones o recargues esta página.
+                       </p>
+                     </div>
+                   )}
+
+                   <div className="flex items-center justify-between gap-3 px-5 py-3">
+                     <button
+                       type="button"
+                       onClick={() => setDatosAbiertos((v) => !v)}
+                       className="flex items-center gap-2 font-semibold"
+                       style={{ color: "var(--theme-text-primary)" }}
+                     >
+                       {datosAbiertos ? (
+                         <ChevronDown className="size-4" />
+                       ) : (
+                         <ChevronRight className="size-4" />
+                       )}
+                       Datos del transcript
+                     </button>
+
+                     {datosAbiertos && (
+                       <Button
+                         variant="outline"
+                         size="sm"
+                         onClick={() =>
+                           copyToClipboard(
+                             resumenComoTexto(lambdaResponse),
+                             "resumen"
+                           )
+                         }
+                         className="gap-2"
+                       >
+                         {copied === "resumen" ? (
+                           <>
+                             <Check className="size-4 text-green-500" />
+                             <span className="text-green-500">¡Copiado!</span>
+                           </>
+                         ) : (
+                           <>
+                             <Copy className="size-4" />
+                             Copiar
+                           </>
+                         )}
+                       </Button>
+                     )}
+                   </div>
+
+                   {datosAbiertos && (
+                     <div
+                       className="border-t p-5"
+                       style={{ borderColor: "var(--theme-border)" }}
+                     >
+                       <ResumenTranscript data={lambdaResponse} />
+                     </div>
+                   )}
+                 </div>
+               )}
+
+               {/* ==========================================================
+                  YA HAY RESULTADO — se oculta la entrada y se ofrece rehacer
+                  ========================================================== */}
+
+               {yaHayResultado && !modoEdicion && (
+                 <div
+                   className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4"
+                   style={{
+                     background: "var(--theme-bg-secondary)",
+                     borderColor: "var(--theme-border)",
+                   }}
+                 >
+                   <div className="min-w-0">
+                     <p
+                       className="font-medium"
+                       style={{ color: "var(--theme-text-primary)" }}
+                     >
+                       Ya hay un transcript procesado
+                     </p>
+
+                     <p
+                       className="text-sm"
+                       style={{ color: "var(--theme-text-secondary)" }}
+                     >
+                       {archivoGuardado
+                         ? "A partir de " + archivoGuardado.nombre + "."
+                         : "A partir del texto pegado."}{" "}
+                       Actualiza para volver a procesarlo, o bórralo para empezar
+                       de cero.
+                     </p>
+                   </div>
+
+                   <div className="flex shrink-0 gap-2">
+                     <Button
+                       variant="outline"
+                       onClick={() => setModoEdicion(true)}
+                     >
+                       Actualizar
+                     </Button>
+
+                     <Button
+                       variant="outline"
+                       onClick={() => setConfirmarBorrado(true)}
+                     >
+                       <Trash2 className="size-4 mr-2" />
+                       Borrar
+                     </Button>
+                   </div>
+                 </div>
+               )}
+
              </CardContent>
            </Card>
          </div>
+
+         <Modal
+           isOpen={confirmarBorrado}
+           onClose={() => setConfirmarBorrado(false)}
+           title="¿Borrar el resultado?"
+           footer={
+             <>
+               <Button
+                 variant="outline"
+                 onClick={() => setConfirmarBorrado(false)}
+               >
+                 Cancelar
+               </Button>
+
+               <Button
+                 variant="destructive"
+                 disabled={borrando}
+                 onClick={handleBorrar}
+               >
+                 {borrando ? "Borrando…" : "Borrar"}
+               </Button>
+             </>
+           }
+         >
+           <p className="text-sm leading-relaxed">
+             Se perderán el enlace, el resumen y los archivos subidos —el
+             documento del brief y la presentación—, que se borran del servidor.
+             No se puede deshacer, y volver a generarlo tarda varios minutos.
+           </p>
+         </Modal>
        </main>
      )
    }
@@ -1530,86 +1701,189 @@
      )
    }
    
-   /* ============================================================================
-      JSON VIEWER
-      ============================================================================ */
 
-function JsonViewer({ data, depth = 0 }: { data: unknown; depth?: number }) {
-  const [expanded, setExpanded] = useState(depth < 2)
+/* ============================================================================
+   RESUMEN DEL TRANSCRIPT
 
-  if (data === null) {
-    return <span className="text-muted-foreground italic">null</span>
+   La Lambda devuelve un objeto con hasta 22 claves: la mayoría son listas de
+   textos, dos son texto suelto (o null) y dos son objetos anidados. No todas
+   vienen siempre -unas aparecen en 196 transcripts, otras en 191 y otras en
+   71-, así que se recorre lo que llegue en vez de una lista fija: si la Lambda
+   añade una clave nueva, se sigue viendo.
+
+   Se esconde lo que no aporta: nulos, listas vacías, textos en blanco y
+   objetos con todos sus campos vacíos. En los datos reales eso es mucho
+   ("desacuerdos" llega vacío en 158 de 191), y antes se pintaba como una
+   sección en blanco.
+   ============================================================================ */
+
+const TITULOS: Record<string, string> = {
+  cliente: "Cliente",
+  antecedentes: "Antecedentes",
+  actualidad: "Actualidad",
+  problema_central: "Problema central",
+  insights: "Insights",
+  oportunidades: "Oportunidades",
+  riesgos: "Riesgos",
+  propuesta_valor: "Propuesta de valor",
+  criterios_exito: "Criterios de éxito",
+  siguientes_pasos: "Siguientes pasos",
+  mensajes_clave: "Mensajes clave",
+  momentos_clave: "Momentos clave",
+  participantes: "Participantes",
+  acuerdos: "Acuerdos",
+  desacuerdos: "Desacuerdos",
+  compromisos: "Compromisos",
+  tono_general: "Tono general",
+  kpis_metricas: "KPIs y métricas",
+  intentos_previos: "Intentos previos",
+  quick_wins: "Victorias rápidas",
+  limitaciones: "Limitaciones",
+  datos_disponibles: "Datos disponibles",
+  nombre: "Nombre",
+  tamano: "Tamaño",
+  industria: "Industria",
+  contexto_clave: "Contexto clave",
+  tiempo: "Tiempo",
+  politicas: "Políticas",
+  presupuesto: "Presupuesto",
+  recursos_humanos: "Recursos humanos",
+  recursos_tecnicos: "Recursos técnicos",
+}
+
+/** Título legible. Con una clave desconocida devuelve algo presentable. */
+function titulo(clave: string): string {
+  if (TITULOS[clave]) return TITULOS[clave]
+  const limpio = clave.replace(/_/g, " ")
+  return limpio.charAt(0).toUpperCase() + limpio.slice(1)
+}
+
+/** Decide si un valor merece pintarse. Recursivo: un objeto cuyos campos
+ *  están todos vacíos tampoco aporta. */
+function tieneContenido(valor: unknown): boolean {
+  if (valor === null || valor === undefined) return false
+  if (typeof valor === "string") return valor.trim() !== ""
+  if (Array.isArray(valor)) return valor.some(tieneContenido)
+  if (typeof valor === "object") {
+    return Object.values(valor as Record<string, unknown>).some(tieneContenido)
   }
+  return true
+}
 
-  if (typeof data === "boolean") {
-    return <span className="text-primary">{data.toString()}</span>
-  }
+/** Lo mismo que se ve, en texto plano, para el botón de copiar. */
+function resumenComoTexto(data: unknown, nivel = 0): string {
+  if (!tieneContenido(data)) return ""
 
-  if (typeof data === "number") {
-    return <span className="text-chart-2">{data}</span>
-  }
+  const sangria = "  ".repeat(nivel)
 
-  if (typeof data === "string") {
-    return <span className="text-chart-1">{`"${data}"`}</span>
+  if (typeof data === "string" || typeof data === "number") {
+    return sangria + String(data)
   }
 
   if (Array.isArray(data)) {
-    if (data.length === 0) {
-      return <span className="text-muted-foreground">[]</span>
-    }
-
-    return (
-      <div className="space-y-1">
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
-        >
-          {expanded ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
-          <span className="text-sm">Array ({data.length})</span>
-        </button>
-        {expanded && (
-          <div className="ml-4 pl-4 border-l border-border space-y-2">
-            {data.map((item, index) => (
-              <div key={index} className="flex gap-2">
-                <span className="text-muted-foreground text-sm shrink-0">[{index}]</span>
-                <JsonViewer data={item} depth={depth + 1} />
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    )
+    return data
+      .filter(tieneContenido)
+      .map((v) => sangria + "- " + resumenComoTexto(v).trim())
+      .join("\n")
   }
 
   if (typeof data === "object") {
-    const entries = Object.entries(data)
-    
-    if (entries.length === 0) {
-      return <span className="text-muted-foreground">{"{}"}</span>
-    }
+    return Object.entries(data as Record<string, unknown>)
+      .filter(([, v]) => tieneContenido(v))
+      .map(([k, v]) => sangria + titulo(k) + "\n" + resumenComoTexto(v, nivel + 1))
+      .join("\n\n")
+  }
+
+  return ""
+}
+
+function ValorResumen({ valor }: { valor: unknown }) {
+  if (typeof valor === "string" || typeof valor === "number") {
+    return (
+      <p
+        className="text-sm leading-relaxed"
+        style={{ color: "var(--theme-text-primary)" }}
+      >
+        {valor}
+      </p>
+    )
+  }
+
+  if (Array.isArray(valor)) {
+    return (
+      <ul className="list-disc space-y-1 pl-5">
+        {valor.filter(tieneContenido).map((item, i) => (
+          <li
+            key={i}
+            className="text-sm leading-relaxed"
+            style={{ color: "var(--theme-text-primary)" }}
+          >
+            {item && typeof item === "object" ? (
+              <ValorResumen valor={item} />
+            ) : (
+              String(item)
+            )}
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  if (valor && typeof valor === "object") {
+    const campos = Object.entries(valor as Record<string, unknown>).filter(
+      ([, v]) => tieneContenido(v)
+    )
 
     return (
-      <div className="space-y-1">
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
-        >
-          {expanded ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
-          <span className="text-sm">Object ({entries.length} keys)</span>
-        </button>
-        {expanded && (
-          <div className="ml-4 pl-4 border-l border-border space-y-2">
-            {entries.map(([key, value]) => (
-              <div key={key} className="flex gap-2">
-                <span className="text-foreground font-medium text-sm shrink-0">{key}:</span>
-                <JsonViewer data={value} depth={depth + 1} />
-              </div>
-            ))}
+      <div className="space-y-3">
+        {campos.map(([clave, v]) => (
+          <div key={clave}>
+            <p
+              className="text-sm font-medium"
+              style={{ color: "var(--theme-text-primary)" }}
+            >
+              {titulo(clave)}
+            </p>
+            <ValorResumen valor={v} />
           </div>
-        )}
+        ))}
       </div>
     )
   }
 
-  return <span className="text-muted-foreground">{String(data)}</span>
+  return null
+}
+
+function ResumenTranscript({ data }: { data: unknown }) {
+  const secciones =
+    data && typeof data === "object" && !Array.isArray(data)
+      ? Object.entries(data as Record<string, unknown>).filter(([, v]) =>
+          tieneContenido(v)
+        )
+      : []
+
+  if (secciones.length === 0) {
+    return (
+      <p className="text-sm" style={{ color: "var(--theme-text-secondary)" }}>
+        El resumen llegó sin contenido: todas sus secciones están vacías.
+      </p>
+    )
+  }
+
+  return (
+    <div className="space-y-5">
+      {secciones.map(([clave, valor]) => (
+        <section key={clave}>
+          <h4
+            className="mb-2 text-xs font-semibold uppercase tracking-wide"
+            style={{ color: "var(--theme-text-secondary)" }}
+          >
+            {titulo(clave)}
+          </h4>
+
+          <ValorResumen valor={valor} />
+        </section>
+      ))}
+    </div>
+  )
 }

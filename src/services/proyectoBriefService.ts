@@ -69,6 +69,15 @@ export async function subirArchivoBrief(
   return response.data;
 }
 
+/**
+ * Deja el brief a cero: borra el resultado de la Lambda y, de disco, el .docx
+ * y el .pptx. No tiene vuelta atrás.
+ */
+export async function borrarBrief(idProyecto: number): Promise<ProyectoBrief> {
+  const response = await apiClient.delete(`/proyecto_brief/${idProyecto}`);
+  return response.data;
+}
+
 /** Sube la presentación. No hace falta haber ejecutado nada antes. */
 export async function subirPptxBrief(
   idProyecto: number,

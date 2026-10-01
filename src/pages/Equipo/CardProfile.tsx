@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { ChevronDown, ChevronUp, Mail } from "lucide-react"
+import { Skeleton } from "@/components/ui-shadcn/skeleton"
 
 type ColorConfig = {
   avatarBorder: string
@@ -47,7 +48,7 @@ export function ProfileCard({
   const colors = accentColor ?? defaultColors
 
   return (
-    <div className="w-full bg-white dark:bg-[#1e1b3a] rounded-xl shadow-md border border-gray-100 dark:border-purple-900/40 overflow-hidden">
+    <div className="w-full bg-white dark:bg-theme-bg-primary rounded-xl shadow-md border border-gray-100 dark:border-theme-border overflow-hidden">
 
       {/* ================= HEADER ================= */}
       <div className="p-4">
@@ -58,22 +59,23 @@ export function ProfileCard({
             <img
               src={avatarUrl}
               alt={name}
+              loading="lazy"
               className="w-full h-full rounded-full object-cover"
             />
           </div>
 
           {/* Información básica */}
           <div className="text-center sm:text-left space-y-1">
-            <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-theme-text-primary">
               {name}
             </h2>
 
-            <p className="text-sm text-gray-500 dark:text-white">
+            <p className="text-sm text-gray-500 dark:text-theme-text-muted">
               {role}
             </p>
 
             {/* Email */}
-            <div className="flex items-center justify-center sm:justify-start gap-2 text-gray-600 dark:text-white text-sm mt-2">
+            <div className="flex items-center justify-center sm:justify-start gap-2 text-gray-600 dark:text-theme-text-secondary text-sm mt-2">
               <Mail className="w-4 h-4" />
               <a
                 href={`mailto:${email}`}
@@ -91,27 +93,27 @@ export function ProfileCard({
         </div>
 
         {/* ================= PROYECTOS ================= */}
-        <div className="flex flex-wrap items-center gap-3 mt-4 pt-4 border-t border-gray-100 dark:border-purple-900/40">
-          <span className="text-sm font-medium text-gray-700 dark:text-white">
+        <div className="flex flex-wrap items-center gap-3 mt-4 pt-4 border-t border-gray-100 dark:border-theme-border">
+          <span className="text-sm font-medium text-gray-700 dark:text-theme-text-secondary">
             Proyectos
           </span>
 
           <div className="flex gap-2">
-            <div className="px-3 py-1 border border-gray-200 dark:border-purple-800 dark:bg-purple-950/40 rounded text-center text-xs">
-              <div className="font-semibold text-gray-800 dark:text-white">{projectsCompleted}</div>
-              <div className="text-gray-500 dark:text-white">Concluidos</div>
+            <div className="px-3 py-1 border border-gray-200 dark:border-theme-border dark:bg-theme-bg-secondary rounded text-center text-xs">
+              <div className="font-semibold text-gray-800 dark:text-theme-text-primary">{projectsCompleted}</div>
+              <div className="text-gray-500 dark:text-theme-text-muted">Concluidos</div>
             </div>
 
-            <div className="px-3 py-1 border border-gray-200 dark:border-purple-800 dark:bg-purple-950/40 rounded text-center text-xs">
-              <div className="font-semibold text-gray-800 dark:text-white">{projectsActive}</div>
-              <div className="text-gray-500 dark:text-white">Activos</div>
+            <div className="px-3 py-1 border border-gray-200 dark:border-theme-border dark:bg-theme-bg-secondary rounded text-center text-xs">
+              <div className="font-semibold text-gray-800 dark:text-theme-text-primary">{projectsActive}</div>
+              <div className="text-gray-500 dark:text-theme-text-muted">Activos</div>
             </div>
           </div>
 
           {/* Fecha de ingreso */}
           <div className="ml-auto w-full sm:w-auto text-center sm:text-right text-xs">
-            <div className="text-gray-500 dark:text-white">Miembro desde</div>
-            <div className="font-semibold text-gray-800 dark:text-white">{memberSince}</div>
+            <div className="text-gray-500 dark:text-theme-text-muted">Miembro desde</div>
+            <div className="font-semibold text-gray-800 dark:text-theme-text-primary">{memberSince}</div>
           </div>
         </div>
       </div>
@@ -127,12 +129,12 @@ export function ProfileCard({
 
       {/* ================= CONTENIDO EXPANDIDO ================= */}
       {isExpanded && (
-        <div className="p-4 border-t border-gray-100 dark:border-purple-900/40 dark:bg-[#1a1730]">
+        <div className="p-4 border-t border-gray-100 dark:border-theme-border dark:bg-theme-bg-secondary">
           <div className="flex flex-col gap-4">
 
             {/* Habilidades */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-800 dark:text-white mb-1">
+              <h3 className="text-sm font-semibold text-gray-800 dark:text-theme-text-primary mb-1">
                 Habilidades
               </h3>
               <div className="flex flex-wrap gap-1">
@@ -149,10 +151,10 @@ export function ProfileCard({
 
             {/* Acerca de */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-800 dark:text-white mb-1">
+              <h3 className="text-sm font-semibold text-gray-800 dark:text-theme-text-primary mb-1">
                 Acerca de mi
               </h3>
-              <p className="text-gray-600 dark:text-white text-xs">
+              <p className="text-gray-600 dark:text-theme-text-secondary text-xs">
                 {aboutMe}
               </p>
             </div>
@@ -161,6 +163,31 @@ export function ProfileCard({
         </div>
       )}
 
+    </div>
+  )
+}
+
+/** Marcador de carga con la misma forma que ProfileCard. */
+export function ProfileCardSkeleton() {
+  return (
+    <div className="w-full bg-white dark:bg-theme-bg-primary rounded-xl shadow-md border border-gray-100 dark:border-theme-border overflow-hidden">
+      <div className="p-4">
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <Skeleton className="w-16 h-16 sm:w-20 sm:h-20 rounded-full" />
+          <div className="flex flex-col items-center sm:items-start gap-2">
+            <Skeleton className="h-5 w-40" />
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-4 w-48" />
+            <Skeleton className="h-4 w-20" />
+          </div>
+        </div>
+        <div className="flex items-center gap-3 mt-4 pt-4 border-t border-gray-100 dark:border-theme-border">
+          <Skeleton className="h-10 w-20" />
+          <Skeleton className="h-10 w-20" />
+          <Skeleton className="h-8 w-24 ml-auto" />
+        </div>
+      </div>
+      <Skeleton className="h-8 w-full rounded-none" />
     </div>
   )
 }

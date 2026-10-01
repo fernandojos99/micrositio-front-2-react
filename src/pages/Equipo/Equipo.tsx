@@ -13,8 +13,9 @@ import {
   TrendingUp
 } from 'lucide-react';
 import styles from './Equipo.module.css';
-import { ProfileCard, ProfileCardProps } from './CardProfile';
+import { ProfileCard, ProfileCardProps, ProfileCardSkeleton } from './CardProfile';
 import { EmpleadoResumen, obtenerEmpleadosResumen } from '@/services/empleadosService';
+import { avatarPorDefecto } from './avatares';
 
 
 
@@ -36,33 +37,33 @@ const teamStats = [
 const badgeColorMap = {
   "Experimentos": {
     avatarBorder: "bg-gradient-to-br from-blue-400 to-blue-500",
-    badge: "text-blue-700 bg-blue-100",
-    button: "bg-blue-500 hover:bg-blue-600",
-    skill: "text-blue-700 bg-blue-50 border-blue-200",
+    badge: "text-blue-700 bg-blue-100 dark:bg-blue-500/15 dark:text-blue-300",
+    button: "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-500",
+    skill: "text-blue-700 bg-blue-50 border-blue-200 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/30",
   },
   "Direccion General": {
     avatarBorder: "bg-gradient-to-br from-purple-400 to-purple-500",
-    badge: "text-purple-700 bg-purple-100",
-    button: "bg-purple-500 hover:bg-purple-600",
-    skill: "text-purple-700 bg-purple-50 border-purple-200",
+    badge: "text-purple-700 bg-purple-100 dark:bg-purple-500/15 dark:text-purple-300",
+    button: "bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-500",
+    skill: "text-purple-700 bg-purple-50 border-purple-200 dark:bg-purple-500/10 dark:text-purple-300 dark:border-purple-500/30",
   },
   "Investigacion": {
     avatarBorder: "bg-gradient-to-br from-green-400 to-green-500",
-    badge: "text-green-700 bg-green-100",
-    button: "bg-green-500 hover:bg-green-600",
-    skill: "text-green-700 bg-green-50 border-green-200",
+    badge: "text-green-700 bg-green-100 dark:bg-green-500/15 dark:text-green-300",
+    button: "bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500",
+    skill: "text-green-700 bg-green-50 border-green-200 dark:bg-green-500/10 dark:text-green-300 dark:border-green-500/30",
   },
   "Portafolio": {
     avatarBorder: "bg-gradient-to-br from-orange-400 to-orange-500",
-    badge: "text-orange-700 bg-orange-100",
-    button: "bg-orange-500 hover:bg-orange-600",
-    skill: "text-orange-700 bg-orange-50 border-orange-200",
+    badge: "text-orange-700 bg-orange-100 dark:bg-orange-500/15 dark:text-orange-300",
+    button: "bg-orange-500 hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-500",
+    skill: "text-orange-700 bg-orange-50 border-orange-200 dark:bg-orange-500/10 dark:text-orange-300 dark:border-orange-500/30",
   },
   "DepartamentoExtra": {
     avatarBorder: "bg-gradient-to-br from-rose-400 to-rose-500",
-    badge: "text-rose-700 bg-rose-100",
-    button: "bg-rose-500 hover:bg-rose-600",
-    skill: "text-rose-700 bg-rose-50 border-rose-200",
+    badge: "text-rose-700 bg-rose-100 dark:bg-rose-500/15 dark:text-rose-300",
+    button: "bg-rose-500 hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-500",
+    skill: "text-rose-700 bg-rose-50 border-rose-200 dark:bg-rose-500/10 dark:text-rose-300 dark:border-rose-500/30",
   },
 } as const;
 
@@ -71,9 +72,9 @@ const badgeColorMap = {
 // Por si algun empleado no tiene definido el departamento
 const defaultColor = {
   avatarBorder: "bg-gradient-to-br from-gray-400 to-gray-500",
-  badge: "text-gray-700 bg-gray-100",
-  button: "bg-gray-500 hover:bg-gray-600",
-  skill: "text-gray-700 bg-gray-50 border-gray-200",
+  badge: "text-gray-700 bg-gray-100 dark:bg-slate-500/20 dark:text-slate-300",
+  button: "bg-gray-500 hover:bg-gray-600 dark:bg-slate-600 dark:hover:bg-slate-500",
+  skill: "text-gray-700 bg-gray-50 border-gray-200 dark:bg-slate-500/10 dark:text-slate-300 dark:border-slate-500/30",
 };
 
 
@@ -122,7 +123,7 @@ const [departmentFilter, setDepartmentFilter] = useState("");
 /**Mapea de resumen empleado a ProfileCardProps para poder 
  * construir las cartas perfiles
  */
-const mapToProfileCard = (emp: EmpleadoResumen, index: number): ProfileCardProps => {
+const mapToProfileCard = (emp: EmpleadoResumen): ProfileCardProps => {
 
 
       const departamento = emp.departamento ?? "";
@@ -166,8 +167,8 @@ const mapToProfileCard = (emp: EmpleadoResumen, index: number): ProfileCardProps
       return {
 
         id_empleado: String(emp.id_empleado),
-        //avatarUrl: `https://api.dicebear.com/9.x/adventurer/svg?seed=${index + 1}`,
-        avatarUrl: emp.image || `https://api.dicebear.com/9.x/adventurer/svg?seed=${index + 1}`,
+        // Sin foto: uno de los 20 avatares locales, siempre el mismo para cada persona
+        avatarUrl: emp.image || avatarPorDefecto(emp.id_empleado),
 
         name: `${emp.nombre_pila ?? ""} ${emp.apellido_paterno ?? ""} ${emp.apellido_materno ?? ""}`.trim(),
 
@@ -197,16 +198,21 @@ const mapToProfileCard = (emp: EmpleadoResumen, index: number): ProfileCardProps
  */
 const [users, setUsers] = useState<ProfileCardProps[]>([]);
 
+// @state: mientras llega el resumen se muestran cards esqueleto
+const [cargando, setCargando] = useState(true);
+
 useEffect(() => {
   const fetchData = async () => {
     try {
       const empleados = await obtenerEmpleadosResumen();
 
-      const mappedUsers = empleados.map(mapToProfileCard);
+      const mappedUsers = empleados.map((emp) => mapToProfileCard(emp));
 
       setUsers(mappedUsers);
     } catch (error) {
       console.error("Error cargando empleados:", error);
+    } finally {
+      setCargando(false);
     }
   };
 
@@ -326,6 +332,8 @@ const filteredUsers = users.filter((user) => {
          {/*   <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(260px,1fr))]">*/}
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2  items-start">
             
+            {cargando && Array.from({ length: 4 }, (_, i) => <ProfileCardSkeleton key={i} />)}
+
             {filteredUsers.map((user) => (
               
               <ProfileCard

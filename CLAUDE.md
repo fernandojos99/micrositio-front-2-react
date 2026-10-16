@@ -144,7 +144,7 @@ En el código conviven imports con alias (`@/pages/...`) y relativos (`../pages/
 ## Despliegue
 
 - **Vercel**, con `vercel.json` reescribiendo todas las rutas a `/index.html` (necesario para el router del lado cliente).
-- `index.html` carga Google Analytics (`G-FGHRMXS7TY`) y Microsoft Clarity (`w1ex3ex3i3`).
+- `index.html` carga Google Analytics (`G-FGHRMXS7TY`), Microsoft Clarity (`w1ex3ex3i3`) y el mapa de calor propio (`https://mapa-calor-psi.vercel.app/t.js`, `data-site="c2248f44bcf6"`).
 - La URL del backend de producción está en **`.env.production`** (`VITE_API_URL=https://micrositio-backend-2-express.vercel.app`, versionado: no es secreto). Vite solo lo lee en `npm run build`, que es lo que corre Vercel; `npm run dev` sigue apuntando a `http://localhost:3001` salvo que `.env.local` diga otra cosa. Una `VITE_API_URL` en el dashboard de Vercel tiene prioridad. El dominio del front tiene que estar en los orígenes CORS del backend (`CORS_ORIGINS`).
 
 ## Ruido en el repositorio — no lo tomes como ejemplo
